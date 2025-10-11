@@ -5,6 +5,7 @@ import {
   type PropsWithChildren,
 } from "react";
 import { World } from "miniplex";
+import type { Path } from "@/game/network/pathfinding";
 
 export type Entity = {
   id: string;
@@ -24,6 +25,15 @@ export type Entity = {
     accel: number;
     maxSpeed: number;
     type: "train" | "truck";
+    route?: {
+      state: "idle" | "moving" | "waiting";
+      currentNodeId: string | null;
+      targetNodeId: string | null;
+      path: Path | null;
+      currentEdgeIndex: number;
+      distanceAlongEdge: number;
+      dwellTimeRemaining: number;
+    };
   };
 };
 

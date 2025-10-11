@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Phase**: Track Placement Integration (TASK003) - IN PROGRESS
+**Phase**: Vehicle Routing & Debug Inspector (TASK004) - IN PROGRESS
 
-**Status**: Construction visuals complete; implementing network-backed placement and demolition.
+**Status**: Implementation in verification; vehicle routing loop and inspector UI landed, tightening tests + docs.
 
 ## What We're Building Now
 
@@ -39,17 +39,25 @@
 - ✅ SceneGraph component
 - ✅ Example unit and E2E tests
 
-### In Progress (TASK003)
+### In Progress (TASK004)
 
-- 🔄 Manual validation + documentation wrap-up (task 3.4)
+- ✅ Vehicle route-following system tied to transport network (simulation + edge reservations)
+- ✅ Debug entity inspector toggle + live list wired to ECS world
+- 🔄 Final documentation + regression sweep for TASK003 follow-up items
 
 ### Next Steps
 
-1. Execute manual QA on placement/demolition loop and capture findings
-2. Update progress/task docs with validation outcomes
-3. Plan follow-up for automated coverage and persistence work
+1. Capture manual QA notes for construction + routing loop (TASK003 wrap-up)
+2. Monitor DebugPanel act() warnings in Vitest — evaluate alternate snapshot strategy if they become blocking
+3. Plan additional routing edge-case tests (multi-vehicle, path invalidation) for follow-up iteration
 
 ## Recent Changes
+
+**2025-10-15 (Vehicle Routing + Inspector)**: Integrated network-backed vehicle motion and live debug tooling
+
+- Implemented `advanceVehicleSimulation` system to assign routes, reserve edges, and animate vehicles along tracks with dwell logic.
+- Hooked debug panel spawner into network nodes and added toggleable entity inspector with live ECS snapshots.
+- Authored focused Vitest coverage for routing logic and inspector behavior; stabilized requestAnimationFrame stubs.
 
 **2025-10-14 (Debug Utilities)**: Added toggleable debug panel to accelerate vehicle prototyping
 
@@ -96,6 +104,7 @@
 
 - R3F TypeScript errors on JSX intrinsics (false positives, non-blocking)
 - Markdown lint warnings in memory bank (formatting only, non-blocking)
+- Vitest reports act() warnings when exercising DebugPanel animations (non-blocking, under observation)
 
 ## Blockers
 
@@ -111,4 +120,4 @@ None.
 ---
 
 **Next Action**: Complete TASK003 subtask 3.4 (manual QA + documentation)
-**Last Updated**: 2025-10-14
+**Last Updated**: 2025-10-15
