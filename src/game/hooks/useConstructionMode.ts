@@ -22,9 +22,9 @@ const NODE_TOLERANCE = 0.5;
 
 type BuildTool = Extract<ConstructionTool, 'rail' | 'road' | 'station' | 'depot'>;
 
-type SegmentRenderableKind = Extract<Entity['Renderable']['kind'], 'track' | 'road'>;
+type SegmentRenderableKind = Extract<NonNullable<Entity['Renderable']>['kind'], 'track' | 'road'>;
 
-type BuildingRenderableKind = Extract<Entity['Renderable']['kind'], 'station' | 'depot'>;
+type BuildingRenderableKind = Extract<NonNullable<Entity['Renderable']>['kind'], 'station' | 'depot'>;
 
 interface ToolConfig {
   nodeType: NetworkNode['type'];

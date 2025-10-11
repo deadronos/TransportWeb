@@ -58,22 +58,26 @@ export function TopMenuBar() {
           className={`control-btn ${paused ? 'active' : ''}`}
           onClick={togglePause}
           title="Pause (Space)"
+          aria-label={paused ? 'Play' : 'Pause'}
+          data-testid="pause-button"
         >
-          {paused ? '▶️' : '⏸️'}
+          <span className="icon">{paused ? '▶️' : '⏸️'}</span>
+          <span className="label-text">{paused ? 'Play' : 'Pause'}</span>
         </button>
 
         {SPEED_MULTIPLIERS.map((multiplier) => (
-          <button
-            key={multiplier}
-            className={`control-btn ${!paused && speed === multiplier ? 'active' : ''}`}
-            onClick={() => {
-              setSpeed(multiplier);
-              if (paused) togglePause();
-            }}
-            title={`Speed ${multiplier}x`}
-          >
-            {multiplier}×
-          </button>
+            <button
+              key={multiplier}
+              className={`control-btn ${!paused && speed === multiplier ? 'active' : ''}`}
+              onClick={() => {
+                setSpeed(multiplier);
+                if (paused) togglePause();
+              }}
+              title={`Speed ${multiplier}x`}
+              aria-label={`×${multiplier} Speed ${multiplier}x`}
+            >
+              <span className="label-text">×{multiplier}</span>
+            </button>
         ))}
 
         <button

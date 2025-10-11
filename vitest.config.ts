@@ -13,6 +13,16 @@ export default defineConfig({
     compression({ algorithm: 'brotliCompress', ext: '.br' }),
   ],
   test: {
+    // Limit test discovery to our source and tests folders only. By default
+    // Vitest uses a glob that can match files inside node_modules which will
+    // attempt to run dependency tests (seen in CI and local dev). Explicitly
+    // set `include` to only project paths and exclude node_modules and our
+    // Playwright E2E tests which must be run with `npm run test:e2e`.
+    include: [
+      'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
+    ],
+    exclude: ['node_modules/**', 'tests/e2e/**'],
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],

@@ -83,9 +83,9 @@ describe('NetworkGraph', () => {
       graph.addNode(junction);
       graph.addNode(station);
 
-      const stations = graph.getNodesByType('station');
-      expect(stations).toHaveLength(1);
-      expect(stations[0].id).toBe('node2');
+  const stations = graph.getNodesByType('station');
+  expect(stations).toHaveLength(1);
+  expect(stations[0]?.id).toBe('node2');
     });
   });
 
@@ -269,9 +269,9 @@ describe('NetworkGraph', () => {
     });
 
     it('should get edges between nodes', () => {
-      const edges = graph.getEdgesBetweenNodes('node1', 'node2');
-      expect(edges).toHaveLength(1);
-      expect(edges[0].id).toBe('edge1');
+  const edges = graph.getEdgesBetweenNodes('node1', 'node2');
+  expect(edges).toHaveLength(1);
+  expect(edges[0]?.id).toBe('edge1');
     });
 
     it('should calculate stats', () => {

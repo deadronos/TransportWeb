@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest --run",
-    "test:watch":"vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "test:e2e": "playwright test",
+  "test": "vitest run --dir . --exclude node_modules/** --exclude tests/e2e/**",
+  "test:watch": "vitest watch --dir . --exclude node_modules/** --exclude tests/e2e/**",
+  "test:ui": "vitest --ui --dir . --exclude node_modules/** --exclude tests/e2e/**",
+  "test:coverage": "vitest --coverage --dir . --exclude node_modules/** --exclude tests/e2e/**",
+  "test:e2e": "playwright test",
+  "preview:serve": "npm run build && vite preview --port 3000",
+  "e2e:local": "npx start-server-and-test preview:serve http://localhost:3000 test:e2e",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
@@ -54,7 +56,8 @@
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-svgr": "^4.3.0",
     "vite-tsconfig-paths": "^5.1.3",
-    "vitest": "^3.2.4"
+  "vitest": "^3.2.4",
+  "start-server-and-test": "^1.14.0"
   },
   "engines": {
     "node": ">=18.0.0",

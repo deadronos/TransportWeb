@@ -53,6 +53,12 @@ npm run test:coverage # Generate coverage report
 npm run test:e2e
 ```
 
+### Recommended Test Workflow
+
+- Run unit tests locally during development: `npm test` or `npm run test:watch`
+- Run e2e tests when you need browser-level validation (they require Playwright browsers): `npm run test:e2e`
+- CI runs unit tests first and only runs e2e tests if unit tests pass (see `.github/workflows/ci.yml`).
+
 ## 📁 Project Structure
 
 ```
