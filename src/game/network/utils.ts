@@ -1,12 +1,12 @@
-import { Vector3 } from 'three';
-import type { NetworkNode } from './types';
+import { Vector3 } from "three";
+import type { NetworkNode } from "./types";
 
 /**
  * Calculate Euclidean distance between two positions.
  */
 export function calculateDistance(
   posA: [number, number, number],
-  posB: [number, number, number]
+  posB: [number, number, number],
 ): number {
   const dx = posB[0] - posA[0];
   const dy = posB[1] - posA[1];
@@ -19,9 +19,13 @@ export function calculateDistance(
  */
 export function calculateManhattanDistance(
   posA: [number, number, number],
-  posB: [number, number, number]
+  posB: [number, number, number],
 ): number {
-  return Math.abs(posB[0] - posA[0]) + Math.abs(posB[1] - posA[1]) + Math.abs(posB[2] - posA[2]);
+  return (
+    Math.abs(posB[0] - posA[0]) +
+    Math.abs(posB[1] - posA[1]) +
+    Math.abs(posB[2] - posA[2])
+  );
 }
 
 /**
@@ -34,7 +38,7 @@ export function calculateManhattanDistance(
 export function findClosestNode(
   nodes: NetworkNode[],
   position: [number, number, number],
-  maxDistance?: number
+  maxDistance?: number,
 ): NetworkNode | null {
   let closest: NetworkNode | null = null;
   let minDistance = maxDistance ?? Infinity;
@@ -56,7 +60,7 @@ export function findClosestNode(
 export function positionsEqual(
   posA: [number, number, number],
   posB: [number, number, number],
-  tolerance = 0.1
+  tolerance = 0.1,
 ): boolean {
   return calculateDistance(posA, posB) < tolerance;
 }
@@ -93,7 +97,7 @@ export function generateNetworkId(prefix: string): string {
 export function snapToNearestNode(
   position: [number, number, number],
   nodes: NetworkNode[],
-  snapDistance = 5
+  snapDistance = 5,
 ): [number, number, number] {
   const closest = findClosestNode(nodes, position, snapDistance);
   return closest ? closest.position : position;
@@ -104,9 +108,13 @@ export function snapToNearestNode(
  */
 export function getDirection(
   from: [number, number, number],
-  to: [number, number, number]
+  to: [number, number, number],
 ): Vector3 {
-  const direction = new Vector3(to[0] - from[0], to[1] - from[1], to[2] - from[2]);
+  const direction = new Vector3(
+    to[0] - from[0],
+    to[1] - from[1],
+    to[2] - from[2],
+  );
   return direction.normalize();
 }
 
@@ -119,7 +127,7 @@ export function getDirection(
 export function lerpPosition(
   from: [number, number, number],
   to: [number, number, number],
-  t: number
+  t: number,
 ): [number, number, number] {
   return [
     from[0] + (to[0] - from[0]) * t,

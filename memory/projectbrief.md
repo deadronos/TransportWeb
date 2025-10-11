@@ -23,18 +23,21 @@ Build a performant, deterministic, and moddable Transport Tycoon-like simulation
 ## Core Features
 
 ### Phase 1 - Foundation
+
 - Fixed timestep game loop (60fps)
 - 3D camera controls and basic scene
 - Grid overlay for building mode
 - Track/road placement system
 
 ### Phase 2 - Network & Movement
-- Graph-based pathfinding (A*)
+
+- Graph-based pathfinding (A\*)
 - Vehicle motion with physics
 - Station placement and connections
 - Block-based signaling
 
 ### Phase 3 - Economy
+
 - Cargo loading/unloading
 - Industry production/consumption
 - Income and expenses

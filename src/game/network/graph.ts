@@ -3,7 +3,7 @@ import type {
   NetworkEdge,
   NetworkGraphData,
   NetworkStats,
-} from './types';
+} from "./types";
 
 /**
  * Graph-based network structure for managing transport infrastructure.
@@ -72,7 +72,7 @@ export class NetworkGraph {
   /**
    * Get nodes by type.
    */
-  getNodesByType(type: NetworkNode['type']): NetworkNode[] {
+  getNodesByType(type: NetworkNode["type"]): NetworkNode[] {
     return this.getAllNodes().filter((node) => node.type === type);
   }
 
@@ -130,7 +130,9 @@ export class NetworkGraph {
     const toNode = this.nodes.get(edge.toNode);
 
     if (fromNode) {
-      fromNode.connections = fromNode.connections.filter((connId) => connId !== id);
+      fromNode.connections = fromNode.connections.filter(
+        (connId) => connId !== id,
+      );
     }
     if (toNode) {
       toNode.connections = toNode.connections.filter((connId) => connId !== id);
@@ -165,7 +167,7 @@ export class NetworkGraph {
     return this.getAllEdges().filter(
       (edge) =>
         (edge.fromNode === nodeA && edge.toNode === nodeB) ||
-        (edge.fromNode === nodeB && edge.toNode === nodeA)
+        (edge.fromNode === nodeB && edge.toNode === nodeA),
     );
   }
 
@@ -198,7 +200,7 @@ export class NetworkGraph {
    * Get neighboring nodes with edge information (for pathfinding).
    */
   getNeighborsWithEdges(
-    nodeId: string
+    nodeId: string,
   ): Array<{ nodeId: string; edgeId: string }> {
     const edges = this.getConnectedEdges(nodeId);
     const neighbors: Array<{ nodeId: string; edgeId: string }> = [];
@@ -234,14 +236,14 @@ export class NetworkGraph {
       edgeCount: edges.length,
       totalLength: edges.reduce((sum, edge) => sum + edge.length, 0),
       railLength: edges
-        .filter((e) => e.trackType === 'rail')
+        .filter((e) => e.trackType === "rail")
         .reduce((sum, edge) => sum + edge.length, 0),
       roadLength: edges
-        .filter((e) => e.trackType === 'road')
+        .filter((e) => e.trackType === "road")
         .reduce((sum, edge) => sum + edge.length, 0),
-      stationCount: nodes.filter((n) => n.type === 'station').length,
-      depotCount: nodes.filter((n) => n.type === 'depot').length,
-      junctionCount: nodes.filter((n) => n.type === 'junction').length,
+      stationCount: nodes.filter((n) => n.type === "station").length,
+      depotCount: nodes.filter((n) => n.type === "depot").length,
+      junctionCount: nodes.filter((n) => n.type === "junction").length,
     };
   }
 
@@ -310,25 +312,29 @@ export class NetworkGraph {
     // Check for dangling edges (reference non-existent nodes)
     for (const edge of this.edges.values()) {
       if (!this.nodes.has(edge.fromNode)) {
-        console.warn(`Edge ${edge.id} references non-existent fromNode ${edge.fromNode}`);
+        console.warn(
+          `Edge ${edge.id} references non-existent fromNode ${edge.fromNode}`,
+        );
         issueCount++;
       }
       if (!this.nodes.has(edge.toNode)) {
-        console.warn(`Edge ${edge.id} references non-existent toNode ${edge.toNode}`);
+        console.warn(
+          `Edge ${edge.id} references non-existent toNode ${edge.toNode}`,
+        );
         issueCount++;
       }
     }
 
     // Check for disconnected nodes (no connections but should have some)
     for (const node of this.nodes.values()) {
-      if (node.type !== 'waypoint' && node.connections.length === 0) {
+      if (node.type !== "waypoint" && node.connections.length === 0) {
         console.warn(`Node ${node.id} (${node.type}) has no connections`);
         issueCount++;
       }
     }
 
     if (issueCount === 0) {
-      console.log('✓ Network graph integrity validated - no issues found');
+      console.log("✓ Network graph integrity validated - no issues found");
     } else {
       console.warn(`⚠ Network graph has ${issueCount} integrity issues`);
     }

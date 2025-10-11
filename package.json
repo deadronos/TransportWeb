@@ -15,6 +15,7 @@
     "preview:serve": "npm run build && vite preview --port 3000",
     "e2e:local": "npx start-server-and-test preview:serve http://localhost:3000 test:e2e",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
   "dependencies": {

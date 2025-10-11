@@ -1,7 +1,10 @@
-import { useConstruction, type ConstructionTool } from '@/game/state/slices/construction';
-import { useClock } from '@/game/state/slices/clock';
-import { useDebug } from '@/game/state/slices/debug';
-import './TopMenuBar.css';
+import {
+  useConstruction,
+  type ConstructionTool,
+} from "@/game/state/slices/construction";
+import { useClock } from "@/game/state/slices/clock";
+import { useDebug } from "@/game/state/slices/debug";
+import "./TopMenuBar.css";
 
 interface ToolButton {
   id: ConstructionTool;
@@ -11,12 +14,12 @@ interface ToolButton {
 }
 
 const CONSTRUCTION_TOOLS: ToolButton[] = [
-  { id: 'rail', label: 'Build Rails', icon: '🛤️', hotkey: 'R' },
-  { id: 'road', label: 'Build Roads', icon: '🛣️', hotkey: 'O' },
-  { id: 'station', label: 'Build Station', icon: '🚉', hotkey: 'S' },
-  { id: 'depot', label: 'Build Depot', icon: '🏭', hotkey: 'D' },
-  { id: 'demolish', label: 'Demolish', icon: '💣', hotkey: 'X' },
-  { id: 'query', label: 'Query Tool', icon: '❓', hotkey: 'Q' },
+  { id: "rail", label: "Build Rails", icon: "🛤️", hotkey: "R" },
+  { id: "road", label: "Build Roads", icon: "🛣️", hotkey: "O" },
+  { id: "station", label: "Build Station", icon: "🚉", hotkey: "S" },
+  { id: "depot", label: "Build Depot", icon: "🏭", hotkey: "D" },
+  { id: "demolish", label: "Demolish", icon: "💣", hotkey: "X" },
+  { id: "query", label: "Query Tool", icon: "❓", hotkey: "Q" },
 ];
 
 const SPEED_MULTIPLIERS = [1, 2, 4, 8] as const;
@@ -36,8 +39,8 @@ export function TopMenuBar() {
           {CONSTRUCTION_TOOLS.map((btn) => (
             <button
               key={btn.id}
-              className={`tool-btn ${tool === btn.id ? 'active' : ''}`}
-              onClick={() => setTool(tool === btn.id ? 'none' : btn.id)}
+              className={`tool-btn ${tool === btn.id ? "active" : ""}`}
+              onClick={() => setTool(tool === btn.id ? "none" : btn.id)}
               title={`${btn.label} (${btn.hotkey})`}
             >
               <span className="icon">{btn.icon}</span>
@@ -58,33 +61,33 @@ export function TopMenuBar() {
       {/* Right section - Speed controls */}
       <div className="menu-section controls">
         <button
-          className={`control-btn ${paused ? 'active' : ''}`}
+          className={`control-btn ${paused ? "active" : ""}`}
           onClick={togglePause}
           title="Pause (Space)"
-          aria-label={paused ? 'Play' : 'Pause'}
+          aria-label={paused ? "Play" : "Pause"}
           data-testid="pause-button"
         >
-          <span className="icon">{paused ? '▶️' : '⏸️'}</span>
-          <span className="label-text">{paused ? 'Play' : 'Pause'}</span>
+          <span className="icon">{paused ? "▶️" : "⏸️"}</span>
+          <span className="label-text">{paused ? "Play" : "Pause"}</span>
         </button>
 
         {SPEED_MULTIPLIERS.map((multiplier) => (
-            <button
-              key={multiplier}
-              className={`control-btn ${!paused && speed === multiplier ? 'active' : ''}`}
-              onClick={() => {
-                setSpeed(multiplier);
-                if (paused) togglePause();
-              }}
-              title={`Speed ${multiplier}x`}
-              aria-label={`×${multiplier} Speed ${multiplier}x`}
-            >
-              <span className="label-text">×{multiplier}</span>
-            </button>
+          <button
+            key={multiplier}
+            className={`control-btn ${!paused && speed === multiplier ? "active" : ""}`}
+            onClick={() => {
+              setSpeed(multiplier);
+              if (paused) togglePause();
+            }}
+            title={`Speed ${multiplier}x`}
+            aria-label={`×${multiplier} Speed ${multiplier}x`}
+          >
+            <span className="label-text">×{multiplier}</span>
+          </button>
         ))}
 
         <button
-          className={`control-btn ${showGrid ? 'active' : ''}`}
+          className={`control-btn ${showGrid ? "active" : ""}`}
           onClick={toggleGrid}
           title="Toggle Grid (G)"
         >
@@ -92,7 +95,7 @@ export function TopMenuBar() {
         </button>
 
         <button
-          className={`control-btn ${panelVisible ? 'active' : ''}`}
+          className={`control-btn ${panelVisible ? "active" : ""}`}
           onClick={togglePanel}
           title="Toggle Debug Panel"
           aria-pressed={panelVisible}

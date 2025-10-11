@@ -1,7 +1,7 @@
-import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
-import type { World } from 'miniplex';
-import type { Entity } from '../world';
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
+import type { World } from "miniplex";
+import type { Entity } from "../world";
 
 const FIXED_DT = 1 / 60; // 60fps fixed timestep
 
@@ -25,13 +25,16 @@ export function useTimeSystem(world: World<Entity>) {
 }
 
 function tick(world: World<Entity>, dt: number) {
-  for (const entity of world.with('Vehicle', 'Transform')) {
+  for (const entity of world.with("Vehicle", "Transform")) {
     const vehicle = entity.Vehicle;
     const transform = entity.Transform;
 
     if (!vehicle || !transform) continue;
 
-    vehicle.speed = Math.min(vehicle.maxSpeed, vehicle.speed + vehicle.accel * dt);
+    vehicle.speed = Math.min(
+      vehicle.maxSpeed,
+      vehicle.speed + vehicle.accel * dt,
+    );
     transform.position[0] += vehicle.speed * dt;
   }
 }

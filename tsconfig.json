@@ -13,7 +13,7 @@
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
-  "checkJs": false,
+    "checkJs": false,
 
     /* Bundled projects */
     "lib": ["dom", "dom.iterable", "ES2022"],
@@ -28,7 +28,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@testing-library/jest-dom/vitest": ["./src/test/polyfills/jestDomMatchersEntrypoint.ts"]
+      "@testing-library/jest-dom/vitest": [
+        "./src/test/polyfills/jestDomMatchersEntrypoint.ts"
+      ]
     }
   },
   "include": [
@@ -39,12 +41,5 @@
     "**/*.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "dist/**",
-    ".vite",
-    "build",
-    "coverage"
-  ]
+  "exclude": ["node_modules", "dist", "dist/**", ".vite", "build", "coverage"]
 }

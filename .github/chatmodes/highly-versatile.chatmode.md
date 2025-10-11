@@ -3,43 +3,43 @@ model: GPT-4.1
 description: "A safe, consolidated 'highly-versatile-coding' mode combining the best of Blueprint (spec-first), Debug (systematic bugfix), and Plan (architecture & steps). Focused on practical engineering: plan first, implement safely, verify thoroughly."
 tools:
   [
-    'extensions',
-    'codebase',
-    'usages',
-    'vscodeAPI',
-    'think',
-    'problems',
-    'changes',
-    'testFailure',
-    'openSimpleBrowser',
-    'fetch',
-    'findTestFiles',
-    'searchResults',
-    'githubRepo',
-    'todos',
-    'runTests',
-    'editFiles',
-    'runNotebooks',
-    'search',
-    'new',
-    'runCommands',
-    'runTasks',
-    'Microsoft Docs',
-    'context7',
-    'playwright',
-    'sequentialthinking',
-    'mcp-fetch',
-    'mcp-compass',
-    'memory',
-    'joyride-eval',
-    'joyride-agent-guide',
-    'joyride-user-guide',
-    'human-intelligence',
-    'copilotCodingAgent',
-    'activePullRequest',
-    'openPullRequest',
-    'terminalLastCommand',
-    'terminalSelection',
+    "extensions",
+    "codebase",
+    "usages",
+    "vscodeAPI",
+    "think",
+    "problems",
+    "changes",
+    "testFailure",
+    "openSimpleBrowser",
+    "fetch",
+    "findTestFiles",
+    "searchResults",
+    "githubRepo",
+    "todos",
+    "runTests",
+    "editFiles",
+    "runNotebooks",
+    "search",
+    "new",
+    "runCommands",
+    "runTasks",
+    "Microsoft Docs",
+    "context7",
+    "playwright",
+    "sequentialthinking",
+    "mcp-fetch",
+    "mcp-compass",
+    "memory",
+    "joyride-eval",
+    "joyride-agent-guide",
+    "joyride-user-guide",
+    "human-intelligence",
+    "copilotCodingAgent",
+    "activePullRequest",
+    "openPullRequest",
+    "terminalLastCommand",
+    "terminalSelection",
   ]
 ---
 
@@ -183,9 +183,9 @@ Example tasks.yml fragment (suggested)
 
 ```yaml
 - id: tvc-001
-  title: 'Fix webgl renderer loop'
+  title: "Fix webgl renderer loop"
   priority: high
-  files: ['src/webglRenderer.js']
+  files: ["src/webglRenderer.js"]
   steps:
     - Read: src/webglRenderer.js, src/renderer.js
     - Reproduce: npm test / open UI

@@ -1,15 +1,15 @@
-import { FormEvent, useState } from 'react';
-import { nanoid } from 'nanoid';
-import { useClock } from '@/game/state/slices/clock';
-import { useDebug } from '@/game/state/slices/debug';
-import { useWorld, type Entity } from '@/game/ecs/world';
-import './DebugPanel.css';
+import { useState, type FormEvent } from "react";
+import { nanoid } from "nanoid";
+import { useClock } from "@/game/state/slices/clock";
+import { useDebug } from "@/game/state/slices/debug";
+import { useWorld, type Entity } from "@/game/ecs/world";
+import "./DebugPanel.css";
 
-type VehicleType = NonNullable<Entity['Vehicle']>['type'];
+type VehicleType = NonNullable<Entity["Vehicle"]>["type"];
 
 const VEHICLE_TYPES: { label: string; value: VehicleType }[] = [
-  { label: 'Train', value: 'train' },
-  { label: 'Truck', value: 'truck' },
+  { label: "Train", value: "train" },
+  { label: "Truck", value: "truck" },
 ];
 
 export function DebugPanel() {
@@ -20,7 +20,7 @@ export function DebugPanel() {
   const { speed, setSpeed, paused, togglePause } = useClock();
   const world = useWorld();
 
-  const [vehicleType, setVehicleType] = useState<VehicleType>('train');
+  const [vehicleType, setVehicleType] = useState<VehicleType>("train");
   const [spawnCount, setSpawnCount] = useState(1);
   const [maxSpeed, setMaxSpeed] = useState(3);
   const [acceleration, setAcceleration] = useState(0.5);
@@ -40,7 +40,7 @@ export function DebugPanel() {
       world.add({
         id: nanoid(),
         Transform: { position: [offsetX, 0.5, offsetZ] },
-        Renderable: { kind: 'vehicle' },
+        Renderable: { kind: "vehicle" },
         Vehicle: {
           speed: 0,
           accel: Math.max(0, acceleration),
@@ -55,7 +55,12 @@ export function DebugPanel() {
     <aside className="debug-panel" role="dialog" aria-label="Debug controls">
       <header className="debug-panel__header">
         <h2>Debug Controls</h2>
-        <button type="button" className="debug-panel__close" onClick={closePanel} aria-label="Close debug panel">
+        <button
+          type="button"
+          className="debug-panel__close"
+          onClick={closePanel}
+          aria-label="Close debug panel"
+        >
           ×
         </button>
       </header>
@@ -67,10 +72,10 @@ export function DebugPanel() {
           <button
             id="debug-pause"
             type="button"
-            className={`debug-panel__toggle ${paused ? 'debug-panel__toggle--active' : ''}`}
+            className={`debug-panel__toggle ${paused ? "debug-panel__toggle--active" : ""}`}
             onClick={togglePause}
           >
-            {paused ? 'Resume' : 'Pause'}
+            {paused ? "Resume" : "Pause"}
           </button>
         </div>
 
@@ -125,7 +130,9 @@ export function DebugPanel() {
             <select
               id="debug-vehicle-type"
               value={vehicleType}
-              onChange={(event) => setVehicleType(event.target.value as VehicleType)}
+              onChange={(event) =>
+                setVehicleType(event.target.value as VehicleType)
+              }
             >
               {VEHICLE_TYPES.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -149,7 +156,10 @@ export function DebugPanel() {
                   return;
                 }
 
-                const clamped = Math.min(20, Math.max(1, Math.floor(numericValue)));
+                const clamped = Math.min(
+                  20,
+                  Math.max(1, Math.floor(numericValue)),
+                );
                 setSpawnCount(clamped);
               }}
             />
@@ -200,7 +210,8 @@ export function DebugPanel() {
           </div>
 
           <button type="submit" className="debug-panel__primary">
-            Spawn {spawnCount} {vehicleType === 'train' ? 'train(s)' : 'truck(s)'}
+            Spawn {spawnCount}{" "}
+            {vehicleType === "train" ? "train(s)" : "truck(s)"}
           </button>
         </form>
       </section>

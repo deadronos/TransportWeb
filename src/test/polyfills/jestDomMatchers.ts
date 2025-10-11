@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect } from "vitest";
 
 type MatcherResult = {
   pass: boolean;
@@ -11,16 +11,21 @@ type ClassExpectation = string | string[];
 
 type TextExpectation = string | RegExp;
 
-const isElement = (value: unknown): value is Element => value instanceof Element;
+const isElement = (value: unknown): value is Element =>
+  value instanceof Element;
 
 const format = (value: unknown) =>
-  typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+  typeof value === "string" ? value : JSON.stringify(value, null, 2);
 
-const ensureElement = (received: unknown, matcherName: string): MatcherResult | Element => {
+const ensureElement = (
+  received: unknown,
+  matcherName: string,
+): MatcherResult | Element => {
   if (!isElement(received)) {
     return {
       pass: false,
-      message: () => `${matcherName} requires an Element. Received: ${format(received)}`,
+      message: () =>
+        `${matcherName} requires an Element. Received: ${format(received)}`,
     };
   }
 
@@ -35,15 +40,17 @@ const parseClassExpectation = (expected: ClassExpectation): string[] => {
   return expected.split(/\s+/).filter(Boolean);
 };
 
-const parseStyleExpectation = (expected: string | StyleExpectation): StyleExpectation => {
-  if (typeof expected === 'string') {
+const parseStyleExpectation = (
+  expected: string | StyleExpectation,
+): StyleExpectation => {
+  if (typeof expected === "string") {
     const styleMap: StyleExpectation = {};
     expected
-      .split(';')
+      .split(";")
       .map((entry) => entry.trim())
       .filter(Boolean)
       .forEach((entry) => {
-        const [prop, value] = entry.split(':');
+        const [prop, value] = entry.split(":");
         if (prop && value) {
           styleMap[prop.trim()] = value.trim();
         }
@@ -56,7 +63,7 @@ const parseStyleExpectation = (expected: string | StyleExpectation): StyleExpect
 };
 
 const toBeInTheDocument = (received: unknown): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toBeInTheDocument');
+  const elementOrResult = ensureElement(received, "toBeInTheDocument");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
@@ -76,7 +83,7 @@ const toHaveAttribute = (
   name: string,
   expectedValue?: string | RegExp,
 ): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toHaveAttribute');
+  const elementOrResult = ensureElement(received, "toHaveAttribute");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
@@ -99,22 +106,27 @@ const toHaveAttribute = (
   };
 };
 
-const toHaveClass = (received: unknown, expected: ClassExpectation): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toHaveClass');
+const toHaveClass = (
+  received: unknown,
+  expected: ClassExpectation,
+): MatcherResult => {
+  const elementOrResult = ensureElement(received, "toHaveClass");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
 
   const expectedClasses = parseClassExpectation(expected);
-  const missingClasses = expectedClasses.filter((className) => !elementOrResult.classList.contains(className));
-  const expectedList = expectedClasses.join(', ');
+  const missingClasses = expectedClasses.filter(
+    (className) => !elementOrResult.classList.contains(className),
+  );
+  const expectedList = expectedClasses.join(", ");
 
   return {
     pass: missingClasses.length === 0,
     message: () =>
       missingClasses.length === 0
         ? `Expected element not to have class(es): ${expectedList}.`
-        : `Expected element to have class(es): ${expectedList}, missing: ${missingClasses.join(', ')}.`,
+        : `Expected element to have class(es): ${expectedList}, missing: ${missingClasses.join(", ")}.`,
   };
 };
 
@@ -123,14 +135,18 @@ const toHaveTextContent = (
   expected: TextExpectation,
   options?: { trim?: boolean },
 ): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toHaveTextContent');
+  const elementOrResult = ensureElement(received, "toHaveTextContent");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
 
-  const textContent = options?.trim ? elementOrResult.textContent?.trim() ?? '' : elementOrResult.textContent ?? '';
+  const textContent = options?.trim
+    ? (elementOrResult.textContent?.trim() ?? "")
+    : (elementOrResult.textContent ?? "");
   const pass =
-    expected instanceof RegExp ? expected.test(textContent) : textContent.includes(expected.toString());
+    expected instanceof RegExp
+      ? expected.test(textContent)
+      : textContent.includes(expected.toString());
 
   return {
     pass,
@@ -141,14 +157,23 @@ const toHaveTextContent = (
   };
 };
 
-const toHaveValue = (received: unknown, expected?: string | number | string[] | null): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toHaveValue');
+const toHaveValue = (
+  received: unknown,
+  expected?: string | number | string[] | null,
+): MatcherResult => {
+  const elementOrResult = ensureElement(received, "toHaveValue");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
 
-  const actualValue = (elementOrResult as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).value;
-  const pass = expected === undefined ? actualValue !== '' : actualValue === expected;
+  const actualValue = (
+    elementOrResult as
+      | HTMLInputElement
+      | HTMLTextAreaElement
+      | HTMLSelectElement
+  ).value;
+  const pass =
+    expected === undefined ? actualValue !== "" : actualValue === expected;
 
   return {
     pass,
@@ -160,29 +185,29 @@ const toHaveValue = (received: unknown, expected?: string | number | string[] | 
 };
 
 const toBeVisible = (received: unknown): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toBeVisible');
+  const elementOrResult = ensureElement(received, "toBeVisible");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
 
   const style = getComputedStyle(elementOrResult);
   const pass =
-    style.visibility !== 'hidden' &&
-    style.display !== 'none' &&
-    elementOrResult.getAttribute('hidden') === null &&
-    elementOrResult.getAttribute('aria-hidden') !== 'true';
+    style.visibility !== "hidden" &&
+    style.display !== "none" &&
+    elementOrResult.getAttribute("hidden") === null &&
+    elementOrResult.getAttribute("aria-hidden") !== "true";
 
   return {
     pass,
     message: () =>
       pass
-        ? 'Expected element not to be visible.'
-        : 'Expected element to be visible.',
+        ? "Expected element not to be visible."
+        : "Expected element to be visible.",
   };
 };
 
 const toBeDisabled = (received: unknown): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toBeDisabled');
+  const elementOrResult = ensureElement(received, "toBeDisabled");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
@@ -190,12 +215,15 @@ const toBeDisabled = (received: unknown): MatcherResult => {
   const pass = (elementOrResult as HTMLButtonElement).disabled === true;
   return {
     pass,
-    message: () => (pass ? 'Expected element not to be disabled.' : 'Expected element to be disabled.'),
+    message: () =>
+      pass
+        ? "Expected element not to be disabled."
+        : "Expected element to be disabled.",
   };
 };
 
 const toBeEnabled = (received: unknown): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toBeEnabled');
+  const elementOrResult = ensureElement(received, "toBeEnabled");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
@@ -203,12 +231,18 @@ const toBeEnabled = (received: unknown): MatcherResult => {
   const pass = !(elementOrResult as HTMLButtonElement).disabled;
   return {
     pass,
-    message: () => (pass ? 'Expected element not to be enabled.' : 'Expected element to be enabled.'),
+    message: () =>
+      pass
+        ? "Expected element not to be enabled."
+        : "Expected element to be enabled.",
   };
 };
 
-const toHaveStyle = (received: unknown, expected: string | StyleExpectation): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toHaveStyle');
+const toHaveStyle = (
+  received: unknown,
+  expected: string | StyleExpectation,
+): MatcherResult => {
+  const elementOrResult = ensureElement(received, "toHaveStyle");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
@@ -224,13 +258,13 @@ const toHaveStyle = (received: unknown, expected: string | StyleExpectation): Ma
     pass: failingEntries.length === 0,
     message: () =>
       failingEntries.length === 0
-        ? 'Expected element not to match provided styles.'
+        ? "Expected element not to match provided styles."
         : `Expected element to have styles ${format(expectedStyles)}, mismatches: ${format(Object.fromEntries(failingEntries))}.`,
   };
 };
 
 const toHaveFocus = (received: unknown): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toHaveFocus');
+  const elementOrResult = ensureElement(received, "toHaveFocus");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
@@ -238,12 +272,18 @@ const toHaveFocus = (received: unknown): MatcherResult => {
   const pass = document.activeElement === elementOrResult;
   return {
     pass,
-    message: () => (pass ? 'Expected element not to have focus.' : 'Expected element to have focus.'),
+    message: () =>
+      pass
+        ? "Expected element not to have focus."
+        : "Expected element to have focus.",
   };
 };
 
-const toContainElement = (received: unknown, expected: Element | null): MatcherResult => {
-  const elementOrResult = ensureElement(received, 'toContainElement');
+const toContainElement = (
+  received: unknown,
+  expected: Element | null,
+): MatcherResult => {
+  const elementOrResult = ensureElement(received, "toContainElement");
   if (!isElement(elementOrResult)) {
     return elementOrResult;
   }
@@ -253,8 +293,8 @@ const toContainElement = (received: unknown, expected: Element | null): MatcherR
     pass,
     message: () =>
       pass
-        ? 'Expected element not to contain provided child element.'
-        : 'Expected element to contain the provided child element.',
+        ? "Expected element not to contain provided child element."
+        : "Expected element to contain the provided child element.",
   };
 };
 
@@ -283,12 +323,16 @@ export const registerJestDomMatchers = () => {
   registered = true;
 };
 
-declare module 'vitest' {
+declare module "vitest" {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   interface Assertion<T = any> {
     toBeInTheDocument(): void;
     toHaveAttribute(name: string, value?: string | RegExp): void;
     toHaveClass(expected: ClassExpectation): void;
-    toHaveTextContent(expected: TextExpectation, options?: { trim?: boolean }): void;
+    toHaveTextContent(
+      expected: TextExpectation,
+      options?: { trim?: boolean },
+    ): void;
     toHaveValue(expected?: string | number | string[] | null): void;
     toBeVisible(): void;
     toBeDisabled(): void;
@@ -302,7 +346,10 @@ declare module 'vitest' {
     toBeInTheDocument(): void;
     toHaveAttribute(name: string, value?: string | RegExp): void;
     toHaveClass(expected: ClassExpectation): void;
-    toHaveTextContent(expected: TextExpectation, options?: { trim?: boolean }): void;
+    toHaveTextContent(
+      expected: TextExpectation,
+      options?: { trim?: boolean },
+    ): void;
     toHaveValue(expected?: string | number | string[] | null): void;
     toBeVisible(): void;
     toBeDisabled(): void;

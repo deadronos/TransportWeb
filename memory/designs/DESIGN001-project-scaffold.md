@@ -39,8 +39,10 @@ Initial project scaffold for Transport Tycoon Web following the architecture spe
 ## Key Design Decisions
 
 ### 1. Vite vs Next.js
+
 **Decision**: Use Vite (as specified in idea.md)  
-**Rationale**: 
+**Rationale**:
+
 - Faster dev server for 3D development
 - Simpler build configuration for CSR app
 - Better HMR for game development iteration
@@ -49,56 +51,64 @@ Initial project scaffold for Transport Tycoon Web following the architecture spe
 **Impact**: Must update existing Next.js-oriented ESLint config
 
 ### 2. State Separation
+
 **Decision**: ECS for simulation, Zustand for UI/meta state  
 **Rationale**:
+
 - Clear boundary prevents bugs from UI state affecting simulation
 - ECS optimized for performance-critical game logic
 - Zustand provides ergonomic React integration for UI
 - Enables independent serialization strategies
 
 **Interfaces**:
+
 ```typescript
 // Simulation lives in ECS
 type Entity = {
-  id: string
-  Transform?: { position: vec3, rotation?: quat, scale?: vec3 }
-  Vehicle?: { speed: number, accel: number, maxSpeed: number }
-  Renderable?: { kind: 'track' | 'road' | 'vehicle' }
-}
+  id: string;
+  Transform?: { position: vec3; rotation?: quat; scale?: vec3 };
+  Vehicle?: { speed: number; accel: number; maxSpeed: number };
+  Renderable?: { kind: "track" | "road" | "vehicle" };
+};
 
 // UI state lives in Zustand
 type UIState = {
-  clock: { speed: number, paused: boolean }
-  build: { tool: Tool, preview?: Entity }
-  selection: { hoveredId?: string, selectedIds: string[] }
-}
+  clock: { speed: number; paused: boolean };
+  build: { tool: Tool; preview?: Entity };
+  selection: { hoveredId?: string; selectedIds: string[] };
+};
 ```
 
 ### 3. Fixed Timestep Implementation
+
 **Decision**: Accumulator pattern with 60fps (16.67ms) fixed dt  
 **Rationale**:
+
 - Deterministic physics/simulation
 - Framerate independence
 - Prevents spiral of death
 
 **Algorithm**:
+
 ```typescript
-let accumulator = 0
-const FIXED_DT = 1/60
+let accumulator = 0;
+const FIXED_DT = 1 / 60;
 
 function gameLoop(realDt: number) {
-  accumulator += realDt
+  accumulator += realDt;
   while (accumulator >= FIXED_DT) {
-    tickAllSystems(FIXED_DT)
-    accumulator -= FIXED_DT
+    tickAllSystems(FIXED_DT);
+    accumulator -= FIXED_DT;
   }
-  render() // happens at display refresh rate
+  render(); // happens at display refresh rate
 }
 ```
 
 ### 4. Rendering Strategy
+
 **Decision**: Instanced rendering for repeated geometry  
 **Rationale**:
+
 - Tracks/roads/trees are repeated thousands of times
 - Instancing reduces draw calls from 1000+ to ~10
 - R3F provides `<Instances>` helper from drei
@@ -106,8 +116,10 @@ function gameLoop(realDt: number) {
 **Performance Target**: 60fps with 500+ visible entities
 
 ### 5. Directory Structure
+
 **Decision**: Feature-based organization within `src/game/`  
 **Rationale**:
+
 - Co-locates related ECS systems
 - Clear separation of concerns
 - Easy to find and modify features
@@ -131,20 +143,20 @@ tests/          # Unit & E2E tests
 
 ```typescript
 // Position/rotation/scale in world
-Transform { 
+Transform {
   position: [number, number, number]
   rotation?: [number, number, number]
   scale?: [number, number, number]
 }
 
 // Visual representation
-Renderable { 
+Renderable {
   kind: 'track' | 'road' | 'station' | 'vehicle' | 'tree'
   meshId?: string  // for instancing
 }
 
 // Vehicle kinematics
-Vehicle { 
+Vehicle {
   speed: number
   accel: number
   maxSpeed: number
@@ -152,13 +164,13 @@ Vehicle {
 }
 
 // Network graph node
-NetworkNode { 
+NetworkNode {
   id: string
   links: string[]  // connected node IDs
 }
 
 // Track/road segment
-TrackSegment { 
+TrackSegment {
   nodeA: string
   nodeB: string
   length: number
@@ -167,13 +179,13 @@ TrackSegment {
 }
 
 // Pathfinding route
-Route { 
+Route {
   waypoints: string[]
   currentIndex: number
 }
 
 // Cargo payload
-Cargo { 
+Cargo {
   type: 'coal' | 'grain' | 'goods'
   amount: number
 }
@@ -183,7 +195,7 @@ Cargo {
 
 1. **time** - Accumulator & fixed timestep orchestration
 2. **network** - Graph maintenance when building
-3. **pathfinding** - A* routing & block reservations
+3. **pathfinding** - A\* routing & block reservations
 4. **signaling** - Block state & collision avoidance
 5. **vehicleMotion** - Integrate velocity, obey signals
 6. **cargoFlow** - Load/unload at stations
@@ -201,6 +213,7 @@ Cargo {
 ## Testing Strategy
 
 ### Unit Tests (Vitest)
+
 - ECS component queries
 - Fixed timestep accumulator
 - Pathfinding algorithm
@@ -208,6 +221,7 @@ Cargo {
 - Serialization round-trip
 
 ### E2E Tests (Playwright)
+
 - Canvas renders successfully
 - Camera controls work
 - Place track → spawn train → reaches destination
@@ -224,15 +238,19 @@ Cargo {
 ## Migration Path
 
 ### Phase 1: Minimal PoC (This Design)
+
 - Core loop + canvas + ECS + 1 moving entity
 
 ### Phase 2: Network
+
 - Graph system + pathfinding + stations
 
 ### Phase 3: Economy
+
 - Cargo + industry + income
 
 ### Phase 4: Polish
+
 - Save/load + undo/redo + scenarios
 
 ## Open Questions

@@ -1,24 +1,24 @@
 ---
-mode: 'agent'
-description: 'Update existing object-oriented component documentation following industry best practices and architectural documentation standards.'
+mode: "agent"
+description: "Update existing object-oriented component documentation following industry best practices and architectural documentation standards."
 tools:
   [
-    'changes',
-    'codebase',
-    'editFiles',
-    'extensions',
-    'fetch',
-    'githubRepo',
-    'openSimpleBrowser',
-    'problems',
-    'runTasks',
-    'search',
-    'searchResults',
-    'terminalLastCommand',
-    'terminalSelection',
-    'testFailure',
-    'usages',
-    'vscodeAPI',
+    "changes",
+    "codebase",
+    "editFiles",
+    "extensions",
+    "fetch",
+    "githubRepo",
+    "openSimpleBrowser",
+    "problems",
+    "runTasks",
+    "search",
+    "searchResults",
+    "terminalLastCommand",
+    "terminalSelection",
+    "testFailure",
+    "usages",
+    "vscodeAPI",
   ]
 ---
 

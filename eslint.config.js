@@ -38,6 +38,24 @@ export default tseslint.config(
       ],
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
+      "react/no-unknown-property": [
+        "error",
+        {
+          ignore: [
+            "args",
+            "position",
+            "rotation",
+            "castShadow",
+            "receiveShadow",
+            "intensity",
+            "attach",
+            "transparent",
+            "emissive",
+            "emissiveIntensity",
+            "side",
+          ],
+        },
+      ],
     },
     settings: {
       react: {

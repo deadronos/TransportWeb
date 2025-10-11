@@ -7,12 +7,14 @@ Successfully implemented complete project scaffold for Transport Tycoon Web foll
 ## What Was Built
 
 ### 1. Core Infrastructure
+
 - ✅ **Vite + React 18 + TypeScript** setup with hot module replacement
 - ✅ **ESLint + Prettier** configuration (React-optimized, removed Next.js)
 - ✅ **Path aliases** configured (@/ → src/)
 - ✅ **Test infrastructure**: Vitest (unit) + Playwright (E2E)
 
 ### 2. Game Architecture
+
 - ✅ **ECS Foundation**: Miniplex world with entity/component system
 - ✅ **Fixed Timestep Loop**: 60fps deterministic simulation
 - ✅ **R3F Canvas**: 3D rendering with OrbitControls, Stats, Grid
@@ -20,11 +22,13 @@ Successfully implemented complete project scaffold for Transport Tycoon Web foll
 - ✅ **Demo Entity**: Moving vehicle cube to validate integration
 
 ### 3. UI Components
+
 - ✅ **HUD**: Speed controls (pause, 1×, 2×, 4×)
 - ✅ **SceneGraph**: Reactive entity renderer
 - ✅ **Styling**: Basic CSS with button styles
 
 ### 4. Documentation
+
 - ✅ **Memory Bank**: Complete project context
   - projectbrief.md: Vision and goals
   - requirements.md: 5 EARS-style requirements
@@ -39,22 +43,24 @@ Successfully implemented complete project scaffold for Transport Tycoon Web foll
 
 ## Key Technical Decisions
 
-| Decision | Rationale | Impact |
-|----------|-----------|--------|
-| Vite over Next.js | Faster HMR for 3D dev, simpler CSR | Better DX |
-| React 18 vs 19 | R3F compatibility | Stable ecosystem |
-| Miniplex 2.0 | TypeScript-first ECS | Type-safe queries |
-| Fixed 60fps timestep | Deterministic simulation | Reproducible gameplay |
-| ECS/Zustand boundary | Simulation never touches UI | Clear separation |
+| Decision             | Rationale                          | Impact                |
+| -------------------- | ---------------------------------- | --------------------- |
+| Vite over Next.js    | Faster HMR for 3D dev, simpler CSR | Better DX             |
+| React 18 vs 19       | R3F compatibility                  | Stable ecosystem      |
+| Miniplex 2.0         | TypeScript-first ECS               | Type-safe queries     |
+| Fixed 60fps timestep | Deterministic simulation           | Reproducible gameplay |
+| ECS/Zustand boundary | Simulation never touches UI        | Clear separation      |
 
 ## Validation Results
 
 ### ✅ Development Server
+
 - Running on http://localhost:3000
 - No build errors
 - HMR working
 
 ### ✅ Requirements Met
+
 - R1: ✅ Project scaffolded with all folders/files
 - R2: ✅ 3D canvas renders with camera controls
 - R3: ✅ Fixed timestep system implemented
@@ -115,6 +121,7 @@ TransportWeb/
 ## Dependencies Installed
 
 ### Runtime (9 packages)
+
 - react, react-dom (18.3.1)
 - three (0.169.0)
 - @react-three/fiber (8.17.10)
@@ -125,15 +132,17 @@ TransportWeb/
 - seedrandom (3.0.5)
 
 ### Dev (20+ packages)
+
 - vite, @vitejs/plugin-react
-- typescript, @types/*
-- vitest, playwright, @testing-library/*
+- typescript, @types/\*
+- vitest, playwright, @testing-library/\*
 - eslint, prettier
 - vite plugins (tsconfig-paths, compression, svgr)
 
 ## Next Steps
 
 ### Immediate (Phase 1 Completion)
+
 1. Open http://localhost:3000 in browser
 2. Verify 3D canvas with grid and moving red cube
 3. Test HUD controls (pause/speed buttons)
@@ -141,14 +150,16 @@ TransportWeb/
 5. Run `npm run test:e2e` for E2E tests
 
 ### Phase 2 (Network & Movement)
+
 - Graph-based network system
 - Track/road placement tools
-- A* pathfinding
+- A\* pathfinding
 - Station entities
 - Vehicle routing
 - Block signaling
 
 ### Phase 3 (Economy & Cargo)
+
 - Cargo types
 - Industry entities
 - Production/consumption
@@ -156,6 +167,7 @@ TransportWeb/
 - Income/expenses
 
 ### Phase 4 (Polish)
+
 - Save/load
 - Undo/redo
 - Tutorial

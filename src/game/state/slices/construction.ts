@@ -1,14 +1,14 @@
-import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
 
 export type ConstructionTool =
-  | 'none'
-  | 'rail'
-  | 'road'
-  | 'station'
-  | 'depot'
-  | 'demolish'
-  | 'query';
+  | "none"
+  | "rail"
+  | "road"
+  | "station"
+  | "depot"
+  | "demolish"
+  | "query";
 
 export interface ConstructionState {
   /** Currently selected construction tool */
@@ -35,7 +35,7 @@ export const useConstruction = create<ConstructionState>()(
   devtools(
     persist(
       (set) => ({
-        tool: 'none',
+        tool: "none",
         showGrid: false,
         isConstructing: false,
         ghostPosition: null,
@@ -44,7 +44,7 @@ export const useConstruction = create<ConstructionState>()(
         setTool: (tool) => {
           set({ tool });
           // Auto-enable grid when construction tool selected
-          if (tool !== 'none' && tool !== 'query') {
+          if (tool !== "none" && tool !== "query") {
             set({ showGrid: true, isConstructing: true });
           } else {
             set({ isConstructing: false, ghostPosition: null });
@@ -63,16 +63,16 @@ export const useConstruction = create<ConstructionState>()(
           set({
             isConstructing: false,
             ghostPosition: null,
-            tool: 'none',
+            tool: "none",
           }),
       }),
       {
-        name: 'construction-store',
+        name: "construction-store",
         partialize: (state) => ({
           showGrid: state.showGrid,
         }),
-      }
+      },
     ),
-    { name: 'ConstructionStore' }
-  )
+    { name: "ConstructionStore" },
+  ),
 );

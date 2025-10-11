@@ -1,4 +1,4 @@
-import { TopMenuBar } from './TopMenuBar';
+import { TopMenuBar } from "./TopMenuBar";
 
 export function HUD() {
   return (

@@ -1,5 +1,10 @@
-import { createContext, useContext, useMemo, type PropsWithChildren } from 'react';
-import { World } from 'miniplex';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  type PropsWithChildren,
+} from "react";
+import { World } from "miniplex";
 
 export type Entity = {
   id: string;
@@ -9,7 +14,7 @@ export type Entity = {
     scale?: [number, number, number];
   };
   Renderable?: {
-    kind: 'track' | 'road' | 'station' | 'depot' | 'vehicle' | 'tree';
+    kind: "track" | "road" | "station" | "depot" | "vehicle" | "tree";
     meshId?: string;
     dimensions?: [number, number, number];
     color?: string;
@@ -18,7 +23,7 @@ export type Entity = {
     speed: number;
     accel: number;
     maxSpeed: number;
-    type: 'train' | 'truck';
+    type: "train" | "truck";
   };
 };
 
@@ -27,12 +32,14 @@ const WorldContext = createContext<World<Entity> | null>(null);
 export const useWorld = () => {
   const world = useContext(WorldContext);
   if (!world) {
-    throw new Error('useWorld must be used within WorldProvider');
+    throw new Error("useWorld must be used within WorldProvider");
   }
   return world;
 };
 
 export const WorldProvider = ({ children }: PropsWithChildren) => {
   const world = useMemo(() => new World<Entity>(), []);
-  return <WorldContext.Provider value={world}>{children}</WorldContext.Provider>;
+  return (
+    <WorldContext.Provider value={world}>{children}</WorldContext.Provider>
+  );
 };

@@ -1,4 +1,4 @@
-import { registerJestDomMatchers } from './jestDomMatchers';
+import { registerJestDomMatchers } from "./jestDomMatchers";
 
 registerJestDomMatchers();
 

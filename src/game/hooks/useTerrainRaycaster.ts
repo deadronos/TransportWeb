@@ -1,6 +1,6 @@
-import { useThree } from '@react-three/fiber';
-import { useRef, useCallback } from 'react';
-import { Raycaster, Vector2, Vector3, Plane } from 'three';
+import { useThree } from "@react-three/fiber";
+import { useRef, useCallback } from "react";
+import { Raycaster, type Vector2, Vector3, Plane } from "three";
 
 /**
  * Hook for raycasting mouse position onto the terrain plane.
@@ -20,12 +20,12 @@ export function useTerrainRaycaster() {
       const intersectionPoint = new Vector3();
       const didIntersect = raycaster.current.ray.intersectPlane(
         terrainPlane.current,
-        intersectionPoint
+        intersectionPoint,
       );
 
       return didIntersect ? intersectionPoint : null;
     },
-    [camera]
+    [camera],
   );
 
   return raycast;

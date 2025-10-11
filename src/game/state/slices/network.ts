@@ -1,8 +1,8 @@
-import { create } from 'zustand';
-import { NetworkGraph } from '../../network/graph';
-import type { NetworkEdge, NetworkNode } from '../../network/types';
-import { positionsEqual } from '../../network/utils';
-import type { Entity } from '../../ecs/world';
+import { create } from "zustand";
+import { NetworkGraph } from "../../network/graph";
+import type { NetworkEdge, NetworkNode } from "../../network/types";
+import { positionsEqual } from "../../network/utils";
+import type { Entity } from "../../ecs/world";
 
 export interface NetworkState {
   graph: NetworkGraph;
@@ -14,7 +14,7 @@ export interface NetworkState {
   removeEdge: (edgeId: string) => void;
   findNodeAtPosition: (
     position: [number, number, number],
-    tolerance?: number
+    tolerance?: number,
   ) => NetworkNode | null;
   registerVisualEntity: (id: string, entity: Entity) => void;
   unregisterVisualEntity: (id: string) => Entity | undefined;
@@ -47,7 +47,9 @@ export const useNetworkStore = create<NetworkState>()((set, get) => ({
   findNodeAtPosition: (position, tolerance = 0.1) => {
     const nodes = graph.getAllNodes();
     return (
-      nodes.find((node) => positionsEqual(node.position, position, tolerance)) ?? null
+      nodes.find((node) =>
+        positionsEqual(node.position, position, tolerance),
+      ) ?? null
     );
   },
   registerVisualEntity: (id, entity) => {
@@ -65,6 +67,7 @@ export const useNetworkStore = create<NetworkState>()((set, get) => ({
     }
 
     set((state) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [id]: _removed, ...rest } = state.visualEntities;
       return { visualEntities: rest };
     });

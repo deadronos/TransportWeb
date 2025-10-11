@@ -41,23 +41,23 @@ Using Miniplex for TypeScript-first ECS:
 ```typescript
 // Entity definition
 type Entity = {
-  id: string
-  Transform?: { position: [number, number, number] }
-  Vehicle?: { speed: number, accel: number }
-}
+  id: string;
+  Transform?: { position: [number, number, number] };
+  Vehicle?: { speed: number; accel: number };
+};
 
 // World creation
-const world = new World<Entity>()
+const world = new World<Entity>();
 
 // Add entity
-world.add({ 
-  id: nanoid(), 
+world.add({
+  id: nanoid(),
   Transform: { position: [0, 0, 0] },
-  Vehicle: { speed: 0, accel: 1 }
-})
+  Vehicle: { speed: 0, accel: 1 },
+});
 
 // Query entities
-for (const entity of world.with('Vehicle', 'Transform')) {
+for (const entity of world.with("Vehicle", "Transform")) {
   // System logic here
 }
 ```
@@ -65,12 +65,14 @@ for (const entity of world.with('Vehicle', 'Transform')) {
 ### Key Decisions
 
 **Why ECS?**
+
 - Performance: Iterate over contiguous memory
 - Flexibility: Add/remove components dynamically
 - Testability: Systems are pure functions
 - Determinism: Clear data flow
 
 **Why Miniplex?**
+
 - TypeScript inference works perfectly
 - Familiar query syntax
 - React-friendly patterns
@@ -87,16 +89,16 @@ Variable frame rates cause non-deterministic physics and gameplay differences be
 Accumulator pattern with fixed 16.67ms timestep:
 
 ```typescript
-let accumulator = 0
-const FIXED_DT = 1/60
+let accumulator = 0;
+const FIXED_DT = 1 / 60;
 
 function gameLoop(realDt: number) {
-  accumulator += realDt
+  accumulator += realDt;
   while (accumulator >= FIXED_DT) {
-    tickAllSystems(FIXED_DT)
-    accumulator -= FIXED_DT
+    tickAllSystems(FIXED_DT);
+    accumulator -= FIXED_DT;
   }
-  render() // at display refresh rate
+  render(); // at display refresh rate
 }
 ```
 
@@ -117,11 +119,12 @@ const useClock = create((set, get) => ({
   speed: 1,
   paused: false,
   setSpeed: (speed) => set({ speed }),
-  togglePause: () => set({ paused: !get().paused })
-}))
+  togglePause: () => set({ paused: !get().paused }),
+}));
 ```
 
 **Patterns:**
+
 - Slice pattern: Each feature gets its own file
 - Middleware: devtools, persist
 - Selectors: Fine-grained subscriptions
@@ -131,11 +134,12 @@ const useClock = create((set, get) => ({
 
 ```typescript
 // Simulation queries
-const vehicles = world.with('Vehicle', 'Transform')
-const stations = world.with('Station', 'Transform')
+const vehicles = world.with("Vehicle", "Transform");
+const stations = world.with("Station", "Transform");
 ```
 
 **Patterns:**
+
 - Components are data-only (no methods)
 - Systems are pure functions
 - Queries are reactive
@@ -178,10 +182,10 @@ For repeated geometry (tracks, trees):
 ```typescript
 useFrame(({ clock }) => {
   // Fixed timestep simulation (separate from render)
-  tickSimulation(clock.elapsedTime)
-  
+  tickSimulation(clock.elapsedTime);
+
   // Render happens automatically
-})
+});
 ```
 
 ## System Execution Order
@@ -190,7 +194,7 @@ Systems run in strict order each tick:
 
 1. **time**: Accumulator, orchestration
 2. **network**: Graph maintenance
-3. **pathfinding**: A* routing
+3. **pathfinding**: A\* routing
 4. **signaling**: Block reservations
 5. **vehicleMotion**: Physics integration
 6. **cargoFlow**: Loading/unloading
@@ -222,42 +226,42 @@ User Input → Zustand → System → ECS → R3F → Screen
 ### Unit Tests (Systems)
 
 ```typescript
-test('vehicle motion integrates velocity', () => {
-  const world = new World<Entity>()
-  world.add({ 
-    id: '1', 
+test("vehicle motion integrates velocity", () => {
+  const world = new World<Entity>();
+  world.add({
+    id: "1",
     Transform: { position: [0, 0, 0] },
-    Vehicle: { speed: 5, accel: 0, maxSpeed: 10 }
-  })
-  
-  vehicleMotionSystem(world, 1.0) // 1 second
-  
-  const entity = world.entities.find(e => e.id === '1')
-  expect(entity.Transform.position[0]).toBe(5)
-})
+    Vehicle: { speed: 5, accel: 0, maxSpeed: 10 },
+  });
+
+  vehicleMotionSystem(world, 1.0); // 1 second
+
+  const entity = world.entities.find((e) => e.id === "1");
+  expect(entity.Transform.position[0]).toBe(5);
+});
 ```
 
 ### E2E Tests (User Flows)
 
 ```typescript
-test('user can place track', async ({ page }) => {
-  await page.goto('/')
-  await page.click('[data-tool="track"]')
-  await page.click('canvas', { position: { x: 100, y: 100 } })
-  await expect(page.locator('[data-track-count]')).toHaveText('1')
-})
+test("user can place track", async ({ page }) => {
+  await page.goto("/");
+  await page.click('[data-tool="track"]');
+  await page.click("canvas", { position: { x: 100, y: 100 } });
+  await expect(page.locator("[data-track-count]")).toHaveText("1");
+});
 ```
 
 ## Key Patterns Summary
 
-| Pattern | Purpose | Implementation |
-|---------|---------|----------------|
-| ECS | Simulation architecture | Miniplex |
-| Fixed Timestep | Determinism | Accumulator loop |
-| State Slices | UI state | Zustand |
-| Instancing | Rendering performance | R3F Instances |
-| System Order | Consistent updates | Strict sequence |
-| Boundary | Separation of concerns | ECS ← Zustand, not → |
+| Pattern        | Purpose                 | Implementation       |
+| -------------- | ----------------------- | -------------------- |
+| ECS            | Simulation architecture | Miniplex             |
+| Fixed Timestep | Determinism             | Accumulator loop     |
+| State Slices   | UI state                | Zustand              |
+| Instancing     | Rendering performance   | R3F Instances        |
+| System Order   | Consistent updates      | Strict sequence      |
+| Boundary       | Separation of concerns  | ECS ← Zustand, not → |
 
 ---
 

@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { devtools, persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { devtools, persist, createJSONStorage } from "zustand/middleware";
 
 export type ClockState = {
   speed: number;
@@ -18,7 +18,7 @@ export const useClock = create<ClockState>()(
         togglePause: () => set({ paused: !get().paused }),
       }),
       {
-        name: 'clock-storage',
+        name: "clock-storage",
         storage: createJSONStorage(() => localStorage),
         partialize: (state) => ({ speed: state.speed }),
       },

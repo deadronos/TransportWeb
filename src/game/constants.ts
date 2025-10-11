@@ -9,5 +9,8 @@ export const CAMERA_DEFAULT = {
 
 export const LIGHTS = {
   ambient: { intensity: 0.5 },
-  directional: { position: [10, 20, 10] as [number, number, number], intensity: 1.1 },
+  directional: {
+    position: [10, 20, 10] as [number, number, number],
+    intensity: 1.1,
+  },
 };

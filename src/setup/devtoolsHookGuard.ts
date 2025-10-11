@@ -41,11 +41,13 @@ declare global {
 }
 
 function isDevToolsInternals(x: unknown): x is DevToolsInternals {
-  return typeof x === 'object' && x !== null && (
-    'version' in (x as Record<string, unknown>) ||
-    'reconcilerVersion' in (x as Record<string, unknown>) ||
-    'rendererVersion' in (x as Record<string, unknown>) ||
-    'rendererPackageVersion' in (x as Record<string, unknown>)
+  return (
+    typeof x === "object" &&
+    x !== null &&
+    ("version" in (x as Record<string, unknown>) ||
+      "reconcilerVersion" in (x as Record<string, unknown>) ||
+      "rendererVersion" in (x as Record<string, unknown>) ||
+      "rendererPackageVersion" in (x as Record<string, unknown>))
   );
 }
 
@@ -64,17 +66,24 @@ function sanitizeInternals(internals: unknown): void {
   try {
     const setIfMissing = (k: keyof DevToolsInternals) => {
       const v = d[k];
-      if (typeof v !== 'string' || v.trim() === '') (d as Record<string, unknown>)[k as string] = '0.0.0';
+      if (typeof v !== "string" || v.trim() === "")
+        (d as Record<string, unknown>)[k as string] = "0.0.0";
     };
 
-    setIfMissing('version');
-    setIfMissing('reconcilerVersion');
+    setIfMissing("version");
+    setIfMissing("reconcilerVersion");
 
-    if (typeof d.rendererVersion !== 'string' || d.rendererVersion.trim() === '') {
-      if (typeof d.rendererPackageVersion === 'string' && d.rendererPackageVersion.trim() !== '') {
+    if (
+      typeof d.rendererVersion !== "string" ||
+      d.rendererVersion.trim() === ""
+    ) {
+      if (
+        typeof d.rendererPackageVersion === "string" &&
+        d.rendererPackageVersion.trim() !== ""
+      ) {
         d.rendererVersion = d.rendererPackageVersion;
       } else {
-        d.rendererVersion = d.reconcilerVersion ?? '0.0.0';
+        d.rendererVersion = d.reconcilerVersion ?? "0.0.0";
       }
     }
   } catch {
@@ -83,11 +92,21 @@ function sanitizeInternals(internals: unknown): void {
 
   try {
     const changed: string[] = [];
-    if (!original.version || String(original.version).trim() === '') changed.push('version');
-    if (!original.reconcilerVersion || String(original.reconcilerVersion).trim() === '') changed.push('reconcilerVersion');
-    if (!original.rendererVersion || String(original.rendererVersion).trim() === '') changed.push('rendererVersion');
+    if (!original.version || String(original.version).trim() === "")
+      changed.push("version");
+    if (
+      !original.reconcilerVersion ||
+      String(original.reconcilerVersion).trim() === ""
+    )
+      changed.push("reconcilerVersion");
+    if (
+      !original.rendererVersion ||
+      String(original.rendererVersion).trim() === ""
+    )
+      changed.push("rendererVersion");
 
-    if (changed.length > 0 && typeof window !== 'undefined') recordEvent('sanitize', d, original, changed);
+    if (changed.length > 0 && typeof window !== "undefined")
+      recordEvent("sanitize", d, original, changed);
   } catch {
     // ignore diagnostics
   }
@@ -95,18 +114,32 @@ function sanitizeInternals(internals: unknown): void {
 
 function isDebugEnabled(): boolean {
   try {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === "undefined") return false;
     if (window.__DEVTOOLS_HOOK_GUARD_DEBUG__) return true;
-    try { if (new URLSearchParams(location.search).get('devtoolsHookGuardDebug') === '1') return true; } catch {}
-    try { if (localStorage.getItem('__DEVTOOLS_HOOK_GUARD_DEBUG__') === '1') return true; } catch {}
+    try {
+      if (
+        new URLSearchParams(location.search).get("devtoolsHookGuardDebug") ===
+        "1"
+      )
+        return true;
+    } catch {}
+    try {
+      if (localStorage.getItem("__DEVTOOLS_HOOK_GUARD_DEBUG__") === "1")
+        return true;
+    } catch {}
   } catch {
     // ignore
   }
   return false;
 }
 
-function recordEvent(type: string, internals: DevToolsInternals, original: Partial<DevToolsInternals>, changedKeys?: string[]) {
-  if (typeof window === 'undefined') return;
+function recordEvent(
+  type: string,
+  internals: DevToolsInternals,
+  original: Partial<DevToolsInternals>,
+  changedKeys?: string[],
+) {
+  if (typeof window === "undefined") return;
   try {
     const ev: GuardEvent = {
       ts: Date.now(),
@@ -122,28 +155,62 @@ function recordEvent(type: string, internals: DevToolsInternals, original: Parti
       stack: isDebugEnabled() ? new Error().stack : undefined,
     };
 
-    window.__DEVTOOLS_HOOK_GUARD_EVENTS__ = window.__DEVTOOLS_HOOK_GUARD_EVENTS__ ?? [];
+    window.__DEVTOOLS_HOOK_GUARD_EVENTS__ =
+      window.__DEVTOOLS_HOOK_GUARD_EVENTS__ ?? [];
     window.__DEVTOOLS_HOOK_GUARD_EVENTS__.push(ev);
 
-    if (isDebugEnabled()) console.warn('[devtoolsHookGuard] sanitized renderer registration', ev);
+    if (isDebugEnabled())
+      console.warn("[devtoolsHookGuard] sanitized renderer registration", ev);
   } catch {
     // ignore
   }
 }
 
 // runtime helpers
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   try {
-    Object.defineProperty(window, '__DEVTOOLS_HOOK_GUARD_ENABLE__', { configurable: true, enumerable: false, value: () => { try { window.__DEVTOOLS_HOOK_GUARD_DEBUG__ = true; try { localStorage.setItem('__DEVTOOLS_HOOK_GUARD_DEBUG__', '1'); } catch {} } catch {} } });
-    Object.defineProperty(window, '__DEVTOOLS_HOOK_GUARD_DISABLE__', { configurable: true, enumerable: false, value: () => { try { window.__DEVTOOLS_HOOK_GUARD_DEBUG__ = false; try { localStorage.removeItem('__DEVTOOLS_HOOK_GUARD_DEBUG__'); } catch {} } catch {} } });
-    Object.defineProperty(window, '__DEVTOOLS_HOOK_GUARD_DUMP__', { configurable: true, enumerable: false, value: () => window.__DEVTOOLS_HOOK_GUARD_EVENTS__ ?? [] });
+    Object.defineProperty(window, "__DEVTOOLS_HOOK_GUARD_ENABLE__", {
+      configurable: true,
+      enumerable: false,
+      value: () => {
+        try {
+          window.__DEVTOOLS_HOOK_GUARD_DEBUG__ = true;
+          try {
+            localStorage.setItem("__DEVTOOLS_HOOK_GUARD_DEBUG__", "1");
+          } catch {}
+        } catch {}
+      },
+    });
+    Object.defineProperty(window, "__DEVTOOLS_HOOK_GUARD_DISABLE__", {
+      configurable: true,
+      enumerable: false,
+      value: () => {
+        try {
+          window.__DEVTOOLS_HOOK_GUARD_DEBUG__ = false;
+          try {
+            localStorage.removeItem("__DEVTOOLS_HOOK_GUARD_DEBUG__");
+          } catch {}
+        } catch {}
+      },
+    });
+    Object.defineProperty(window, "__DEVTOOLS_HOOK_GUARD_DUMP__", {
+      configurable: true,
+      enumerable: false,
+      value: () => window.__DEVTOOLS_HOOK_GUARD_EVENTS__ ?? [],
+    });
   } catch {
     // ignore
   }
 }
 
 function isDevToolsHook(x: unknown): x is DevToolsHook {
-  return typeof x === 'object' && x !== null && ('inject' in (x as Record<string, unknown>) || 'register' in (x as Record<string, unknown>) || 'registerRenderer' in (x as Record<string, unknown>));
+  return (
+    typeof x === "object" &&
+    x !== null &&
+    ("inject" in (x as Record<string, unknown>) ||
+      "register" in (x as Record<string, unknown>) ||
+      "registerRenderer" in (x as Record<string, unknown>))
+  );
 }
 
 function wrapHook(hook: unknown) {
@@ -151,31 +218,85 @@ function wrapHook(hook: unknown) {
   const h = hook;
   if (h.__sanitized) return;
 
-  try { Object.defineProperty(h, '__sanitized', { value: true, configurable: true }); } catch {}
+  try {
+    Object.defineProperty(h, "__sanitized", {
+      value: true,
+      configurable: true,
+    });
+  } catch {}
 
   try {
-    const originalInject = h.inject as ((this: unknown, internals: DevToolsInternals, ...rest: unknown[]) => unknown) | undefined;
-    if (typeof originalInject === 'function') {
-      const wrapperInject = function (this: unknown, internals: DevToolsInternals, ...rest: unknown[]) {
-        if (isDebugEnabled()) recordEvent('inject-attempt', internals, { version: internals.version }, []);
-        try { sanitizeInternals(internals); } catch {}
+    const originalInject = h.inject as
+      | ((
+          this: unknown,
+          internals: DevToolsInternals,
+          ...rest: unknown[]
+        ) => unknown)
+      | undefined;
+    if (typeof originalInject === "function") {
+      const wrapperInject = function (
+        this: unknown,
+        internals: DevToolsInternals,
+        ...rest: unknown[]
+      ) {
+        if (isDebugEnabled())
+          recordEvent(
+            "inject-attempt",
+            internals,
+            { version: internals.version },
+            [],
+          );
+        try {
+          sanitizeInternals(internals);
+        } catch {}
         const res = originalInject.apply(this, [internals, ...rest]);
-        try { if (isDebugEnabled()) recordEvent('inject-complete', internals, { version: internals.version }, []); } catch {}
+        try {
+          if (isDebugEnabled())
+            recordEvent(
+              "inject-complete",
+              internals,
+              { version: internals.version },
+              [],
+            );
+        } catch {}
         return res;
       };
-      try { Object.defineProperty(h, 'inject', { value: wrapperInject, configurable: true, writable: true }); } catch {}
+      try {
+        Object.defineProperty(h, "inject", {
+          value: wrapperInject,
+          configurable: true,
+          writable: true,
+        });
+      } catch {}
     }
 
-    const registerKey = (typeof h.registerRenderer === 'function' ? 'registerRenderer' : typeof h.register === 'function' ? 'register' : null) as keyof DevToolsHook | null;
+    const registerKey = (
+      typeof h.registerRenderer === "function"
+        ? "registerRenderer"
+        : typeof h.register === "function"
+          ? "register"
+          : null
+    ) as keyof DevToolsHook | null;
     if (registerKey !== null) {
       const maybeOriginal = h[registerKey];
-      if (typeof maybeOriginal === 'function') {
-        const originalRegister = maybeOriginal as (...args: unknown[]) => unknown;
-        const wrapperRegister = function(this: unknown, ...args: unknown[]) {
-          try { if (args[0] && typeof args[0] === 'object') sanitizeInternals(args[0] as DevToolsInternals); } catch {}
+      if (typeof maybeOriginal === "function") {
+        const originalRegister = maybeOriginal as (
+          ...args: unknown[]
+        ) => unknown;
+        const wrapperRegister = function (this: unknown, ...args: unknown[]) {
+          try {
+            if (args[0] && typeof args[0] === "object")
+              sanitizeInternals(args[0] as DevToolsInternals);
+          } catch {}
           return originalRegister.apply(this, args);
         };
-        try { Object.defineProperty(h, registerKey, { value: wrapperRegister, configurable: true, writable: true }); } catch {}
+        try {
+          Object.defineProperty(h, registerKey, {
+            value: wrapperRegister,
+            configurable: true,
+            writable: true,
+          });
+        } catch {}
       }
     }
   } catch {
@@ -184,13 +305,25 @@ function wrapHook(hook: unknown) {
 }
 
 // install guard
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   try {
     const existing = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
     if (isDevToolsHook(existing)) wrapHook(existing);
     else {
       let internalHook: DevToolsHook | undefined;
-      Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', { configurable: true, enumerable: true, get() { return internalHook; }, set(h) { internalHook = h as DevToolsHook; try { wrapHook(internalHook); } catch {} } });
+      Object.defineProperty(window, "__REACT_DEVTOOLS_GLOBAL_HOOK__", {
+        configurable: true,
+        enumerable: true,
+        get() {
+          return internalHook;
+        },
+        set(h) {
+          internalHook = h as DevToolsHook;
+          try {
+            wrapHook(internalHook);
+          } catch {}
+        },
+      });
     }
   } catch {
     // must not throw

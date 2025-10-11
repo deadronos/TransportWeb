@@ -61,11 +61,13 @@
 ## Visual Results
 
 ### Camera View
+
 - **Angle:** Isometric-style (30-60° from horizontal)
 - **Rotation:** Free rotation enabled (modern improvement over classic TT)
 - **Zoom:** 10-200 units (smooth)
 
 ### UI Layout
+
 ```
 ┌────────────────────────────────────────────────────────────┐
 │ [Rail] [Road] [Station] [Depot] [Demolish] [?]  Jan 1950  │
@@ -79,6 +81,7 @@
 ```
 
 ### Color Scheme
+
 - **Menu background:** Dark gray gradient (`#2a2a2a` → `#1f1f1f`)
 - **Active tool:** Green accent (`#4a7c59`)
 - **Grass terrain:** Transport Tycoon green (`#2d5016`)
@@ -109,6 +112,7 @@
 ## Technical Details
 
 ### Files Created
+
 ```
 src/game/utils/grid.ts                    # Grid utilities
 src/game/state/slices/construction.ts     # Construction state
@@ -118,12 +122,14 @@ src/game/scene/Terrain.tsx                # Grass terrain
 ```
 
 ### Files Modified
+
 ```
 src/game/GameCanvas.tsx                   # Camera + Grid + Terrain
 src/game/ui/HUD.tsx                       # Removed old controls
 ```
 
 ### Dependencies Used
+
 - **@react-three/drei:** `Grid`, `OrbitControls`, `Stats`
 - **zustand:** State management with devtools + persist
 - **three:** Vector3, DoubleSide material
@@ -191,6 +197,7 @@ src/game/ui/HUD.tsx                       # Removed old controls
 **Status:** ✅ **70% Complete** - Core visual foundation solid
 
 The Transport Tycoon aesthetic is now established:
+
 - Isometric camera style ✅
 - Top menu bar UI ✅
 - Grid-based construction system ✅
@@ -203,5 +210,6 @@ The foundation is ready for interactive construction features (ghost preview, ra
 ---
 
 **References:**
+
 - Research: `memory/designs/UI-RESEARCH-transport-tycoon-visual-design.md`
 - Task file: `memory/tasks/TASK002-transport-tycoon-ui-implementation.md`

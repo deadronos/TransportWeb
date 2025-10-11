@@ -1,4 +1,4 @@
-import { useConstruction } from '../state/slices/construction';
+import { useConstruction } from "../state/slices/construction";
 
 /**
  * Renders a semi-transparent preview of the building/track being placed.
@@ -10,17 +10,17 @@ export function GhostPreview() {
   const isValidPlacement = useConstruction((state) => state.isValidPlacement);
 
   // Don't render if no tool selected or no ghost position
-  if (tool === 'none' || tool === 'query' || !ghostPosition) {
+  if (tool === "none" || tool === "query" || !ghostPosition) {
     return null;
   }
 
   const [x, y, z] = ghostPosition;
-  const color = isValidPlacement ? '#4a7c59' : '#c24747';
+  const color = isValidPlacement ? "#4a7c59" : "#c24747";
 
   // Different preview shapes for different tools
   const renderPreview = () => {
     switch (tool) {
-      case 'rail':
+      case "rail":
         // Preview: Long thin box for track segment
         return (
           <mesh position={[x, y + 0.1, z]}>
@@ -35,7 +35,7 @@ export function GhostPreview() {
           </mesh>
         );
 
-      case 'road':
+      case "road":
         // Preview: Wide flat box for road segment
         return (
           <mesh position={[x, y + 0.05, z]}>
@@ -50,7 +50,7 @@ export function GhostPreview() {
           </mesh>
         );
 
-      case 'station':
+      case "station":
         // Preview: Building footprint (20x10 for train station)
         return (
           <mesh position={[x, y + 2, z]}>
@@ -65,7 +65,7 @@ export function GhostPreview() {
           </mesh>
         );
 
-      case 'depot':
+      case "depot":
         // Preview: Depot building (15x15 square)
         return (
           <mesh position={[x, y + 2, z]}>
@@ -80,7 +80,7 @@ export function GhostPreview() {
           </mesh>
         );
 
-      case 'demolish':
+      case "demolish":
         // Preview: Red X indicator
         return (
           <group position={[x, y + 1, z]}>

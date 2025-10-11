@@ -1,15 +1,18 @@
-import { useThree } from '@react-three/fiber';
-import { useState, useCallback, useEffect } from 'react';
-import { Vector2, Vector3 } from 'three';
-import { nanoid } from 'nanoid';
+import { useThree } from "@react-three/fiber";
+import { useState, useCallback, useEffect } from "react";
+import { Vector2, type Vector3 } from "three";
+import { nanoid } from "nanoid";
 
-import { useTerrainRaycaster } from './useTerrainRaycaster';
-import { snapToGrid } from '../utils/grid';
-import { useConstruction, type ConstructionTool } from '../state/slices/construction';
-import { useWorld, type Entity } from '../ecs/world';
-import { useNetworkStore } from '../state/slices/network';
-import type { NetworkNode, TrackType } from '../network/types';
-import { calculateDistance } from '../network/utils';
+import { useTerrainRaycaster } from "./useTerrainRaycaster";
+import { snapToGrid } from "../utils/grid";
+import {
+  useConstruction,
+  type ConstructionTool,
+} from "../state/slices/construction";
+import { useWorld, type Entity } from "../ecs/world";
+import { useNetworkStore } from "../state/slices/network";
+import type { NetworkNode, TrackType } from "../network/types";
+import { calculateDistance } from "../network/utils";
 
 export interface ConstructionModeState {
   hoverPosition: Vector3 | null;
@@ -20,14 +23,23 @@ export interface ConstructionModeState {
 const GRID_SIZE = 10;
 const NODE_TOLERANCE = 0.5;
 
-type BuildTool = Extract<ConstructionTool, 'rail' | 'road' | 'station' | 'depot'>;
+type BuildTool = Extract<
+  ConstructionTool,
+  "rail" | "road" | "station" | "depot"
+>;
 
-type SegmentRenderableKind = Extract<NonNullable<Entity['Renderable']>['kind'], 'track' | 'road'>;
+type SegmentRenderableKind = Extract<
+  NonNullable<Entity["Renderable"]>["kind"],
+  "track" | "road"
+>;
 
-type BuildingRenderableKind = Extract<NonNullable<Entity['Renderable']>['kind'], 'station' | 'depot'>;
+type BuildingRenderableKind = Extract<
+  NonNullable<Entity["Renderable"]>["kind"],
+  "station" | "depot"
+>;
 
 interface ToolConfig {
-  nodeType: NetworkNode['type'];
+  nodeType: NetworkNode["type"];
   trackType: TrackType;
   segment: {
     renderKind: SegmentRenderableKind;
@@ -45,10 +57,10 @@ interface ToolConfig {
 
 const TOOL_CONFIG: Record<BuildTool, ToolConfig> = {
   rail: {
-    nodeType: 'junction',
-    trackType: 'rail',
+    nodeType: "junction",
+    trackType: "rail",
     segment: {
-      renderKind: 'track',
+      renderKind: "track",
       thickness: 0.3,
       width: 2,
       speedLimit: 60,
@@ -56,10 +68,10 @@ const TOOL_CONFIG: Record<BuildTool, ToolConfig> = {
     },
   },
   road: {
-    nodeType: 'junction',
-    trackType: 'road',
+    nodeType: "junction",
+    trackType: "road",
     segment: {
-      renderKind: 'road',
+      renderKind: "road",
       thickness: 0.2,
       width: 4,
       speedLimit: 40,
@@ -67,47 +79,50 @@ const TOOL_CONFIG: Record<BuildTool, ToolConfig> = {
     },
   },
   station: {
-    nodeType: 'station',
-    trackType: 'rail',
+    nodeType: "station",
+    trackType: "rail",
     segment: {
-      renderKind: 'track',
+      renderKind: "track",
       thickness: 0.3,
       width: 2,
       speedLimit: 40,
       capacity: 1,
     },
     building: {
-      renderKind: 'station',
+      renderKind: "station",
       dimensions: [20, 4, 10],
-      color: '#d1a054',
+      color: "#d1a054",
     },
   },
   depot: {
-    nodeType: 'depot',
-    trackType: 'rail',
+    nodeType: "depot",
+    trackType: "rail",
     segment: {
-      renderKind: 'track',
+      renderKind: "track",
       thickness: 0.3,
       width: 2,
       speedLimit: 40,
       capacity: 1,
     },
     building: {
-      renderKind: 'depot',
+      renderKind: "depot",
       dimensions: [15, 4, 15],
-      color: '#8c6239',
+      color: "#8c6239",
     },
   },
 };
 
-function determinePlacementValidity(tool: ConstructionTool, existing: NetworkNode | null): boolean {
+function determinePlacementValidity(
+  tool: ConstructionTool,
+  existing: NetworkNode | null,
+): boolean {
   switch (tool) {
-    case 'demolish':
+    case "demolish":
       return Boolean(existing);
-    case 'rail':
-    case 'road':
-    case 'station':
-    case 'depot':
+    case "rail":
+    case "road":
+    case "station":
+    case "depot":
       return !existing;
     default:
       return false;
@@ -117,9 +132,10 @@ function determinePlacementValidity(tool: ConstructionTool, existing: NetworkNod
 function isNeighborCompatible(
   node: NetworkNode,
   position: [number, number, number],
-  trackType: TrackType
+  trackType: TrackType,
 ) {
-  const nodeTrackType = (node.metadata?.trackType as TrackType | undefined) ?? null;
+  const nodeTrackType =
+    (node.metadata?.trackType as TrackType | undefined) ?? null;
   if (nodeTrackType && nodeTrackType !== trackType) {
     return false;
   }
@@ -129,7 +145,8 @@ function isNeighborCompatible(
   const dy = Math.abs(node.position[1] - position[1]);
 
   const isCardinalNeighbor =
-    dy < NODE_TOLERANCE && ((dx === GRID_SIZE && dz === 0) || (dz === GRID_SIZE && dx === 0));
+    dy < NODE_TOLERANCE &&
+    ((dx === GRID_SIZE && dz === 0) || (dz === GRID_SIZE && dx === 0));
 
   return isCardinalNeighbor;
 }
@@ -150,22 +167,28 @@ export function useConstructionMode() {
   const addNode = useNetworkStore((state) => state.addNode);
   const addEdge = useNetworkStore((state) => state.addEdge);
   const removeNode = useNetworkStore((state) => state.removeNode);
-  const findNodeAtPosition = useNetworkStore((state) => state.findNodeAtPosition);
-  const registerVisualEntity = useNetworkStore((state) => state.registerVisualEntity);
-  const unregisterVisualEntity = useNetworkStore((state) => state.unregisterVisualEntity);
+  const findNodeAtPosition = useNetworkStore(
+    (state) => state.findNodeAtPosition,
+  );
+  const registerVisualEntity = useNetworkStore(
+    (state) => state.registerVisualEntity,
+  );
+  const unregisterVisualEntity = useNetworkStore(
+    (state) => state.unregisterVisualEntity,
+  );
   const version = useNetworkStore((state) => state.version);
 
   const [hoverPosition, setHoverPosition] = useState<Vector3 | null>(null);
   const [isValid, setIsValid] = useState(true);
 
   // Construction mode is active when a tool is selected (but not Query)
-  const isActive = tool !== 'none' && tool !== 'query';
+  const isActive = tool !== "none" && tool !== "query";
 
   const createSegmentVisual = useCallback(
     (
       from: [number, number, number],
       to: [number, number, number],
-      segment: ToolConfig['segment']
+      segment: ToolConfig["segment"],
     ) => {
       const length = calculateDistance(from, to);
       const entityId = nanoid();
@@ -193,16 +216,21 @@ export function useConstructionMode() {
 
       return { visualEntityId: entityId, length };
     },
-    [registerVisualEntity, world]
+    [registerVisualEntity, world],
   );
 
   const connectNeighbors = useCallback(
-    (nodeId: string, nodePosition: [number, number, number], config: ToolConfig) => {
+    (
+      nodeId: string,
+      nodePosition: [number, number, number],
+      config: ToolConfig,
+    ) => {
       const neighbors = graph
         .getAllNodes()
         .filter(
           (candidate) =>
-            candidate.id !== nodeId && isNeighborCompatible(candidate, nodePosition, config.trackType)
+            candidate.id !== nodeId &&
+            isNeighborCompatible(candidate, nodePosition, config.trackType),
         );
 
       for (const neighbor of neighbors) {
@@ -213,7 +241,7 @@ export function useConstructionMode() {
         const { visualEntityId, length } = createSegmentVisual(
           nodePosition,
           neighbor.position,
-          config.segment
+          config.segment,
         );
 
         const edgeBase = {
@@ -240,14 +268,18 @@ export function useConstructionMode() {
         });
       }
     },
-    [addEdge, createSegmentVisual, graph]
+    [addEdge, createSegmentVisual, graph],
   );
 
   const placeStructure = useCallback(
     (activeTool: BuildTool, position: Vector3) => {
       const config = TOOL_CONFIG[activeTool];
       const nodeId = nanoid();
-      const nodePosition: [number, number, number] = [position.x, position.y, position.z];
+      const nodePosition: [number, number, number] = [
+        position.x,
+        position.y,
+        position.z,
+      ];
       nodePosition[1] = 0; // ensure structures rest on the terrain plane
 
       const metadata: Record<string, unknown> = { trackType: config.trackType };
@@ -258,7 +290,11 @@ export function useConstructionMode() {
         const entity = world.add({
           id: buildingId,
           Transform: {
-            position: [nodePosition[0], nodePosition[1] + dims[1] / 2, nodePosition[2]],
+            position: [
+              nodePosition[0],
+              nodePosition[1] + dims[1] / 2,
+              nodePosition[2],
+            ],
           },
           Renderable: {
             kind: config.building.renderKind,
@@ -281,12 +317,16 @@ export function useConstructionMode() {
 
       connectNeighbors(nodeId, nodePosition, config);
     },
-    [addNode, connectNeighbors, registerVisualEntity, world]
+    [addNode, connectNeighbors, registerVisualEntity, world],
   );
 
   const demolishStructure = useCallback(
     (position: Vector3) => {
-      const nodePosition: [number, number, number] = [position.x, position.y, position.z];
+      const nodePosition: [number, number, number] = [
+        position.x,
+        position.y,
+        position.z,
+      ];
       const node = findNodeAtPosition(nodePosition, NODE_TOLERANCE);
 
       if (!node) {
@@ -303,7 +343,7 @@ export function useConstructionMode() {
       }
 
       const metadataVisualId = node.metadata?.visualEntityId;
-      if (typeof metadataVisualId === 'string') {
+      if (typeof metadataVisualId === "string") {
         visualIds.add(metadataVisualId);
       }
 
@@ -316,7 +356,7 @@ export function useConstructionMode() {
 
       removeNode(node.id);
     },
-    [findNodeAtPosition, graph, removeNode, unregisterVisualEntity, world]
+    [findNodeAtPosition, graph, removeNode, unregisterVisualEntity, world],
   );
 
   const handleMouseMove = useCallback(
@@ -341,7 +381,11 @@ export function useConstructionMode() {
         setHoverPosition(snappedPos);
         setGhostPosition([snappedPos.x, snappedPos.y, snappedPos.z]);
 
-        const nodePosition: [number, number, number] = [snappedPos.x, snappedPos.y, snappedPos.z];
+        const nodePosition: [number, number, number] = [
+          snappedPos.x,
+          snappedPos.y,
+          snappedPos.z,
+        ];
         const existing = findNodeAtPosition(nodePosition, NODE_TOLERANCE);
         const valid = determinePlacementValidity(tool, existing);
 
@@ -362,7 +406,7 @@ export function useConstructionMode() {
       setGhostPosition,
       setValidPlacement,
       tool,
-    ]
+    ],
   );
 
   const handleClick = useCallback(
@@ -384,12 +428,17 @@ export function useConstructionMode() {
 
       event.stopPropagation();
 
-      if (tool === 'demolish') {
+      if (tool === "demolish") {
         demolishStructure(hoverPosition);
         return;
       }
 
-      if (tool === 'rail' || tool === 'road' || tool === 'station' || tool === 'depot') {
+      if (
+        tool === "rail" ||
+        tool === "road" ||
+        tool === "station" ||
+        tool === "depot"
+      ) {
         placeStructure(tool, hoverPosition);
       }
     },
@@ -400,9 +449,10 @@ export function useConstructionMode() {
       isActive,
       placeStructure,
       tool,
-    ]
+    ],
   );
 
+  // Validate placement validity when hover position changes
   useEffect(() => {
     if (!isActive || !hoverPosition) {
       return;
@@ -416,19 +466,27 @@ export function useConstructionMode() {
     const existing = findNodeAtPosition(nodePosition, NODE_TOLERANCE);
     const valid = determinePlacementValidity(tool, existing);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsValid(valid);
     setValidPlacement(valid);
-  }, [findNodeAtPosition, hoverPosition, isActive, setValidPlacement, tool, version]);
+  }, [
+    findNodeAtPosition,
+    hoverPosition,
+    isActive,
+    setValidPlacement,
+    tool,
+    version,
+  ]);
 
   useEffect(() => {
     const canvas = gl.domElement;
 
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('click', handleClick);
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("click", handleClick);
 
     return () => {
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('click', handleClick);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("click", handleClick);
     };
   }, [gl.domElement, handleClick, handleMouseMove]);
 

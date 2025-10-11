@@ -1,7 +1,7 @@
 ---
-mode: 'agent'
-tools: ['codebase', 'editFiles', 'search']
-description: 'Guide users through creating high-quality GitHub Copilot prompts with proper structure, tools, and best practices.'
+mode: "agent"
+tools: ["codebase", "editFiles", "search"]
+description: "Guide users through creating high-quality GitHub Copilot prompts with proper structure, tools, and best practices."
 ---
 
 # Professional Prompt Builder
@@ -111,10 +111,10 @@ After gathering all requirements, I will generate a complete `.prompt.md` file f
 
 ```markdown
 ---
-description: '[Clear, concise description from requirements]'
-mode: '[agent|ask|edit based on task type]'
-tools: ['[appropriate tools based on functionality]']
-model: '[only if specific model required]'
+description: "[Clear, concise description from requirements]"
+mode: "[agent|ask|edit based on task type]"
+tools: ["[appropriate tools based on functionality]"]
+model: "[only if specific model required]"
 ---
 
 # [Prompt Title]

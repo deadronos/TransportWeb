@@ -1,27 +1,27 @@
 ---
-description: 'Debug your application to find and fix a bug'
+description: "Debug your application to find and fix a bug"
 tools:
   [
-    'codebase',
-    'usages',
-    'think',
-    'problems',
-    'fetch',
-    'findTestFiles',
-    'githubRepo',
-    'todos',
-    'editFiles',
-    'search',
-    'runCommands',
-    'runTasks',
-    'context7',
-    'playwright',
-    'sequentialthinking',
-    'mcp-fetch',
-    'mcp-compass',
-    'memory',
-    'terminalLastCommand',
-    'terminalSelection',
+    "codebase",
+    "usages",
+    "think",
+    "problems",
+    "fetch",
+    "findTestFiles",
+    "githubRepo",
+    "todos",
+    "editFiles",
+    "search",
+    "runCommands",
+    "runTasks",
+    "context7",
+    "playwright",
+    "sequentialthinking",
+    "mcp-fetch",
+    "mcp-compass",
+    "memory",
+    "terminalLastCommand",
+    "terminalSelection",
   ]
 ---
 

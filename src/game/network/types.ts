@@ -3,8 +3,8 @@
  * Represents the logical structure of tracks, roads, stations, and their connections.
  */
 
-export type NodeType = 'junction' | 'station' | 'depot' | 'waypoint';
-export type TrackType = 'rail' | 'road';
+export type NodeType = "junction" | "station" | "depot" | "waypoint";
+export type TrackType = "rail" | "road";
 
 /**
  * Represents a point in the network where tracks connect or vehicles stop.

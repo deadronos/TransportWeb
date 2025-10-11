@@ -1,22 +1,22 @@
 ---
 name: memory-bank
-applyTo: '**'
+applyTo: "**"
 tools:
   [
-    'createFile',
-    'appendFile',
-    'readFile',
-    'deleteFile',
-    'listFiles',
-    'searchFiles',
-    'updateFile',
-    'getFileContent',
-    'getFileMetadata',
-    'thinking',
-    'plan',
-    'memoryBank',
-    'memoryBankUpdate',
-    'taskManagement',
+    "createFile",
+    "appendFile",
+    "readFile",
+    "deleteFile",
+    "listFiles",
+    "searchFiles",
+    "updateFile",
+    "getFileContent",
+    "getFileMetadata",
+    "thinking",
+    "plan",
+    "memoryBank",
+    "memoryBankUpdate",
+    "taskManagement",
   ]
 ---
 

@@ -1,11 +1,11 @@
-import { useMemo } from 'react';
-import { DoubleSide } from 'three';
+import { useMemo } from "react";
+import { DoubleSide } from "three";
 
 export function Terrain() {
   // Create a simple grass-colored plane
   const grassMaterial = useMemo(() => {
     return {
-      color: '#2d5016', // Grass green from research
+      color: "#2d5016", // Grass green from research
       roughness: 0.8,
       metalness: 0.0,
     };

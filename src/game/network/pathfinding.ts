@@ -1,12 +1,12 @@
 /**
  * Pathfinding System
- * 
+ *
  * Implements A* pathfinding algorithm for vehicle routing through the network graph.
  * Includes block reservation system to prevent collisions and path caching for performance.
  */
 
-import type { NetworkGraph } from './graph';
-import { calculateDistance } from './utils';
+import type { NetworkGraph } from "./graph";
+import { calculateDistance } from "./utils";
 
 /**
  * Represents a complete path through the network
@@ -181,7 +181,7 @@ function reconstructPath(
   cameFrom: Map<string, { nodeId: string; edgeId: string }>,
   current: string,
   startNode: string,
-  gScore: Map<string, number>
+  gScore: Map<string, number>,
 ): Path {
   const nodes: string[] = [current];
   const edges: string[] = [];
@@ -210,7 +210,7 @@ export function findPath(
   graph: NetworkGraph,
   startNode: string,
   endNode: string,
-  options: PathfindingOptions = {}
+  options: PathfindingOptions = {},
 ): PathfindingResult {
   const {
     respectCapacity = true,
@@ -220,10 +220,10 @@ export function findPath(
 
   // Validate nodes exist
   if (!graph.getNode(startNode)) {
-    return { success: false, path: null, message: 'Start node not found' };
+    return { success: false, path: null, message: "Start node not found" };
   }
   if (!graph.getNode(endNode)) {
-    return { success: false, path: null, message: 'End node not found' };
+    return { success: false, path: null, message: "End node not found" };
   }
 
   // Early exit if start == end
@@ -289,7 +289,8 @@ export function findPath(
   return {
     success: false,
     path: null,
-    message: iterations >= maxIterations ? 'Max iterations reached' : 'No path found',
+    message:
+      iterations >= maxIterations ? "Max iterations reached" : "No path found",
   };
 }
 
@@ -299,7 +300,7 @@ export function findPath(
 export function reservePath(
   graph: NetworkGraph,
   path: Path,
-  vehicleId: string
+  vehicleId: string,
 ): boolean {
   // Check if all edges are available
   for (const edgeId of path.edges) {
@@ -328,7 +329,7 @@ export function reservePath(
 export function releasePath(
   graph: NetworkGraph,
   path: Path,
-  vehicleId: string
+  vehicleId: string,
 ): void {
   for (const edgeId of path.edges) {
     const edge = graph.getEdge(edgeId);
@@ -346,7 +347,7 @@ export function findAlternatePath(
   currentNode: string,
   targetNode: string,
   blockedEdges: string[],
-  options: PathfindingOptions = {}
+  options: PathfindingOptions = {},
 ): PathfindingResult {
   // Custom cost function that treats blocked edges as infinite cost
   const costFunction = (edgeId: string, g: NetworkGraph): number => {

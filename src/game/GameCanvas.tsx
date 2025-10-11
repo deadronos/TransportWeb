@@ -1,16 +1,16 @@
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stats, Grid } from '@react-three/drei';
-import { useEffect } from 'react';
-import { nanoid } from 'nanoid';
-import { WorldProvider, useWorld } from './ecs/world';
-import { useTimeSystem } from './ecs/systems/time';
-import { SceneGraph } from './SceneGraph';
-import { useConstruction } from './state/slices/construction';
-import { Terrain } from './scene/Terrain';
-import { GhostPreview } from './scene/GhostPreview';
-import { useConstructionMode } from './hooks/useConstructionMode';
-import { useDebug } from './state/slices/debug';
-import { DebugPanel } from './ui/DebugPanel';
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Stats, Grid } from "@react-three/drei";
+import { useEffect } from "react";
+import { nanoid } from "nanoid";
+import { WorldProvider, useWorld } from "./ecs/world";
+import { useTimeSystem } from "./ecs/systems/time";
+import { SceneGraph } from "./SceneGraph";
+import { useConstruction } from "./state/slices/construction";
+import { Terrain } from "./scene/Terrain";
+import { GhostPreview } from "./scene/GhostPreview";
+import { useConstructionMode } from "./hooks/useConstructionMode";
+import { useDebug } from "./state/slices/debug";
+import { DebugPanel } from "./ui/DebugPanel";
 
 function Simulation() {
   const world = useWorld();
@@ -24,8 +24,8 @@ function Simulation() {
     world.add({
       id: nanoid(),
       Transform: { position: [0, 0.5, 0] },
-      Renderable: { kind: 'vehicle' },
-      Vehicle: { speed: 0, accel: 0.5, maxSpeed: 2, type: 'train' },
+      Renderable: { kind: "vehicle" },
+      Vehicle: { speed: 0, accel: 0.5, maxSpeed: 2, type: "train" },
     });
   }, [world]);
 
@@ -48,7 +48,13 @@ function Simulation() {
         fadeStrength={1}
       />
       {/* Base terrain grid - always visible */}
-      <Grid infiniteGrid cellSize={1} cellThickness={0.5} sectionSize={5} fadeDistance={50} />
+      <Grid
+        infiniteGrid
+        cellSize={1}
+        cellThickness={0.5}
+        sectionSize={5}
+        fadeDistance={50}
+      />
     </>
   );
 }
@@ -61,9 +67,9 @@ export function GameCanvas() {
       <Canvas
         shadows
         camera={{ position: [12, 12, 12], fov: 50 }}
-        style={{ position: 'absolute', inset: 0 }}
+        style={{ position: "absolute", inset: 0 }}
       >
-        <color attach="background" args={['#1a1a1a']} />
+        <color attach="background" args={["#1a1a1a"]} />
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 20, 10]} intensity={1.1} castShadow />
         <Simulation />
