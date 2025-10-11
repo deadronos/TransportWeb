@@ -46,6 +46,14 @@
 
 ## Recent Changes
 
+**2025-10-14 (Debug Utilities)**: Added toggleable debug panel to accelerate vehicle prototyping
+- Built HUD toggle and in-world panel for spawning vehicles and tweaking simulation speed.
+- Added stats visibility toggle tied to the new debug controls.
+
+**2025-10-14 (Testing Infrastructure)**: Restored Vitest suite after registry blocks
+- Aliased `@testing-library/jest-dom/vitest` to a local matcher polyfill to bypass the 403 download restriction.
+- Re-ran the full Vitest suite to confirm the fallback behaves like the upstream matchers.
+
 **2025-10-13 (Bugfix)**: Stabilized construction runtime loop
 - Reworked Zustand selectors in GameCanvas + construction hooks to remove render storm causing infinite loop errors.
 - Validated ghost preview + grid rendering without React depth errors.
@@ -92,4 +100,4 @@ None.
 ---
 
 **Next Action**: Complete TASK003 subtask 3.4 (manual QA + documentation)
-**Last Updated**: 2025-10-12
+**Last Updated**: 2025-10-14

@@ -1,5 +1,6 @@
 import { useConstruction, type ConstructionTool } from '@/game/state/slices/construction';
 import { useClock } from '@/game/state/slices/clock';
+import { useDebug } from '@/game/state/slices/debug';
 import './TopMenuBar.css';
 
 interface ToolButton {
@@ -23,6 +24,8 @@ const SPEED_MULTIPLIERS = [1, 2, 4, 8] as const;
 export function TopMenuBar() {
   const { tool, setTool, showGrid, toggleGrid } = useConstruction();
   const { speed, paused, setSpeed, togglePause } = useClock();
+  const panelVisible = useDebug((state) => state.panelVisible);
+  const togglePanel = useDebug((state) => state.togglePanel);
 
   return (
     <header className="top-menu-bar">
@@ -86,6 +89,16 @@ export function TopMenuBar() {
           title="Toggle Grid (G)"
         >
           🔲
+        </button>
+
+        <button
+          className={`control-btn ${panelVisible ? 'active' : ''}`}
+          onClick={togglePanel}
+          title="Toggle Debug Panel"
+          aria-pressed={panelVisible}
+          aria-label="Toggle debug panel"
+        >
+          🛠️
         </button>
       </div>
     </header>

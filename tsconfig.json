@@ -27,7 +27,8 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@testing-library/jest-dom/vitest": ["./src/test/polyfills/jestDomMatchersEntrypoint.ts"]
     }
   },
   "include": [

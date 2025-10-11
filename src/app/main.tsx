@@ -1,3 +1,5 @@
+// Sanitize React DevTools hook early to prevent semver crashes from empty version strings
+import '../setup/devtoolsHookGuard';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
