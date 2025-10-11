@@ -1,4 +1,7 @@
-import { useWorld } from "./ecs/world";
+import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import { useWorld, type Entity } from "./ecs/world";
+import type { Mesh } from "three";
 
 export function SceneGraph() {
   const world = useWorld();
@@ -13,6 +16,50 @@ export function SceneGraph() {
     tree: "#2d8659",
   };
 
+  // Small per-entity mesh that syncs the underlying Three.js object
+  // from the entity's Transform each frame. We avoid relying on React
+  // re-renders for position updates because the ECS mutates arrays in
+  // place for performance.
+  function EntityMesh({
+    entity,
+    dimensions,
+    color,
+  }: {
+    entity: Entity;
+    dimensions: [number, number, number];
+    color: string;
+  }) {
+    const meshRef = useRef<Mesh | null>(null);
+
+    useFrame(() => {
+      const t = entity.Transform;
+      const m = meshRef.current;
+      if (!t || !m) return;
+
+      const p = t.position;
+      if (p) {
+        m.position.set(p[0], p[1], p[2]);
+      }
+
+      const r = t.rotation;
+      if (r) {
+        m.rotation.set(r[0] ?? 0, r[1] ?? 0, r[2] ?? 0);
+      }
+
+      const s = t.scale;
+      if (s) {
+        m.scale.set(s[0] ?? 1, s[1] ?? 1, s[2] ?? 1);
+      }
+    });
+
+    return (
+      <mesh ref={meshRef} castShadow receiveShadow>
+        <boxGeometry args={dimensions} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+    );
+  }
+
   return (
     <>
       {[...entities].map((entity) => {
@@ -26,17 +73,12 @@ export function SceneGraph() {
           renderable.color ?? colorByKind[renderable.kind] ?? "#888888";
 
         return (
-          <mesh
+          <EntityMesh
             key={entity.id}
-            position={transform.position}
-            rotation={transform.rotation}
-            scale={transform.scale}
-            castShadow
-            receiveShadow
-          >
-            <boxGeometry args={dimensions} />
-            <meshStandardMaterial color={color} />
-          </mesh>
+            entity={entity}
+            dimensions={dimensions}
+            color={color}
+          />
         );
       })}
     </>
