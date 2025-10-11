@@ -4,6 +4,7 @@ use 'sequentialthinking' tool eagerly.
 Look at `.github/instructions/spec-driven-workflow-v1.instructions.md' for guidance on spec/design/tasks.
 
 the initial idea was '/idea.md'
+progressive designs are at '/memory/designs'
 
 ## 🧠 Memory Bank System
 
