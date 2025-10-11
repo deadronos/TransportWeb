@@ -2,11 +2,19 @@
 
 ## Current Focus
 
-**Phase**: Transport Tycoon UI Implementation (TASK002) - 70% COMPLETE
+**Phase**: Track Placement Integration (TASK003) - IN PROGRESS
 
-**Status**: Core visual foundation and UI framework complete. Interactive construction features pending.
+**Status**: Construction visuals complete; implementing network-backed placement and demolition.
 
 ## What We're Building Now
+
+### Completed (TASK003)
+- ✅ Requirements drafted for construction validation, placement, and demolition
+- ✅ Design for network-backed placement approved (DESIGN004)
+- ✅ Task plan captured in memory/tasks/TASK003-track-placement.md
+- ✅ Implemented `useNetworkStore` slice with graph + visual registry
+- ✅ Updated `useConstructionMode` for placement, connectivity, demolition
+- ✅ Enhanced `SceneGraph` rendering for new mesh metadata
 
 ### Completed (TASK002 - Phase 1 & 2)
 - ✅ Isometric camera constraints (polar angles π/6 to π/3)
@@ -28,35 +36,25 @@
 - ✅ SceneGraph component
 - ✅ Example unit and E2E tests
 
-### In Progress (TASK002 - Phase 2)
-- 🔄 Ghost preview system (transparent building overlay with validity colors)
-- 🔄 Raycasting for tile selection (mouse → world position)
-- 🔄 useConstructionMode hook (orchestration logic)
+### In Progress (TASK003)
+- 🔄 Manual validation + documentation wrap-up (task 3.4)
 
 ### Next Steps
-1. Implement ghost preview system (2.7)
-2. Add raycasting for tile selection (2.8)
-3. Create useConstructionMode hook (2.9)
-4. Test full construction workflow
-5. Update progress.md and complete TASK002
+1. Execute manual QA on placement/demolition loop and capture findings
+2. Update progress/task docs with validation outcomes
+3. Plan follow-up for automated coverage and persistence work
 
 ## Recent Changes
 
-**2025-01-XX (TASK002)**: Transport Tycoon UI Implementation
-- Created `src/game/utils/grid.ts` with snap-to-grid utilities
-- Created `src/game/state/slices/construction.ts` for state management
-- Created `src/game/ui/TopMenuBar.tsx` (90 lines) with 3-section layout
-- Created `src/game/ui/TopMenuBar.css` (187 lines) with Transport Tycoon styling
-- Created `src/game/scene/Terrain.tsx` for grass plane
-- Modified `src/game/GameCanvas.tsx` with camera constraints and dual grid system
-- Modified `src/game/ui/HUD.tsx` to use TopMenuBar
-- Documented completion in `memory/IMPLEMENTATION-PHASE1-COMPLETE.md`
-- Documented research in `memory/designs/UI-RESEARCH-transport-tycoon-visual-design.md`
+**2025-10-13 (Bugfix)**: Stabilized construction runtime loop
+- Reworked Zustand selectors in GameCanvas + construction hooks to remove render storm causing infinite loop errors.
+- Validated ghost preview + grid rendering without React depth errors.
 
-**2025-10-11 (TASK001)**: Initial scaffold creation
-- Created complete project structure from idea.md specification
-- Implemented minimal PoC with working R3F + ECS integration
-- Added example tests and documented architecture
+**2025-10-12 (TASK003)**: Track Placement Integration kickoff
+- Authored EARS requirements R6–R8 for ghost validation, placement, and demolition
+- Logged design plan in `memory/designs/DESIGN004-track-placement.md`
+- Created task tracker entry `memory/tasks/TASK003-track-placement.md`
+- Established next-step checklist for implementation phase
 
 ## Active Decisions
 
@@ -93,5 +91,5 @@ None.
 
 ---
 
-**Next Action**: Implement ghost preview system (TASK002 subtask 2.7)  
-**Last Updated**: 2025-01-XX
+**Next Action**: Complete TASK003 subtask 3.4 (manual QA + documentation)
+**Last Updated**: 2025-10-12

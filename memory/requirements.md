@@ -58,6 +58,39 @@
 
 ---
 
+### R6: Construction Ghost Validation
+**WHEN** a construction tool is active and the cursor hovers over the terrain, **THE SYSTEM SHALL** display a ghost preview snapped to the build grid that reflects whether placement is valid based on existing structures.
+
+**Acceptance Criteria:**
+- Ghost preview follows mouse and snaps to 10-unit grid
+- Preview turns green when placement is allowed and red when blocked by an existing node
+- Demolish tool only shows valid state when a removable structure is under the cursor
+- Zustand state (`ghostPosition`, `isValidPlacement`) reflects the rendered preview
+
+---
+
+### R7: Track & Road Placement
+**WHEN** the player clicks while a track or road tool is active and the placement is valid, **THE SYSTEM SHALL** create network nodes, connect neighboring segments, and spawn ECS entities representing the visual track or road geometry.
+
+**Acceptance Criteria:**
+- Nodes are added to the `NetworkGraph` with correct type and metadata
+- Adjacent segments connect automatically via graph edges without duplicates
+- Visual meshes appear in the scene aligned with the segment direction
+- Graph version increments so dependent systems can react
+
+---
+
+### R8: Structure Removal
+**WHEN** the player uses the demolish tool on an existing structure, **THE SYSTEM SHALL** remove associated graph nodes, edges, and visual ECS entities in sync.
+
+**Acceptance Criteria:**
+- Targeted node is removed along with all connected edges
+- Visual meshes for tracks/roads/stations/depot are destroyed
+- Neighboring segments remain intact and functional
+- Re-hovering immediately reflects the cleared placement slot as valid
+
+---
+
 ## Non-Functional Requirements
 
 ### NFR1: Performance
