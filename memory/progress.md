@@ -151,6 +151,11 @@
 
 ## Recent Achievements
 
+**2025-10-13 (Bugfix)**: Stabilize construction runtime
+- ✅ Swapped Zustand selectors in construction/network hooks to prevent `useSyncExternalStore` infinite re-render loops in the
+  GameCanvas.
+- ✅ Confirmed construction grid + ghost preview render without recursion errors after refactor.
+
 **2025-10-12 (TASK003 Kickoff)**: Track Placement Integration
 - ✅ Authored requirements R6–R8 for ghost validation, placement, and demolition
 - ✅ Produced DESIGN004 detailing network-backed placement architecture

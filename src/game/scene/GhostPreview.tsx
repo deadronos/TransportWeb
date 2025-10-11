@@ -5,7 +5,9 @@ import { useConstruction } from '../state/slices/construction';
  * Color changes based on placement validity (green=valid, red=invalid).
  */
 export function GhostPreview() {
-  const { tool, ghostPosition, isValidPlacement } = useConstruction();
+  const tool = useConstruction((state) => state.tool);
+  const ghostPosition = useConstruction((state) => state.ghostPosition);
+  const isValidPlacement = useConstruction((state) => state.isValidPlacement);
 
   // Don't render if no tool selected or no ghost position
   if (tool === 'none' || tool === 'query' || !ghostPosition) {

@@ -139,30 +139,21 @@ function isNeighborCompatible(
  * Handles mouse movement, raycasting, grid snapping, and placement logic.
  */
 export function useConstructionMode() {
-  const { tool, setGhostPosition, setValidPlacement } = useConstruction();
+  const tool = useConstruction((state) => state.tool);
+  const setGhostPosition = useConstruction((state) => state.setGhostPosition);
+  const setValidPlacement = useConstruction((state) => state.setValidPlacement);
   const { gl } = useThree();
   const raycast = useTerrainRaycaster();
   const world = useWorld();
 
-  const {
-    graph,
-    addNode,
-    addEdge,
-    removeNode,
-    findNodeAtPosition,
-    registerVisualEntity,
-    unregisterVisualEntity,
-    version,
-  } = useNetworkStore((state) => ({
-    graph: state.graph,
-    addNode: state.addNode,
-    addEdge: state.addEdge,
-    removeNode: state.removeNode,
-    findNodeAtPosition: state.findNodeAtPosition,
-    registerVisualEntity: state.registerVisualEntity,
-    unregisterVisualEntity: state.unregisterVisualEntity,
-    version: state.version,
-  }));
+  const graph = useNetworkStore((state) => state.graph);
+  const addNode = useNetworkStore((state) => state.addNode);
+  const addEdge = useNetworkStore((state) => state.addEdge);
+  const removeNode = useNetworkStore((state) => state.removeNode);
+  const findNodeAtPosition = useNetworkStore((state) => state.findNodeAtPosition);
+  const registerVisualEntity = useNetworkStore((state) => state.registerVisualEntity);
+  const unregisterVisualEntity = useNetworkStore((state) => state.unregisterVisualEntity);
+  const version = useNetworkStore((state) => state.version);
 
   const [hoverPosition, setHoverPosition] = useState<Vector3 | null>(null);
   const [isValid, setIsValid] = useState(true);

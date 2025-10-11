@@ -46,6 +46,10 @@
 
 ## Recent Changes
 
+**2025-10-13 (Bugfix)**: Stabilized construction runtime loop
+- Reworked Zustand selectors in GameCanvas + construction hooks to remove render storm causing infinite loop errors.
+- Validated ghost preview + grid rendering without React depth errors.
+
 **2025-10-12 (TASK003)**: Track Placement Integration kickoff
 - Authored EARS requirements R6–R8 for ghost validation, placement, and demolition
 - Logged design plan in `memory/designs/DESIGN004-track-placement.md`

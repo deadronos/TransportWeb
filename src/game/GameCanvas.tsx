@@ -12,7 +12,7 @@ import { useConstructionMode } from './hooks/useConstructionMode';
 
 function Simulation() {
   const world = useWorld();
-  const { showGrid } = useConstruction();
+  const showGrid = useConstruction((state) => state.showGrid);
   useTimeSystem(world);
 
   // Enable construction mode interactions
