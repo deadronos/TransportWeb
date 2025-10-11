@@ -4,11 +4,12 @@
 
 **Phase**: Track Placement Integration (TASK003) - IN PROGRESS
 
-**Status**: Construction visuals complete; implementing network-backed placement and demolition.
+**Status**: Placement & demolition helpers exported/tested; prepping manual QA + documentation.
 
 ## What We're Building Now
 
 ### Completed (TASK003)
+
 - ✅ Requirements drafted for construction validation, placement, and demolition
 - ✅ Design for network-backed placement approved (DESIGN004)
 - ✅ Task plan captured in memory/tasks/TASK003-track-placement.md
@@ -17,6 +18,7 @@
 - ✅ Enhanced `SceneGraph` rendering for new mesh metadata
 
 ### Completed (TASK002 - Phase 1 & 2)
+
 - ✅ Isometric camera constraints (polar angles π/6 to π/3)
 - ✅ Dual-layer grid system (10-unit construction + 1-unit base)
 - ✅ Grass terrain rendering (500×500 units, #2d5016)
@@ -27,6 +29,7 @@
 - ✅ Full Transport Tycoon styling (gradients, hover effects, colors)
 
 ### Completed (TASK001 - Initial Scaffold)
+
 - ✅ Memory bank structure
 - ✅ Package.json with React 18 + Vite 6 + Three.js + R3F + Miniplex 2.0 + Zustand
 - ✅ Configuration files (Vite, ESLint, TypeScript, Playwright)
@@ -37,28 +40,39 @@
 - ✅ Example unit and E2E tests
 
 ### In Progress (TASK003)
+
 - 🔄 Manual validation + documentation wrap-up (task 3.4)
 
 ### Next Steps
+
 1. Execute manual QA on placement/demolition loop and capture findings
 2. Update progress/task docs with validation outcomes
-3. Plan follow-up for automated coverage and persistence work
+3. Extend demolition coverage toward undo workflow once manual QA passes
 
 ## Recent Changes
 
+**2025-10-16 (Demolition Coverage)**: Exported helpers for deterministic tests
+
+- Extracted `executePlacement`/`executeDemolition` from `useConstructionMode` to enable direct unit testing.
+- Added Vitest coverage ensuring demolition removes visuals, edges, and nodes while reusing store mocks.
+
 **2025-10-14 (Debug Utilities)**: Added toggleable debug panel to accelerate vehicle prototyping
+
 - Built HUD toggle and in-world panel for spawning vehicles and tweaking simulation speed.
 - Added stats visibility toggle tied to the new debug controls.
 
 **2025-10-14 (Testing Infrastructure)**: Restored Vitest suite after registry blocks
+
 - Aliased `@testing-library/jest-dom/vitest` to a local matcher polyfill to bypass the 403 download restriction.
 - Re-ran the full Vitest suite to confirm the fallback behaves like the upstream matchers.
 
 **2025-10-13 (Bugfix)**: Stabilized construction runtime loop
+
 - Reworked Zustand selectors in GameCanvas + construction hooks to remove render storm causing infinite loop errors.
 - Validated ghost preview + grid rendering without React depth errors.
 
 **2025-10-12 (TASK003)**: Track Placement Integration kickoff
+
 - Authored EARS requirements R6–R8 for ghost validation, placement, and demolition
 - Logged design plan in `memory/designs/DESIGN004-track-placement.md`
 - Created task tracker entry `memory/tasks/TASK003-track-placement.md`
@@ -67,6 +81,7 @@
 ## Active Decisions
 
 ### Technical Decisions
+
 - **Camera Constraints**: minPolarAngle=π/6, maxPolarAngle=π/3 for forced isometric view
 - **Grid Strategy**: Auto-show grid when construction tool active, hide with Query tool
 - **State Persistence**: Construction state persists to localStorage
@@ -76,6 +91,7 @@
 - **ECS boundary**: Simulation never touches Zustand (one-way flow)
 
 ### Design Decisions
+
 - **Phased Approach**: Visual foundation → Interactive features → Advanced graphics
 - **Grid Snap**: Default 10-unit grid for tracks/roads, 1-unit precision available
 - **Tool Workflow**: Tool selection → Grid auto-shows → Ghost preview → Placement
@@ -100,4 +116,4 @@ None.
 ---
 
 **Next Action**: Complete TASK003 subtask 3.4 (manual QA + documentation)
-**Last Updated**: 2025-10-14
+**Last Updated**: 2025-10-16
