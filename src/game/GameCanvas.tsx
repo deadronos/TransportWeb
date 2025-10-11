@@ -25,7 +25,21 @@ function Simulation() {
       id: nanoid(),
       Transform: { position: [0, 0.5, 0] },
       Renderable: { kind: "vehicle" },
-      Vehicle: { speed: 0, accel: 0.5, maxSpeed: 2, type: "train" },
+      Vehicle: {
+        speed: 0,
+        accel: 0.5,
+        maxSpeed: 2,
+        type: "train",
+        route: {
+          state: "idle",
+          currentNodeId: null,
+          targetNodeId: null,
+          path: null,
+          currentEdgeIndex: 0,
+          distanceAlongEdge: 0,
+          dwellTimeRemaining: 0,
+        },
+      },
     });
   }, [world]);
 

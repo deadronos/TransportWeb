@@ -4,16 +4,19 @@ import { devtools } from "zustand/middleware";
 export type DebugState = {
   panelVisible: boolean;
   showStats: boolean;
+  showEntityInspector: boolean;
   togglePanel: () => void;
   closePanel: () => void;
   setPanelVisible: (visible: boolean) => void;
   setShowStats: (visible: boolean) => void;
+  setShowEntityInspector: (visible: boolean) => void;
 };
 
 export const useDebug = create<DebugState>()(
   devtools((set) => ({
     panelVisible: false,
     showStats: true,
+    showEntityInspector: false,
     togglePanel: () =>
       set((state) => ({
         panelVisible: !state.panelVisible,
@@ -21,5 +24,6 @@ export const useDebug = create<DebugState>()(
     closePanel: () => set({ panelVisible: false }),
     setPanelVisible: (visible) => set({ panelVisible: visible }),
     setShowStats: (visible) => set({ showStats: visible }),
+    setShowEntityInspector: (visible) => set({ showEntityInspector: visible }),
   })),
 );

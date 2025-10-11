@@ -105,6 +105,39 @@
 - Neighboring segments remain intact and functional
 - Re-hovering immediately reflects the cleared placement slot as valid
 
+### R9: Vehicle Route Assignment
+
+**WHEN** a vehicle is spawned while the network graph has at least two connected nodes, **THE SYSTEM SHALL** locate a valid origin and destination node, compute a path, and reserve its edges for that vehicle.
+
+**Acceptance Criteria:**
+
+- Vehicles spawn at the closest network node position
+- A\* pathfinding returns a non-empty path when connectivity allows
+- Edge `occupied` lists include the vehicle ID after spawning
+- Vehicles without a path remain idle without errors
+
+### R10: Vehicle Route Following
+
+**WHEN** the simulation ticks and a vehicle has an assigned path, **THE SYSTEM SHALL** advance the vehicle along its reserved edges respecting acceleration, release edges as they are cleared, and recycle a new destination upon arrival.
+
+**Acceptance Criteria:**
+
+- Vehicle transforms interpolate along edge positions during movement
+- Completed edges are removed from the graph occupancy list immediately after traversal
+- Vehicles pick a new destination node once they reach the end of a path
+- Vehicles halt gracefully if their reserved edges disappear mid-route
+
+### R11: Debug Entity Inspector
+
+**WHEN** the user toggles the entity inspector in the debug panel, **THE SYSTEM SHALL** display a scrollable list of live ECS entities with their IDs, component summary, and route status for vehicles.
+
+**Acceptance Criteria:**
+
+- Debug panel gains a toggle control for the inspector without affecting default layout
+- Entity list updates as entities are added or removed from the world
+- Vehicle rows show current speed and destination (if any)
+- Panel hides the list when the toggle is off
+
 ---
 
 ## Non-Functional Requirements
@@ -133,4 +166,4 @@
 
 **Status**: Active  
 **Created**: 2025-10-11  
-**Last Updated**: 2025-10-11
+**Last Updated**: 2025-10-15
