@@ -1,7 +1,7 @@
 # Tasks Index
 
 ## In Progress
-
+- [TASK003] Track placement integration - Started 2025-10-12
 ## Pending
 
 ## Completed

@@ -151,6 +151,15 @@
 
 ## Recent Achievements
 
+**2025-10-12 (TASK003 Kickoff)**: Track Placement Integration
+- ✅ Authored requirements R6–R8 for ghost validation, placement, and demolition
+- ✅ Produced DESIGN004 detailing network-backed placement architecture
+- ✅ Created TASK003 implementation plan with subtasks 3.1–3.4
+- ✅ Implemented `useNetworkStore` slice powering NetworkGraph + visual registry
+- ✅ Upgraded `useConstructionMode` with validation, placement, demolition workflows
+- ✅ Enhanced `SceneGraph` to render dimensioned meshes by renderable kind
+- ⚠️ Vitest suite currently blocked (missing `@testing-library/jest-dom/vitest` dependency)
+
 **2025-10-11 (TASK002 Complete)**: Interactive Construction System
 - ✅ Implemented isometric camera constraints
 - ✅ Built dual-layer grid system with auto-show logic
@@ -180,14 +189,14 @@
 
 ## Next Steps
 
-1. **Phase 3 Planning**: Design network graph data structure
-2. **Research**: Review pathfinding algorithms for transport simulation
-3. **Design**: Create TASK003 for network and movement system
-4. **Architecture**: Define ECS components for tracks, roads, stations
-5. **Implementation**: Start with graph builder and A* pathfinding
+1. Implement `useNetworkStore` with graph mutation helpers and visual registry
+2. Update `useConstructionMode` to perform placement, connectivity, and demolition
+3. Enhance `SceneGraph` rendering for track/road/station/depot meshes
+4. Manually validate ghost behavior + placement/demolition cycle and document results
+5. Plan automated coverage for network slice in future iteration
 
 ---
 
-**Status**: Phase 2 (Interactive Construction) - ✅ 100% COMPLETE  
-**Last Updated**: 2025-10-11  
-**Next Review**: Phase 3 kickoff meeting
+**Status**: Phase 3 (Network & Movement) - 🚧 In Progress (Track placement integration)
+**Last Updated**: 2025-10-12
+**Next Review**: After completing TASK003 subtasks

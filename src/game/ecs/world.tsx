@@ -9,8 +9,10 @@ export type Entity = {
     scale?: [number, number, number];
   };
   Renderable?: {
-    kind: 'track' | 'road' | 'station' | 'vehicle' | 'tree';
+    kind: 'track' | 'road' | 'station' | 'depot' | 'vehicle' | 'tree';
     meshId?: string;
+    dimensions?: [number, number, number];
+    color?: string;
   };
   Vehicle?: {
     speed: number;
