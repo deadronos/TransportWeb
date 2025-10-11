@@ -2,71 +2,83 @@
 
 ## Current Focus
 
-**Phase**: Initial project scaffold and foundation (Phase 1 of 4)
+**Phase**: Transport Tycoon UI Implementation (TASK002) - 70% COMPLETE
 
-**Status**: Setting up core architecture and validating technical approach with minimal PoC.
+**Status**: Core visual foundation and UI framework complete. Interactive construction features pending.
 
 ## What We're Building Now
 
-### Completed
-- ✅ Memory bank structure (projectbrief, requirements, design, tasks)
-- ✅ Package.json with all dependencies
-- ✅ Vite configuration (merged with vitest)
-- ✅ ESLint configuration (replaced Next.js with React)
-- ✅ TypeScript configuration (strict mode, path aliases)
-- ✅ React entry files (main.tsx, App.tsx, main.css)
-- ✅ ECS world setup (Miniplex integration)
-- ✅ Fixed timestep system
-- ✅ R3F GameCanvas with controls
-- ✅ Zustand clock slice
-- ✅ HUD with speed controls
-- ✅ SceneGraph component
-- ✅ Example unit test (ECS)
-- ✅ Example E2E test (Playwright)
-- ✅ README with getting started
-- ✅ Core memory bank files (productContext, techContext, systemPatterns)
+### Completed (TASK002 - Phase 1 & 2)
+- ✅ Isometric camera constraints (polar angles π/6 to π/3)
+- ✅ Dual-layer grid system (10-unit construction + 1-unit base)
+- ✅ Grass terrain rendering (500×500 units, #2d5016)
+- ✅ Grid utility functions (snapToGrid, worldToGrid, gridToWorld)
+- ✅ Construction state management (Zustand slice with persistence)
+- ✅ TopMenuBar component (Transport Tycoon aesthetic)
+- ✅ HUD integration (replaced inline controls)
+- ✅ Full Transport Tycoon styling (gradients, hover effects, colors)
 
-### In Progress
-- 🔄 Installing dependencies (`npm install`)
-- 🔄 Testing PoC (verify R3F + ECS integration works)
+### Completed (TASK001 - Initial Scaffold)
+- ✅ Memory bank structure
+- ✅ Package.json with React 18 + Vite 6 + Three.js + R3F + Miniplex 2.0 + Zustand
+- ✅ Configuration files (Vite, ESLint, TypeScript, Playwright)
+- ✅ ECS world setup with fixed timestep (60 UPS)
+- ✅ R3F GameCanvas with OrbitControls
+- ✅ Zustand clock slice
+- ✅ SceneGraph component
+- ✅ Example unit and E2E tests
+
+### In Progress (TASK002 - Phase 2)
+- 🔄 Ghost preview system (transparent building overlay with validity colors)
+- 🔄 Raycasting for tile selection (mouse → world position)
+- 🔄 useConstructionMode hook (orchestration logic)
 
 ### Next Steps
-1. Run `npm install` to install all dependencies
-2. Run `npm run dev` to start dev server
-3. Verify 3D canvas renders with moving vehicle
-4. Verify HUD controls work
-5. Create remaining placeholder files and folders
-6. Update task tracking
+1. Implement ghost preview system (2.7)
+2. Add raycasting for tile selection (2.8)
+3. Create useConstructionMode hook (2.9)
+4. Test full construction workflow
+5. Update progress.md and complete TASK002
 
 ## Recent Changes
 
-**2025-10-11**: Initial scaffold creation
+**2025-01-XX (TASK002)**: Transport Tycoon UI Implementation
+- Created `src/game/utils/grid.ts` with snap-to-grid utilities
+- Created `src/game/state/slices/construction.ts` for state management
+- Created `src/game/ui/TopMenuBar.tsx` (90 lines) with 3-section layout
+- Created `src/game/ui/TopMenuBar.css` (187 lines) with Transport Tycoon styling
+- Created `src/game/scene/Terrain.tsx` for grass plane
+- Modified `src/game/GameCanvas.tsx` with camera constraints and dual grid system
+- Modified `src/game/ui/HUD.tsx` to use TopMenuBar
+- Documented completion in `memory/IMPLEMENTATION-PHASE1-COMPLETE.md`
+- Documented research in `memory/designs/UI-RESEARCH-transport-tycoon-visual-design.md`
+
+**2025-10-11 (TASK001)**: Initial scaffold creation
 - Created complete project structure from idea.md specification
-- Set up all configuration files (Vite, ESLint, TypeScript, Playwright)
-- Implemented minimal PoC with:
-  - Working R3F canvas with OrbitControls and Stats
-  - ECS world with demo vehicle entity
-  - Fixed timestep simulation loop
-  - Zustand-powered HUD controls
-- Added example unit and E2E tests
-- Documented architecture in memory bank
+- Implemented minimal PoC with working R3F + ECS integration
+- Added example tests and documented architecture
 
 ## Active Decisions
 
 ### Technical Decisions
-- **Vite over Next.js**: Faster dev server, simpler CSR setup (as specified in idea.md)
+- **Camera Constraints**: minPolarAngle=π/6, maxPolarAngle=π/3 for forced isometric view
+- **Grid Strategy**: Auto-show grid when construction tool active, hide with Query tool
+- **State Persistence**: Construction state persists to localStorage
+- **Color Palette**: Transport Tycoon standard (#2d5016 grass, #4a7c59 active, #2a2a2a UI)
+- **Vite over Next.js**: Faster dev server, simpler CSR setup
 - **Fixed 60fps timestep**: Ensures deterministic simulation
 - **ECS boundary**: Simulation never touches Zustand (one-way flow)
-- **Instancing strategy**: Defer to Phase 2 when we have actual repeated geometry
 
 ### Design Decisions
-- **PoC first, then scaffold**: Validate core architecture before creating all files
-- **Inline styles for now**: Will move to CSS modules when styling becomes complex
-- **Demo vehicle**: Simple cube that moves to verify fixed timestep works
+- **Phased Approach**: Visual foundation → Interactive features → Advanced graphics
+- **Grid Snap**: Default 10-unit grid for tracks/roads, 1-unit precision available
+- **Tool Workflow**: Tool selection → Grid auto-shows → Ghost preview → Placement
+- **PoC first**: Validate core architecture before expanding features
 
 ## Known Issues
 
-None yet - about to validate PoC.
+- R3F TypeScript errors on JSX intrinsics (false positives, non-blocking)
+- Markdown lint warnings in memory bank (formatting only, non-blocking)
 
 ## Blockers
 
@@ -74,11 +86,12 @@ None.
 
 ## Questions
 
-- [ ] Should we add Leva debug panel in initial scaffold? (Deferred to Phase 2)
-- [ ] WebWorker for pathfinding? (Deferred until performance testing)
-- [ ] Texture atlasing strategy? (Deferred to asset implementation)
+- [x] Camera angle for Transport Tycoon? → Answered: π/6 to π/3 polar angles
+- [x] Grid visibility strategy? → Answered: Auto-show with construction tools
+- [ ] Ghost preview color scheme? (Suggestion: Green=valid, Red=invalid)
+- [ ] Raycasting performance with large grids? (Test after implementation)
 
 ---
 
-**Next Action**: Run `npm install` and test PoC  
-**Last Updated**: 2025-10-11
+**Next Action**: Implement ghost preview system (TASK002 subtask 2.7)  
+**Last Updated**: 2025-01-XX
