@@ -9,6 +9,8 @@ import { useConstruction } from './state/slices/construction';
 import { Terrain } from './scene/Terrain';
 import { GhostPreview } from './scene/GhostPreview';
 import { useConstructionMode } from './hooks/useConstructionMode';
+import { useDebug } from './state/slices/debug';
+import { DebugPanel } from './ui/DebugPanel';
 
 function Simulation() {
   const world = useWorld();
@@ -52,6 +54,8 @@ function Simulation() {
 }
 
 export function GameCanvas() {
+  const showStats = useDebug((state) => state.showStats);
+
   return (
     <WorldProvider>
       <Canvas
@@ -71,8 +75,9 @@ export function GameCanvas() {
           minDistance={10}
           maxDistance={200}
         />
-        <Stats />
+        {showStats && <Stats />}
       </Canvas>
+      <DebugPanel />
     </WorldProvider>
   );
 }

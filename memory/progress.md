@@ -151,6 +151,10 @@
 
 ## Recent Achievements
 
+**2025-10-14 (Debug Utilities)**: Added debug panel for simulation experimentation
+- ✅ Introduced toggleable HUD button + overlay to spawn trains/trucks and tune vehicle parameters.
+- ✅ Wired debug controls into simulation speed + renderer stats visibility for faster iteration.
+
 **2025-10-13 (Bugfix)**: Stabilize construction runtime
 - ✅ Swapped Zustand selectors in construction/network hooks to prevent `useSyncExternalStore` infinite re-render loops in the
   GameCanvas.
@@ -163,7 +167,10 @@
 - ✅ Implemented `useNetworkStore` slice powering NetworkGraph + visual registry
 - ✅ Upgraded `useConstructionMode` with validation, placement, demolition workflows
 - ✅ Enhanced `SceneGraph` to render dimensioned meshes by renderable kind
-- ⚠️ Vitest suite currently blocked (missing `@testing-library/jest-dom/vitest` dependency)
+
+**2025-10-14 (Testing Infrastructure)**: Restored Vitest suite under registry constraints
+- ✅ Introduced a local matcher polyfill that mirrors `@testing-library/jest-dom/vitest` so Vitest can boot without the package download.
+- ✅ Wired Vitest + TypeScript aliasing to the polyfill entrypoint and validated the entire suite.
 
 **2025-10-11 (TASK002 Complete)**: Interactive Construction System
 - ✅ Implemented isometric camera constraints
@@ -203,5 +210,5 @@
 ---
 
 **Status**: Phase 3 (Network & Movement) - 🚧 In Progress (Track placement integration)
-**Last Updated**: 2025-10-12
+**Last Updated**: 2025-10-14
 **Next Review**: After completing TASK003 subtasks

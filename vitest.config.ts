@@ -1,10 +1,18 @@
 import { defineConfig } from 'vite';
+import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import compression from 'vite-plugin-compression';
 import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@testing-library/jest-dom/vitest': fileURLToPath(
+        new URL('./src/test/polyfills/jestDomMatchersEntrypoint.ts', import.meta.url),
+      ),
+    },
+  },
   plugins: [
     react(),
     tsconfigPaths(),
