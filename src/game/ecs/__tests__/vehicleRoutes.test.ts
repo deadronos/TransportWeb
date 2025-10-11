@@ -5,6 +5,7 @@ import {
   advanceVehicleSimulation,
   resetVehiclePathCache,
 } from "@/game/ecs/systems/vehicleRoutes";
+import type { Path } from "@/game/network/pathfinding";
 import { useNetworkStore } from "@/game/state/slices/network";
 
 const EDGE_AB = "edge-ab";
@@ -94,12 +95,13 @@ describe("advanceVehicleSimulation", () => {
     }
 
     expect(route.path).not.toBeNull();
-    const path = route.path;
+    const path = route.path as Path | null;
     if (!path) {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    // Assert that the path contains edges — cast to the Path type so the
+    // TypeScript compiler recognizes the `edges` property in tests.
     expect(path.edges.length).toBeGreaterThan(0);
 
     const store = useNetworkStore.getState();

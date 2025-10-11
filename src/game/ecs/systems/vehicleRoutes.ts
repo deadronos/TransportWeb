@@ -49,7 +49,10 @@ function pickDestinationNode(
   }
 
   const index = Math.floor(Math.random() * candidates.length);
-  return candidates[index];
+  // candidates[index] may be `undefined` by --strict checks, so normalize
+  // the return value to `null` when no candidate exists to match the
+  // declared return type of `NetworkNode | null`.
+  return candidates[index] ?? null;
 }
 
 function removeOccupancy(
@@ -252,7 +255,7 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
         route.currentEdgeIndex += 1;
         route.distanceAlongEdge = 0;
         route.currentNodeId = toNode.id;
-        const removed = removeOccupancy(graph, edgeId, entity.id);
+        const removed = removeOccupancy(graph, edgeId!, entity.id);
         if (removed) {
           graphDirty = true;
         }

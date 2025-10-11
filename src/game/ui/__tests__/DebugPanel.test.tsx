@@ -58,10 +58,14 @@ beforeEach(() => {
     window.cancelAnimationFrame = caf;
   }
 
-  useDebug.setState({
-    panelVisible: true,
-    showStats: false,
-    showEntityInspector: false,
+  // Ensure any React updates caused by changing the debug store are
+  // wrapped in act(...) so tests don't warn about updates outside act.
+  act(() => {
+    useDebug.setState({
+      panelVisible: true,
+      showStats: false,
+      showEntityInspector: false,
+    });
   });
 });
 
@@ -69,14 +73,21 @@ afterEach(() => {
   delete (globalThis as Record<string, unknown>).requestAnimationFrame;
   delete (globalThis as Record<string, unknown>).cancelAnimationFrame;
   if (typeof window !== "undefined") {
-    delete (window as Record<string, unknown>).requestAnimationFrame;
-    delete (window as Record<string, unknown>).cancelAnimationFrame;
+    // Cast via `unknown` first so TypeScript accepts the conversion to a
+    // `Record<string, unknown>` for index-based deletes.
+    delete (window as unknown as Record<string, unknown>).requestAnimationFrame;
+    delete (window as unknown as Record<string, unknown>).cancelAnimationFrame;
   }
-  useDebug.setState({
-    panelVisible: false,
-    showStats: true,
-    showEntityInspector: false,
+  // Wrap store updates in act to avoid React's "not wrapped in act" warnings
+  // when the DebugPanel (or other subscribers) are updated during teardown.
+  act(() => {
+    useDebug.setState({
+      panelVisible: false,
+      showStats: true,
+      showEntityInspector: false,
+    });
   });
+
   cleanup();
 });
 
