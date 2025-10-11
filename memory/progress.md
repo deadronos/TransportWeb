@@ -1,5 +1,11 @@
 # Progress
 
+## Current Status
+
+**Phase**: 3 - Network & Movement System  
+**Progress**: Subtask 3.1 complete (Network Graph Core)  
+**Next**: Subtask 3.2 (Track/Road Placement Integration)
+
 ## What Works
 
 ### ✅ Foundation (Complete)
@@ -69,24 +75,40 @@
 
 ## What's Left to Build
 
-### Phase 2: Interactive Construction (Current - 70% Complete)
+### Phase 2: Interactive Construction ✅ COMPLETE
 - [x] Camera constraints for isometric view
 - [x] Grid system with snap-to-grid
 - [x] Terrain rendering
 - [x] TopMenuBar UI component
 - [x] Construction state management
-- [ ] **Ghost preview system** (transparent building overlay)
-- [ ] **Raycasting for tile selection** (mouse → world position)
-- [ ] **useConstructionMode hook** (orchestration logic)
+- [x] Ghost preview system (transparent building overlay)
+- [x] Raycasting for tile selection (mouse → world position)
+- [x] useConstructionMode hook (orchestration logic)
 
-### Phase 3: Network & Movement
-- [ ] Graph-based network system
-- [ ] A* pathfinding with block reservations
-- [ ] Track/road placement tools (functional implementation)
-- [ ] Station placement and connections
-- [ ] Vehicle spawning and routing
-- [ ] Block-based signaling
-- [ ] Collision avoidance
+### Phase 3: Network & Movement 🚧 IN PROGRESS
+
+**Status**: Subtask 3.1 complete - Network Graph Core  
+**Next**: Subtask 3.2 - Track/Road Placement Integration
+
+#### ✅ Complete (Subtask 3.1)
+- [x] Network graph data structure (NetworkNode, NetworkEdge, NetworkGraph)
+- [x] Graph operations (add/remove nodes/edges, queries, serialization)
+- [x] A* pathfinding algorithm with priority queue
+- [x] Block reservation system (prevent vehicle collisions)
+- [x] Path caching with LRU eviction (max 1000 entries)
+- [x] Dynamic rerouting (findAlternatePath)
+- [x] Capacity-aware pathfinding (respect edge occupancy)
+- [x] Utility functions (distance, snapping, interpolation)
+- [x] Comprehensive unit tests (37 tests, all passing)
+
+#### 🔲 Pending
+- [ ] Track/road placement (convert ghost preview to real entities)
+- [ ] ECS integration (Track/Road/Station components)
+- [ ] Vehicle pathfinding hook (useVehiclePathfinding)
+- [ ] Path following movement system
+- [ ] Network state management (Zustand slice)
+- [ ] Visual improvements (proper track meshes)
+- [ ] Testing & validation (E2E tests)
 
 ### Phase 4: Economy & Cargo
 - [ ] Cargo types and commodities
@@ -108,10 +130,10 @@
 
 ## Current Status
 
-**Phase**: 2 (Interactive Construction - 70% complete)  
-**Progress**: Core visual foundation complete, interactive features pending  
+**Phase**: 3 (Network & Movement - Planning)  
+**Progress**: Phase 2 Interactive Construction 100% complete  
 **Blockers**: None  
-**Next Milestone**: Complete ghost preview + raycasting for interactive building
+**Next Milestone**: Design network graph structure and pathfinding system
 
 ## Metrics
 
@@ -129,15 +151,19 @@
 
 ## Recent Achievements
 
-**2025-01-XX (TASK002)**: Transport Tycoon UI Implementation
-- Implemented isometric camera constraints
-- Built dual-layer grid system with auto-show logic
-- Created grass terrain with Transport Tycoon colors
-- Developed snap-to-grid utility functions
-- Built TopMenuBar with full styling (187 lines CSS)
-- Integrated construction state management
-- Documented completion in memory bank
-- Created comprehensive UI research document
+**2025-10-11 (TASK002 Complete)**: Interactive Construction System
+- ✅ Implemented isometric camera constraints
+- ✅ Built dual-layer grid system with auto-show logic
+- ✅ Created grass terrain with Transport Tycoon colors
+- ✅ Developed snap-to-grid utility functions
+- ✅ Built TopMenuBar with full styling (187 lines CSS)
+- ✅ Integrated construction state management
+- ✅ Created ghost preview system with tool-specific shapes
+- ✅ Implemented raycasting for tile selection
+- ✅ Built useConstructionMode orchestration hook
+- ✅ Full workflow tested: select tool → hover preview → click placement
+- ✅ Documented completion in memory bank
+- ✅ Created comprehensive UI research document
 
 **2025-10-11 (TASK001)**: Initial Scaffold
 - Complete project scaffold from idea.md
@@ -154,14 +180,14 @@
 
 ## Next Steps
 
-1. **Immediate**: Implement ghost preview system (TASK002 subtask 2.7)
-2. **Next**: Add raycasting for tile selection (subtask 2.8)
-3. **Then**: Create useConstructionMode hook (subtask 2.9)
-4. **Testing**: Validate full construction workflow
-5. **Documentation**: Complete TASK002 and update memory bank
+1. **Phase 3 Planning**: Design network graph data structure
+2. **Research**: Review pathfinding algorithms for transport simulation
+3. **Design**: Create TASK003 for network and movement system
+4. **Architecture**: Define ECS components for tracks, roads, stations
+5. **Implementation**: Start with graph builder and A* pathfinding
 
 ---
 
-**Status**: Phase 2 (Interactive Construction) - 70% complete  
-**Last Updated**: 2025-01-XX  
-**Next Review**: After TASK002 completion
+**Status**: Phase 2 (Interactive Construction) - ✅ 100% COMPLETE  
+**Last Updated**: 2025-10-11  
+**Next Review**: Phase 3 kickoff meeting
