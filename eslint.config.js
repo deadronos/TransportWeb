@@ -1,15 +1,12 @@
-import { FlatCompat } from "@eslint/eslintrc";
 import tseslint from "typescript-eslint";
-
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-});
+import react from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
+import prettier from "eslint-config-prettier";
 
 export default tseslint.config(
   {
-    ignores: [".next"],
+    ignores: ["dist", "node_modules", "coverage", ".playwright"],
   },
-  ...compat.extends("next/core-web-vitals"),
   {
     files: ["**/*.ts", "**/*.tsx"],
     extends: [
@@ -17,7 +14,13 @@ export default tseslint.config(
       ...tseslint.configs.recommendedTypeChecked,
       ...tseslint.configs.stylisticTypeChecked,
     ],
+    plugins: {
+      react,
+      "react-hooks": reactHooks,
+    },
     rules: {
+      ...react.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
       "@typescript-eslint/array-type": "off",
       "@typescript-eslint/consistent-type-definitions": "off",
       "@typescript-eslint/consistent-type-imports": [
@@ -33,17 +36,26 @@ export default tseslint.config(
         "error",
         { checksVoidReturn: { attributes: false } },
       ],
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
     },
-  },
-  {
-    linterOptions: {
-      reportUnusedDisableDirectives: true,
+    settings: {
+      react: {
+        version: "detect",
+      },
     },
     languageOptions: {
       parserOptions: {
         project: ["./tsconfig.json"],
         tsconfigRootDir: import.meta.dirname,
+        ecmaFeatures: {
+          jsx: true,
+        },
       },
     },
+    linterOptions: {
+      reportUnusedDisableDirectives: true,
+    },
   },
+  prettier,
 );
