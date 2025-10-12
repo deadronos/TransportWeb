@@ -96,7 +96,6 @@ export function TopMenuBar() {
             data-testid="pause-button"
           >
             <span className="icon">{paused ? "▶️" : "⏸️"}</span>
-            <span className="label-text">{paused ? "Play" : "Pause"}</span>
           </button>
 
           {SPEED_MULTIPLIERS.map((multiplier) => (
