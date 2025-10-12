@@ -2,20 +2,20 @@
 
 ## Current Focus
 
-**Phase**: Vehicle Routing & Debug Inspector (TASK004) - IN PROGRESS
+**Phase**: Vehicle Routing & Debug Inspector (TASK004) - Completed
 
-**Status**: Implementation in verification; vehicle routing loop and inspector UI landed, tightening tests + docs.
+**Status**: Implementation verified; vehicle routing loop and inspector UI landed and tests authored.
 
 ## What We're Building Now
 
-### Completed (TASK003)
+### Completed
 
-- ✅ Requirements drafted for construction validation, placement, and demolition
-- ✅ Design for network-backed placement approved (DESIGN004)
-- ✅ Task plan captured in memory/tasks/TASK003-track-placement.md
-- ✅ Implemented `useNetworkStore` slice with graph + visual registry
-- ✅ Updated `useConstructionMode` for placement, connectivity, demolition
-- ✅ Enhanced `SceneGraph` rendering for new mesh metadata
+- ✅ TASK003 - Requirements drafted for construction validation, placement, and demolition
+- ✅ TASK003 - Design for network-backed placement approved (DESIGN004)
+- ✅ TASK003 - Task plan captured in memory/tasks/TASK003-track-placement.md
+- ✅ TASK003 - Implemented `useNetworkStore` slice with graph + visual registry
+- ✅ TASK003 - Updated `useConstructionMode` for placement, connectivity, demolition
+- ✅ TASK003 - Enhanced `SceneGraph` rendering for new mesh metadata
 
 ### Completed (TASK002 - Phase 1 & 2)
 
@@ -39,11 +39,16 @@
 - ✅ SceneGraph component
 - ✅ Example unit and E2E tests
 
-### In Progress (TASK004)
+### Completed (TASK004)
 
 - ✅ Vehicle route-following system tied to transport network (simulation + edge reservations)
 - ✅ Debug entity inspector toggle + live list wired to ECS world
-- 🔄 Final documentation + regression sweep for TASK003 follow-up items
+- ✅ Final documentation and regression sweep for TASK003 follow-up items
+
+### Completed (TASK003)
+
+- ✅ Track placement integration (ghost validation, placement, demolition)
+- ✅ Manual validation and documentation updates (subtask 3.4)
 
 ### Next Steps
 

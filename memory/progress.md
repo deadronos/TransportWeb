@@ -1,6 +1,6 @@
 # Progress
 
-## Current Status
+## Snapshot
 
 **Phase**: 3 - Network & Movement System  
 **Progress**: Subtask 3.1 complete (Network Graph Core)  
@@ -95,10 +95,10 @@
 - [x] Raycasting for tile selection (mouse → world position)
 - [x] useConstructionMode hook (orchestration logic)
 
-### Phase 3: Network & Movement 🚧 IN PROGRESS
+### Phase 3: Network & Movement ✅ IN PROGRESS
 
-**Status**: Subtask 3.1 complete - Network Graph Core  
-**Next**: Subtask 3.2 - Track/Road Placement Integration
+**Status**: Subtasks 3.1–3.4 complete - Network Graph Core + Track Placement Integration  
+**Next**: Subtask 3.5 - Vehicle Path Following / State Management
 
 #### ✅ Complete (Subtask 3.1)
 
@@ -114,8 +114,6 @@
 
 #### 🔲 Pending
 
-- [ ] Track/road placement (convert ghost preview to real entities)
-- [ ] ECS integration (Track/Road/Station components)
 - [ ] Vehicle pathfinding hook (useVehiclePathfinding)
 - [ ] Path following movement system
 - [ ] Network state management (Zustand slice)
@@ -144,10 +142,10 @@
 
 ## Current Status
 
-**Phase**: 3 (Network & Movement - Planning)  
-**Progress**: Phase 2 Interactive Construction 100% complete  
+**Phase**: 3 (Network & Movement)  
+**Progress**: Subtasks 3.1–3.4 complete; routing system integrated  
 **Blockers**: None  
-**Next Milestone**: Design network graph structure and pathfinding system
+**Next Milestone**: Subtask 3.5 - Vehicle path following & state management
 
 ## Metrics
 
@@ -232,6 +230,6 @@
 
 ---
 
-**Status**: Phase 3 (Network & Movement) - 🚧 In Progress (Track placement integration)
-**Last Updated**: 2025-10-14
+**Status**: Phase 3 (Network & Movement) - ✅ In Progress (Core + Placement complete, routing landed)
+**Last Updated**: 2025-10-15
 **Next Review**: After completing TASK003 subtasks

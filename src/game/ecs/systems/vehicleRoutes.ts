@@ -10,6 +10,7 @@ import {
 import type { Path } from "@/game/network/pathfinding";
 import { findClosestNode, lerpPosition } from "@/game/network/utils";
 import type { NetworkNode } from "@/game/network/types";
+import { accelerateVehicle, attemptReroute } from "./vehicleMotion";
 
 const pathCache = new PathCache(200);
 const VEHICLE_HEIGHT_OFFSET = 0.5;
@@ -201,10 +202,8 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
       continue;
     }
 
-    vehicle.speed = Math.min(
-      vehicle.maxSpeed,
-      vehicle.speed + vehicle.accel * dt,
-    );
+    // Accelerate vehicle using motion helper
+    accelerateVehicle(vehicle, dt);
     let distanceRemaining = vehicle.speed * dt;
 
     while (distanceRemaining > EPSILON) {
@@ -215,7 +214,7 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
         break;
       }
 
-      const fromNodeId = route.path.nodes[route.currentEdgeIndex];
+  const fromNodeId = route.path.nodes[route.currentEdgeIndex];
       const toNodeId = route.path.nodes[route.currentEdgeIndex + 1];
       const edgeId = route.path.edges[route.currentEdgeIndex];
 
@@ -223,7 +222,40 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
       const toNode = toNodeId ? graph.getNode(toNodeId) : undefined;
       const edge = edgeId ? graph.getEdge(edgeId) : undefined;
 
+      // If the expected edge or nodes are missing, try to reroute from the
+      // current node (only when not already mid-edge). If reroute fails,
+      // clear the route and mark graph dirty.
       if (!fromNode || !toNode || !edge || edge.length <= 0) {
+        if (route.distanceAlongEdge <= EPSILON) {
+          const rerouted = attemptReroute(graph, route, entity.id, pathCache);
+          if (rerouted) {
+            graphDirty = true;
+            // Start processing the new path in this tick
+            continue;
+          }
+        }
+
+        clearRoute(graph, vehicle, entity.id, "failed", () => {
+          graphDirty = true;
+        });
+        break;
+      }
+
+      // If next edge is now at capacity and doesn't include this vehicle's
+      // reservation, attempt to reroute (only when we haven't started the
+      // edge yet). If reroute fails, fallback to clearing the route.
+      if (
+        edge.occupied.length >= edge.capacity &&
+        !edge.occupied.includes(entity.id)
+      ) {
+        if (route.distanceAlongEdge <= EPSILON) {
+          const rerouted = attemptReroute(graph, route, entity.id, pathCache);
+          if (rerouted) {
+            graphDirty = true;
+            continue;
+          }
+        }
+
         clearRoute(graph, vehicle, entity.id, "failed", () => {
           graphDirty = true;
         });
