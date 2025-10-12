@@ -7,8 +7,9 @@ import {
 } from "@/game/ecs/systems/vehicleRoutes";
 import { findPath, reservePath } from "@/game/network/pathfinding";
 import { attemptReroute } from "@/game/ecs/systems/vehicleMotion";
-import type { Path } from "@/game/network/pathfinding";
 import { useNetworkStore } from "@/game/state/slices/network";
+
+type VehicleRoute = NonNullable<NonNullable<Entity["Vehicle"]>["route"]>;
 
 const EDGE_AB = "edge-ab";
 const EDGE_BA = "edge-ba";
@@ -52,6 +53,16 @@ function setupSimpleGraph() {
 }
 
 function createVehicle(world: World<Entity>, id: string) {
+  const initialRoute: VehicleRoute = {
+    state: "idle",
+    currentNodeId: NODE_A,
+    targetNodeId: null,
+    path: null,
+    currentEdgeIndex: 0,
+    distanceAlongEdge: 0,
+    dwellTimeRemaining: 0,
+  };
+
   const entity = world.add({
     id,
     Transform: { position: [0, 0.5, 0] },
@@ -61,15 +72,7 @@ function createVehicle(world: World<Entity>, id: string) {
       accel: 2,
       maxSpeed: 6,
       type: "train",
-      route: {
-        state: "idle",
-        currentNodeId: NODE_A,
-        targetNodeId: null,
-        path: null,
-        currentEdgeIndex: 0,
-        distanceAlongEdge: 0,
-        dwellTimeRemaining: 0,
-      },
+      route: initialRoute,
     },
   });
 
@@ -97,13 +100,12 @@ describe("advanceVehicleSimulation", () => {
     }
 
     expect(route.path).not.toBeNull();
-    const path = route.path as Path | null;
+    const path = route.path;
     if (!path) {
       return;
     }
 
-    // Assert that the path contains edges — cast to the Path type so the
-    // TypeScript compiler recognizes the `edges` property in tests.
+    // Assert that the path contains edges to verify reservations were made.
     expect(path.edges.length).toBeGreaterThan(0);
 
     const store = useNetworkStore.getState();
@@ -298,7 +300,7 @@ describe("advanceVehicleSimulation", () => {
       throw new Error("Vehicle component missing");
     }
 
-    vehicleComponent.route = {
+    const reroute: VehicleRoute = {
       state: "moving",
       currentNodeId: "A",
       targetNodeId: "D",
@@ -307,6 +309,7 @@ describe("advanceVehicleSimulation", () => {
       distanceAlongEdge: 0,
       dwellTimeRemaining: 0,
     };
+    vehicleComponent.route = reroute;
 
     // Advance until vehicle reaches node B
     let reachedB = false;

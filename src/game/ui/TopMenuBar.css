@@ -8,14 +8,11 @@
   top: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to bottom, #2a2a2a 0%, #1f1f1f 100%);
-  border-bottom: 2px solid #444;
   display: flex;
   flex-direction: column;
   gap: 3px;
-  padding: 6px 0 8px;
+  padding: 0 0 8px;
   z-index: 100;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .top-menu-row,
@@ -27,13 +24,18 @@
 }
 
 .top-menu-row {
+  padding: 6px var(--menu-padding);
   min-height: 64px;
   flex-wrap: wrap;
+  background: linear-gradient(to bottom, #2a2a2a 0%, #1f1f1f 100%);
+  border-bottom: 2px solid #444;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .control-row {
   flex-wrap: wrap;
   justify-content: flex-end;
+  background: transparent;
 }
 
 .menu-section {
