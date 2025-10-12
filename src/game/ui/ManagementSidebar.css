@@ -1,6 +1,6 @@
 .management-sidebar {
   position: fixed;
-  top: 72px;
+  top: var(--hud-top-offset, 125px);
   left: 0;
   bottom: 0;
   width: 320px;

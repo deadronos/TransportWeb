@@ -1,6 +1,6 @@
 .debug-panel {
   position: fixed;
-  top: 72px;
+  top: var(--hud-top-offset, 125px);
   right: 16px;
   width: 320px;
   max-width: calc(100vw - 32px);
