@@ -2,6 +2,8 @@
 
 A performant, deterministic, and moddable Transport Tycoon-like simulation game built with React, Three.js, and ECS architecture.
 
+![Screenshot Preview](./image.png)
+
 ## 🎮 Features
 
 - **Real-time 3D Simulation**: Built with react-three-fiber for smooth 60fps rendering
