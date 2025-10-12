@@ -209,10 +209,10 @@ describe("advanceVehicleSimulation", () => {
     expect(route?.state).toBe("moving");
     expect(route?.path).not.toBeNull();
 
-  // Remove the edge from the graph to simulate demolition while moving
-  // Remove both directions so the network becomes disconnected.
-  store.graph.removeEdge(EDGE_AB);
-  store.graph.removeEdge(EDGE_BA);
+    // Remove the edge from the graph to simulate demolition while moving
+    // Remove both directions so the network becomes disconnected.
+    store.graph.removeEdge(EDGE_AB);
+    store.graph.removeEdge(EDGE_BA);
 
     // Advance simulation; the system should detect the missing edge and clear the route
     advanceVehicleSimulation(world, 1 / 60);
@@ -229,11 +229,36 @@ describe("advanceVehicleSimulation", () => {
     // Build a graph with a primary path A->B->C->D and an alternate A->E->D
     store.graph.clear();
 
-    store.addNode({ id: "A", position: [0, 0, 0], type: "station", connections: [] });
-    store.addNode({ id: "B", position: [10, 0, 0], type: "junction", connections: [] });
-    store.addNode({ id: "C", position: [20, 0, 0], type: "junction", connections: [] });
-    store.addNode({ id: "D", position: [30, 0, 0], type: "station", connections: [] });
-    store.addNode({ id: "E", position: [10, -10, 0], type: "junction", connections: [] });
+    store.addNode({
+      id: "A",
+      position: [0, 0, 0],
+      type: "station",
+      connections: [],
+    });
+    store.addNode({
+      id: "B",
+      position: [10, 0, 0],
+      type: "junction",
+      connections: [],
+    });
+    store.addNode({
+      id: "C",
+      position: [20, 0, 0],
+      type: "junction",
+      connections: [],
+    });
+    store.addNode({
+      id: "D",
+      position: [30, 0, 0],
+      type: "station",
+      connections: [],
+    });
+    store.addNode({
+      id: "E",
+      position: [10, -10, 0],
+      type: "junction",
+      connections: [],
+    });
 
     const baseEdge = (id: string, from: string, to: string) => ({
       id,
@@ -259,16 +284,25 @@ describe("advanceVehicleSimulation", () => {
     // Manually compute and assign the desired path so tests are deterministic
     const result = findPath(store.graph, "A", "D");
     expect(result.success).toBe(true);
-    expect(result.path).not.toBeNull();
+    const path = result.path;
+    if (!path) {
+      throw new Error("Expected path to exist");
+    }
 
     // Reserve the primary path for our vehicle and assign it to the route
-    const reserved = reservePath(store.graph, result.path!, "reroute-vehicle");
+    const reserved = reservePath(store.graph, path, "reroute-vehicle");
     expect(reserved).toBe(true);
-    vehicle.Vehicle!.route = {
+
+    const vehicleComponent = vehicle.Vehicle;
+    if (!vehicleComponent) {
+      throw new Error("Vehicle component missing");
+    }
+
+    vehicleComponent.route = {
       state: "moving",
       currentNodeId: "A",
       targetNodeId: "D",
-      path: result.path!,
+      path,
       currentEdgeIndex: 0,
       distanceAlongEdge: 0,
       dwellTimeRemaining: 0,
@@ -287,32 +321,39 @@ describe("advanceVehicleSimulation", () => {
 
     expect(reachedB).toBe(true);
 
-  // Simulate a blockage by removing edge BC (primary route). Since an
-  // alternate A->E->D exists the vehicle should attempt to reroute.
-  store.graph.removeEdge("BC");
+    // Simulate a blockage by removing edge BC (primary route). Since an
+    // alternate A->E->D exists the vehicle should attempt to reroute.
+    store.graph.removeEdge("BC");
 
-  // Verify there is an alternate path available from the vehicle's
-  // current node (B) to the target (D) before running the reroute step.
-  const verifyAlt = findPath(store.graph, "B", "D");
-  expect(verifyAlt.success).toBe(true);
+    // Verify there is an alternate path available from the vehicle's
+    // current node (B) to the target (D) before running the reroute step.
+    const verifyAlt = findPath(store.graph, "B", "D");
+    expect(verifyAlt.success).toBe(true);
 
-  // Attempt reroute directly (verify helper works) and then allow one
-  // simulation tick to let the system settle. This also makes the test
-  // deterministic and decouples it from internal scheduling.
-  const manual = attemptReroute(store.graph, vehicle.Vehicle!.route!, "reroute-vehicle");
-  expect(manual).toBe(true);
+    // Attempt reroute directly (verify helper works) and then allow one
+    // simulation tick to let the system settle. This also makes the test
+    // deterministic and decouples it from internal scheduling.
+    const activeRoute = vehicleComponent.route;
+    if (!activeRoute) {
+      throw new Error("Route missing after assignment");
+    }
 
-  // The route should now be updated to the alternate path
-  const newRoute = vehicle.Vehicle?.route;
-  expect(newRoute).toBeDefined();
-  expect(newRoute?.path).not.toBeNull();
-  // Expect edges to be the alternate route (may contain the reverse of AB
-  // from B -> A followed by AE -> ED).
-  expect(newRoute?.path?.edges).toEqual(["AB", "AE", "ED"]);
-  expect(newRoute?.state).toBe("moving");
+    const manual = attemptReroute(store.graph, activeRoute, "reroute-vehicle");
+    expect(manual).toBe(true);
 
-  // Run one tick so the system has a chance to continue motion
-  advanceVehicleSimulation(world, 1 / 60);
+    // The route should now be updated to the alternate path
+    const newRoute = vehicleComponent.route;
+    if (!newRoute) {
+      throw new Error("Route missing after reroute");
+    }
+    expect(newRoute.path).not.toBeNull();
+    // Expect edges to be the alternate route (may contain the reverse of AB
+    // from B -> A followed by AE -> ED).
+    expect(newRoute.path?.edges).toEqual(["AB", "AE", "ED"]);
+    expect(newRoute.state).toBe("moving");
+
+    // Run one tick so the system has a chance to continue motion
+    advanceVehicleSimulation(world, 1 / 60);
   });
 
   it("handles multiple vehicles competing for a capacity-limited edge", () => {
@@ -321,8 +362,18 @@ describe("advanceVehicleSimulation", () => {
 
     // Simple A <-> B graph with capacity 2 so only two vehicles can reserve
     store.graph.clear();
-    store.addNode({ id: NODE_A, position: [0, 0, 0], type: "station", connections: [] });
-    store.addNode({ id: NODE_B, position: [10, 0, 0], type: "station", connections: [] });
+    store.addNode({
+      id: NODE_A,
+      position: [0, 0, 0],
+      type: "station",
+      connections: [],
+    });
+    store.addNode({
+      id: NODE_B,
+      position: [10, 0, 0],
+      type: "station",
+      connections: [],
+    });
 
     const baseEdge = {
       trackType: "rail" as const,
@@ -333,11 +384,21 @@ describe("advanceVehicleSimulation", () => {
       visualEntityId: null,
     };
 
-    store.addEdge({ id: EDGE_AB, fromNode: NODE_A, toNode: NODE_B, ...baseEdge });
-    store.addEdge({ id: EDGE_BA, fromNode: NODE_B, toNode: NODE_A, ...baseEdge });
+    store.addEdge({
+      id: EDGE_AB,
+      fromNode: NODE_A,
+      toNode: NODE_B,
+      ...baseEdge,
+    });
+    store.addEdge({
+      id: EDGE_BA,
+      fromNode: NODE_B,
+      toNode: NODE_A,
+      ...baseEdge,
+    });
 
-    const v1 = createVehicle(world, "v1");
-    const v2 = createVehicle(world, "v2");
+    createVehicle(world, "v1");
+    createVehicle(world, "v2");
     const v3 = createVehicle(world, "v3");
 
     // First tick: attempt to assign routes for all vehicles
@@ -360,7 +421,7 @@ describe("advanceVehicleSimulation", () => {
 
     // By now v1 should have arrived and released occupancy for AB
     const afterEdge = store.graph.getEdge(EDGE_AB);
-    expect(afterEdge?.occupied.includes("v1")).toBe(false);
+    expect(afterEdge?.occupied?.includes("v1")).toBe(false);
 
     // Run several ticks to allow v3 to be assigned — wait until the edge
     // occupancy includes v3 or we time out.
@@ -368,7 +429,7 @@ describe("advanceVehicleSimulation", () => {
     for (let i = 0; i < 240; i++) {
       advanceVehicleSimulation(world, 1 / 60);
       const occ = store.graph.getEdge(EDGE_AB);
-      if (occ && occ.occupied.includes("v3")) {
+      if (occ?.occupied?.includes("v3")) {
         assignedV3 = true;
         break;
       }

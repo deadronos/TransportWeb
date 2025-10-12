@@ -34,5 +34,7 @@ export function useTimeSystem(world: World<Entity>) {
 }
 
 function tick(world: World<Entity>, dt: number) {
+  const { advanceTime } = useClock.getState();
+  advanceTime(dt);
   advanceVehicleSimulation(world, dt);
 }

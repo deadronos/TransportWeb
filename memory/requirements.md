@@ -140,6 +140,45 @@
 
 ---
 
+### R12: Dynamic Game Clock Display
+
+**WHEN** the simulation clock advances, **THE SYSTEM SHALL** render the current in-game date and time in the HUD so players can track progression at a glance.
+
+**Acceptance Criteria:**
+
+- HUD reads the clock state from the Zustand slice (respecting pause and speed multipliers)
+- Display updates every tick without requiring page refresh
+- Date formatting follows `MMM YYYY` with 24-hour clock for time-of-day
+- Pausing the simulation freezes the displayed time until resumed
+
+---
+
+### R13: Activity Sidebar Panels
+
+**WHEN** the player opens the management sidebar, **THE SYSTEM SHALL** reveal stacked panels summarizing vehicle fleets, company finances, and alerts with modern Transport Tycoon styling.
+
+**Acceptance Criteria:**
+
+- Sidebar slides in/out with a toggle button in the HUD
+- Panels show placeholder datasets (vehicle count, income/expenses, latest alerts)
+- Layout adapts to viewport height with internal scrolling when necessary
+- Component structure supports future injection of live data via props/state
+
+---
+
+### R14: Network Overview Minimap
+
+**WHEN** the HUD renders, **THE SYSTEM SHALL** present a bottom-right minimap module that mirrors camera orientation and offers quick camera reposition controls.
+
+**Acceptance Criteria:**
+
+- Minimap is visible by default and styled with TT-style chrome
+- Clicking the minimap recenters the main camera near the clicked coordinate
+- Camera orientation indicator rotates with OrbitControls azimuth
+- Component gracefully hides on small screens (< 768px width)
+
+---
+
 ## Non-Functional Requirements
 
 ### NFR1: Performance

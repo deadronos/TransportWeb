@@ -1,6 +1,6 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stats, Grid } from "@react-three/drei";
-import { useEffect } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { nanoid } from "nanoid";
 import { WorldProvider, useWorld } from "./ecs/world";
 import { useTimeSystem } from "./ecs/systems/time";
@@ -11,6 +11,9 @@ import { GhostPreview } from "./scene/GhostPreview";
 import { useConstructionMode } from "./hooks/useConstructionMode";
 import { useDebug } from "./state/slices/debug";
 import { DebugPanel } from "./ui/DebugPanel";
+import { useUIStore } from "./state/slices/ui";
+import { Vector3 } from "three";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 
 function Simulation() {
   const world = useWorld();
@@ -75,6 +78,7 @@ function Simulation() {
 
 export function GameCanvas() {
   const showStats = useDebug((state) => state.showStats);
+  const controlsRef = useRef<OrbitControlsImpl | null>(null);
 
   return (
     <WorldProvider>
@@ -88,6 +92,7 @@ export function GameCanvas() {
         <directionalLight position={[10, 20, 10]} intensity={1.1} castShadow />
         <Simulation />
         <OrbitControls
+          ref={controlsRef}
           makeDefault
           enableDamping
           minPolarAngle={Math.PI / 6} // ~30° from horizontal (isometric style)
@@ -95,9 +100,94 @@ export function GameCanvas() {
           minDistance={10}
           maxDistance={200}
         />
+        <CameraTracker controlsRef={controlsRef} />
         {showStats && <Stats />}
       </Canvas>
       <DebugPanel />
     </WorldProvider>
   );
+}
+
+const EPSILON = 1e-4;
+
+function CameraTracker({
+  controlsRef,
+}: {
+  controlsRef: RefObject<OrbitControlsImpl | null>;
+}) {
+  const setCameraInfo = useUIStore((state) => state.setCameraInfo);
+  const registerCameraRecenter = useUIStore(
+    (state) => state.registerCameraRecenter,
+  );
+  const { camera } = useThree();
+  const tempTarget = useRef(new Vector3());
+  const offset = useRef(new Vector3());
+
+  useEffect(() => {
+    let rafHandle: number | null = null;
+
+    const register = () => {
+      const controls = controlsRef.current;
+      if (!controls) {
+        rafHandle = requestAnimationFrame(register);
+        return;
+      }
+
+      registerCameraRecenter(([x, y, z]) => {
+        const currentTarget = controls.target.clone();
+        offset.current.copy(camera.position).sub(currentTarget);
+        controls.target.set(x, y, z);
+        camera.position.set(
+          x + offset.current.x,
+          y + offset.current.y,
+          z + offset.current.z,
+        );
+        controls.update();
+      });
+    };
+
+    register();
+
+    return () => {
+      if (rafHandle !== null) {
+        cancelAnimationFrame(rafHandle);
+      }
+    };
+  }, [camera, controlsRef, registerCameraRecenter]);
+
+  useFrame(() => {
+    const controls = controlsRef.current;
+    if (controls) {
+      tempTarget.current.copy(controls.target);
+    } else {
+      tempTarget.current.set(0, 0, 0);
+    }
+
+    const target = tempTarget.current;
+    const position = camera.position;
+    const azimuth = Math.atan2(position.x - target.x, position.z - target.z);
+
+    const state = useUIStore.getState();
+    const positionChanged =
+      Math.abs(state.cameraPosition[0] - position.x) > EPSILON ||
+      Math.abs(state.cameraPosition[1] - position.y) > EPSILON ||
+      Math.abs(state.cameraPosition[2] - position.z) > EPSILON;
+
+    const targetChanged =
+      Math.abs(state.cameraTarget[0] - target.x) > EPSILON ||
+      Math.abs(state.cameraTarget[1] - target.y) > EPSILON ||
+      Math.abs(state.cameraTarget[2] - target.z) > EPSILON;
+
+    const azimuthChanged = Math.abs(state.cameraAzimuth - azimuth) > EPSILON;
+
+    if (positionChanged || targetChanged || azimuthChanged) {
+      setCameraInfo({
+        position: [position.x, position.y, position.z],
+        target: [target.x, target.y, target.z],
+        azimuth,
+      });
+    }
+  });
+
+  return null;
 }

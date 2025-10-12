@@ -4,6 +4,7 @@ import {
 } from "@/game/state/slices/construction";
 import { useClock } from "@/game/state/slices/clock";
 import { useDebug } from "@/game/state/slices/debug";
+import { useUIStore } from "@/game/state/slices/ui";
 import "./TopMenuBar.css";
 
 interface ToolButton {
@@ -27,11 +28,31 @@ const SPEED_MULTIPLIERS = [1, 2, 4, 8] as const;
 export function TopMenuBar() {
   const { tool, setTool, showGrid, toggleGrid } = useConstruction();
   const { speed, paused, setSpeed, togglePause } = useClock();
+  const formattedDate = useClock((state) => state.formattedDate);
+  const formattedTime = useClock((state) => state.formattedTime);
   const panelVisible = useDebug((state) => state.panelVisible);
   const togglePanel = useDebug((state) => state.togglePanel);
+  const sidebarOpen = useUIStore((state) => state.sidebarOpen);
+  const toggleSidebar = useUIStore((state) => state.toggleSidebar);
 
   return (
     <header className="top-menu-bar">
+      <div className="menu-section brand">
+        <button
+          className={`brand-btn ${sidebarOpen ? "active" : ""}`}
+          onClick={toggleSidebar}
+          title="Toggle management sidebar"
+          aria-pressed={sidebarOpen}
+        >
+          <span className="icon">🏢</span>
+          <span className="label">Company</span>
+        </button>
+        <div className="brand-title">
+          <span className="name">TransportWeb Co.</span>
+          <span className="motto">Connecting cities since 1950</span>
+        </div>
+      </div>
+
       {/* Left section - Construction tools */}
       <div className="menu-section tools">
         <h3>Construction</h3>
@@ -53,8 +74,12 @@ export function TopMenuBar() {
       {/* Center section - Time & Date */}
       <div className="menu-section time-display">
         <div className="game-date">
-          <span className="date">Jan 1950</span>
-          <span className="day">Mon</span>
+          <span className="date" data-testid="hud-date">
+            {formattedDate}
+          </span>
+          <span className="time" data-testid="hud-time">
+            {formattedTime}
+          </span>
         </div>
       </div>
 
