@@ -5,6 +5,7 @@ import {
   fireEvent,
   render,
   screen,
+  within,
 } from "@testing-library/react";
 import { TopMenuBar } from "@/game/ui/TopMenuBar";
 import { ManagementSidebar } from "@/game/ui/ManagementSidebar";
@@ -82,5 +83,66 @@ describe("HUD integrations", () => {
     expect(recenter).toHaveBeenCalledTimes(1);
 
     boundingRectMock.mockRestore();
+  });
+
+  it("renders expansion progress panel with accessible progress bars", () => {
+    act(() => {
+      useUIStore.setState({ sidebarOpen: true });
+    });
+
+    render(<ManagementSidebar />);
+
+    const progressHeading = screen.getByRole("heading", {
+      level: 2,
+      name: /expansion progress/i,
+    });
+    expect(progressHeading).toBeInTheDocument();
+
+    const coverageBar = screen.getByRole("progressbar", {
+      name: /network coverage/i,
+    });
+    expect(coverageBar).toHaveAttribute("aria-valuenow", "72");
+    expect(screen.getByText("72%")).toBeInTheDocument();
+
+    const allBars = screen.getAllByRole("progressbar");
+    expect(allBars).toHaveLength(3);
+  });
+
+  it("lists territory categories with counts and statuses", () => {
+    act(() => {
+      useUIStore.setState({ sidebarOpen: true });
+    });
+
+    render(<ManagementSidebar />);
+
+    const territorySection = screen
+      .getByRole("heading", { level: 2, name: /territory summary/i })
+      .closest("section");
+    expect(territorySection).not.toBeNull();
+
+    const territoryWithin = within(territorySection!);
+    ["Towns", "Farms", "Industries", "Mines"].forEach((label) => {
+      expect(territoryWithin.getByText(label)).toBeInTheDocument();
+    });
+    expect(territoryWithin.getByText("12")).toBeInTheDocument();
+    expect(territoryWithin.getByText(/Growing ridership/i)).toBeInTheDocument();
+  });
+
+  it("shows production opportunities with status chips", () => {
+    act(() => {
+      useUIStore.setState({ sidebarOpen: true });
+    });
+
+    render(<ManagementSidebar />);
+
+    const opportunitiesSection = screen
+      .getByRole("heading", { level: 2, name: /production opportunities/i })
+      .closest("section");
+    expect(opportunitiesSection).not.toBeNull();
+
+    const scoped = within(opportunitiesSection!);
+    expect(scoped.getByText(/Ironcrest Steelworks/i)).toBeInTheDocument();
+    expect(scoped.getByText(/Needs rail link/i)).toHaveClass("status-chip");
+    expect(scoped.getAllByText(/Updated/i)).toHaveLength(3);
   });
 });

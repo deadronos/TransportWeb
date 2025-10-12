@@ -179,6 +179,45 @@
 
 ---
 
+### R15: Expansion Progress Overview
+
+**WHEN** the player opens the management sidebar, **THE SYSTEM SHALL** display a company expansion panel summarizing major network milestones with percentage progress bars so momentum is immediately visible.
+
+**Acceptance Criteria:**
+
+- Panel heading labeled "Expansion Progress" appears inside the sidebar
+- At least three milestones render with labels, numeric percentages, and ARIA-compliant progress bars
+- Percentages and status text stay in sync with their matching progress bar values in the DOM
+- Layout adapts to existing sidebar styling without overlapping neighboring panels
+
+---
+
+### R16: Territory Composition Summary
+
+**WHEN** the management sidebar is visible, **THE SYSTEM SHALL** provide a territory summary panel listing counts for towns, farms, industries, and mines alongside qualitative status text.
+
+**Acceptance Criteria:**
+
+- Panel displays category rows for "Towns", "Farms", "Industries", and "Mines"
+- Each row contains a total count and a brief status descriptor (e.g., "Growing", "Idle")
+- Counts and statuses render as semantic text, not background images, so they are screen-reader friendly
+- Data shows placeholder values seeded from component data structures (no hard-coded JSX strings)
+
+---
+
+### R17: Production Opportunities Feed
+
+**WHEN** the player views the management sidebar, **THE SYSTEM SHALL** reveal a production opportunities list that calls out key industries needing attention so planners can prioritize builds.
+
+**Acceptance Criteria:**
+
+- Panel labeled "Production Opportunities" renders within the sidebar
+- List contains at least three entries referencing different industry types with status chips (e.g., "Needs rail link")
+- Entries include location names and time-based freshness text ("Updated 3h ago")
+- Component structure uses array-driven map rendering so future data wiring only requires updating the dataset
+
+---
+
 ## Non-Functional Requirements
 
 ### NFR1: Performance
@@ -205,4 +244,4 @@
 
 **Status**: Active  
 **Created**: 2025-10-11  
-**Last Updated**: 2025-10-15
+**Last Updated**: 2025-10-17
