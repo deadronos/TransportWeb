@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Phase**: HUD Modernization (TASK006) - Completed
+**Phase**: Sidebar Growth Dashboard (TASK007) - Completed
 
-**Status**: Modernized HUD landed with clock, management sidebar, minimap, and coverage.
+**Status**: Management sidebar now surfaces progress milestones, territory coverage, and production opportunities.
 
 ## What We're Building Now
 
@@ -55,6 +55,7 @@
 1. Capture UX validation feedback for new HUD and iterate on priorities.
 2. Plan TASK005 execution (vehicle path following polish + UI integration).
 3. Identify data wiring needs to replace placeholder HUD metrics with live simulation data.
+4. Prioritize simulation hooks to populate new sidebar panels with live metrics.
 
 ## Recent Changes
 
@@ -63,6 +64,12 @@
 - Implemented `advanceVehicleSimulation` system to assign routes, reserve edges, and animate vehicles along tracks with dwell logic.
 - Hooked debug panel spawner into network nodes and added toggleable entity inspector with live ECS snapshots.
 - Authored focused Vitest coverage for routing logic and inspector behavior; stabilized requestAnimationFrame stubs.
+
+**2025-10-17 (Sidebar Growth Dashboard)**: Expanded management sidebar analytics footprint
+
+- Added expansion progress meters, territory summary cards, and production opportunity feed with placeholder datasets.
+- Styled new panels with TT-inspired chrome and status chips for at-a-glance readability.
+- Extended HUD Vitest suite to assert progress bars, category counts, and opportunity metadata render correctly.
 
 **2025-10-14 (Debug Utilities)**: Added toggleable debug panel to accelerate vehicle prototyping
 
@@ -125,4 +132,4 @@ None.
 ---
 
 **Next Action**: Kick off TASK005 planning session for vehicle motion polish
-**Last Updated**: 2025-10-16
+**Last Updated**: 2025-10-17

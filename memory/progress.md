@@ -37,6 +37,7 @@
 - [x] HUD integration
 - [x] SceneGraph renderer
 - [x] Stats panel for FPS monitoring
+- [x] Management sidebar growth dashboard (progress, territory, opportunities)
 
 ### ✅ Camera System (Transport Tycoon Style)
 

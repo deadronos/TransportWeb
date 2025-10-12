@@ -1,24 +1,55 @@
+:root {
+  --hud-top-offset: 125px;
+}
+
 .top-menu-bar {
+  --menu-padding: 20px;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0 0 8px;
+  z-index: 100;
+}
+
+.top-menu-row,
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 var(--menu-padding);
+}
+
+.top-menu-row {
+  padding: 6px var(--menu-padding);
+  min-height: 64px;
+  flex-wrap: wrap;
   background: linear-gradient(to bottom, #2a2a2a 0%, #1f1f1f 100%);
   border-bottom: 2px solid #444;
-  display: grid;
-  grid-template-columns: auto minmax(340px, 1fr) auto auto;
-  align-items: stretch;
-  padding: 0 20px;
-  gap: 20px;
-  z-index: 100;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.control-row {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  background: transparent;
 }
 
 .menu-section {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.menu-section.tools {
+  flex: 1 1 auto;
+}
+
+.menu-section.time-display {
+  margin-left: auto;
 }
 
 .menu-section.brand {
@@ -230,13 +261,20 @@
 /* Responsive adjustments */
 @media (max-width: 1200px) {
   .top-menu-bar {
-    grid-template-columns: auto 1fr auto;
-    height: 64px;
-    padding: 0 16px;
+    --menu-padding: 16px;
+    padding: 4px 0 8px;
   }
 
   .menu-section.brand {
     display: none;
+  }
+
+  .menu-section.tools {
+    flex: 1 1 100%;
+  }
+
+  .time-display {
+    margin-left: 0;
   }
 
   .tool-btn .label {
@@ -255,8 +293,12 @@
 
 @media (max-width: 768px) {
   .top-menu-bar {
-    height: 54px;
-    padding: 0 10px;
+    --menu-padding: 10px;
+    padding: 3px 0 6px;
+  }
+
+  .top-menu-row,
+  .control-row {
     gap: 10px;
   }
 
