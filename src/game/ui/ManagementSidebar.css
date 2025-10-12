@@ -1,0 +1,231 @@
+.management-sidebar {
+  position: fixed;
+  top: 72px;
+  left: 0;
+  bottom: 0;
+  width: 320px;
+  background: linear-gradient(180deg, #1f2a1f 0%, #151515 100%);
+  border-right: 2px solid rgba(74, 124, 89, 0.5);
+  box-shadow: 6px 0 14px rgba(0, 0, 0, 0.35);
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
+.management-sidebar.open {
+  transform: translateX(0);
+}
+
+.management-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.management-sidebar__header h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f2f6f0;
+  letter-spacing: 0.4px;
+}
+
+.management-sidebar__header button {
+  background: transparent;
+  border: none;
+  color: #cbd5c7;
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.management-sidebar__header button:hover {
+  color: #ffffff;
+}
+
+.management-sidebar__panels {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-panel {
+  background: rgba(18, 24, 18, 0.9);
+  border: 1px solid rgba(74, 124, 89, 0.4);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-panel__header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.sidebar-panel__icon {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(74, 124, 89, 0.15);
+  font-size: 20px;
+}
+
+.sidebar-panel__titles h2 {
+  margin: 0;
+  font-size: 16px;
+  color: #f6f8f5;
+  letter-spacing: 0.4px;
+}
+
+.sidebar-panel__titles p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.sidebar-panel__content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(233, 243, 229, 0.9);
+}
+
+.metric-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.metric-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: rgba(34, 46, 34, 0.8);
+  border-radius: 8px;
+  border: 1px solid rgba(74, 124, 89, 0.25);
+}
+
+.metric-list .label {
+  font-weight: 600;
+}
+
+.metric-list .status {
+  display: block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.metric-list .value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.finance-summary dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.finance-summary dt {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.finance-summary dd {
+  margin: 4px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #f5f9f4;
+}
+
+.finance-trend {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #93d3a4;
+  letter-spacing: 0.4px;
+}
+
+.sparkline {
+  position: relative;
+  height: 40px;
+  margin-top: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    180deg,
+    rgba(74, 124, 89, 0.3),
+    rgba(20, 32, 20, 0.3)
+  );
+  overflow: hidden;
+}
+
+.sparkline span {
+  position: absolute;
+  inset: 8px;
+  border-radius: 999px;
+  border: 2px solid rgba(147, 211, 164, 0.7);
+  opacity: 0.7;
+}
+
+.alert-feed {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alert-feed li {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(32, 26, 18, 0.85);
+  border: 1px solid rgba(255, 198, 109, 0.25);
+}
+
+.alert-label {
+  font-weight: 600;
+  color: #ffe7c1;
+}
+
+.alert-time {
+  font-size: 11px;
+  color: rgba(255, 231, 193, 0.7);
+}
+
+@media (max-width: 1200px) {
+  .management-sidebar {
+    width: 280px;
+  }
+}
+
+@media (max-width: 960px) {
+  .management-sidebar {
+    width: 240px;
+  }
+}

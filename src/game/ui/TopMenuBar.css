@@ -3,14 +3,14 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 72px;
   background: linear-gradient(to bottom, #2a2a2a 0%, #1f1f1f 100%);
   border-bottom: 2px solid #444;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: auto minmax(340px, 1fr) auto auto;
+  align-items: stretch;
+  padding: 0 20px;
+  gap: 20px;
   z-index: 100;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -19,6 +19,73 @@
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.menu-section.brand {
+  gap: 12px;
+  align-items: center;
+  padding-right: 12px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 12px;
+  min-width: 90px;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #d7d7d7;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+}
+
+.brand-btn .icon {
+  font-size: 20px;
+}
+
+.brand-btn .label {
+  font-weight: 600;
+}
+
+.brand-btn:hover {
+  background: #3a3a3a;
+  border-color: #666;
+  transform: translateY(-1px);
+}
+
+.brand-btn.active {
+  background: #4a7c59;
+  border-color: #5a8c69;
+  color: #fff;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.brand-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.brand-title .name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f0f0f0;
+  letter-spacing: 0.6px;
+}
+
+.brand-title .motto {
+  font-size: 11px;
+  color: #9ea7a0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
 }
 
 .menu-section h3 {
@@ -84,30 +151,36 @@
 .time-display {
   flex-direction: column;
   align-items: center;
-  padding: 4px 16px;
-  background: #252525;
-  border-radius: 6px;
-  border: 1px solid #444;
+  justify-content: center;
+  padding: 10px 18px;
+  background: radial-gradient(
+    circle at top,
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
 .game-date {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
 .game-date .date {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: #fff;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
-.game-date .day {
-  font-size: 11px;
-  color: #888;
-  text-transform: uppercase;
+.game-date .time {
+  font-size: 13px;
+  color: #d0d0d0;
+  letter-spacing: 0.4px;
 }
 
 /* Speed controls */
@@ -156,6 +229,16 @@
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
+  .top-menu-bar {
+    grid-template-columns: auto 1fr auto;
+    height: 64px;
+    padding: 0 16px;
+  }
+
+  .menu-section.brand {
+    display: none;
+  }
+
   .tool-btn .label {
     display: none;
   }
@@ -172,9 +255,9 @@
 
 @media (max-width: 768px) {
   .top-menu-bar {
-    height: 50px;
-    padding: 0 8px;
-    gap: 12px;
+    height: 54px;
+    padding: 0 10px;
+    gap: 10px;
   }
 
   .menu-section h3 {
@@ -190,5 +273,17 @@
   .tool-btn {
     min-width: 38px;
     padding: 6px;
+  }
+
+  .time-display {
+    padding: 6px 10px;
+  }
+
+  .game-date .date {
+    font-size: 14px;
+  }
+
+  .game-date .time {
+    font-size: 11px;
   }
 }

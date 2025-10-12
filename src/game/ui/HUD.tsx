@@ -1,10 +1,14 @@
 import { TopMenuBar } from "./TopMenuBar";
+import { ManagementSidebar } from "./ManagementSidebar";
+import { BottomInfoDock } from "./BottomInfoDock";
+import "./HUD.css";
 
 export function HUD() {
   return (
-    <>
+    <div className="hud-root">
       <TopMenuBar />
-      {/* Future: Side panels, bottom info panel, floating windows */}
-    </>
+      <ManagementSidebar />
+      <BottomInfoDock />
+    </div>
   );
 }

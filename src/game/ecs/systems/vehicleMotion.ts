@@ -12,7 +12,10 @@ export function accelerateVehicle(
   vehicle: NonNullable<Entity["Vehicle"]>,
   dt: number,
 ): number {
-  vehicle.speed = Math.min(vehicle.maxSpeed, vehicle.speed + vehicle.accel * dt);
+  vehicle.speed = Math.min(
+    vehicle.maxSpeed,
+    vehicle.speed + vehicle.accel * dt,
+  );
   return vehicle.speed;
 }
 
@@ -45,7 +48,10 @@ export function attemptReroute(
   graph: NetworkGraph,
   route: NonNullable<Entity["Vehicle"]>["route"],
   vehicleId: string,
-  pathCache?: { get: (a: string, b: string, g: NetworkGraph) => Path | null; set: (a: string, b: string, p: Path) => void },
+  pathCache?: {
+    get: (a: string, b: string, g: NetworkGraph) => Path | null;
+    set: (a: string, b: string, p: Path) => void;
+  },
 ): boolean {
   if (!route?.currentNodeId || !route?.targetNodeId) return false;
 

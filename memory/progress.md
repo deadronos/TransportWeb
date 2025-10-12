@@ -166,6 +166,13 @@
 
 ## Recent Achievements
 
+**2025-10-16 (HUD Modernization)**: Modernized in-game HUD for Transport Tycoon feel
+
+- ✅ Enhanced clock slice with in-game calendar/time formatting surfaced in TopMenuBar.
+- ✅ Added company brand controls + management sidebar with fleet/finance/alert panels.
+- ✅ Built bottom info dock featuring minimap overlay, selection card, and network stats.
+- ✅ Authored Vitest coverage ensuring HUD clock updates, sidebar toggles, and minimap recenter behavior.
+
 **2025-10-14 (Debug Utilities)**: Added debug panel for simulation experimentation
 
 - ✅ Introduced toggleable HUD button + overlay to spawn trains/trucks and tune vehicle parameters.
@@ -222,11 +229,9 @@
 
 ## Next Steps
 
-1. Implement `useNetworkStore` with graph mutation helpers and visual registry
-2. Update `useConstructionMode` to perform placement, connectivity, and demolition
-3. Enhance `SceneGraph` rendering for track/road/station/depot meshes
-4. Manually validate ghost behavior + placement/demolition cycle and document results
-5. Plan automated coverage for network slice in future iteration
+1. Deliver TASK006 subtasks 6.1–6.4 (clock upgrades, sidebar, minimap shell).
+2. Extend Vitest suite to cover HUD interactions introduced in TASK006.
+3. Capture UX validation notes comparing HUD against UI research references.
 
 ---
 

@@ -214,7 +214,7 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
         break;
       }
 
-  const fromNodeId = route.path.nodes[route.currentEdgeIndex];
+      const fromNodeId = route.path.nodes[route.currentEdgeIndex];
       const toNodeId = route.path.nodes[route.currentEdgeIndex + 1];
       const edgeId = route.path.edges[route.currentEdgeIndex];
 

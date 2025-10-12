@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Phase**: Vehicle Routing & Debug Inspector (TASK004) - Completed
+**Phase**: HUD Modernization (TASK006) - Completed
 
-**Status**: Implementation verified; vehicle routing loop and inspector UI landed and tests authored.
+**Status**: Modernized HUD landed with clock, management sidebar, minimap, and coverage.
 
 ## What We're Building Now
 
@@ -52,9 +52,9 @@
 
 ### Next Steps
 
-1. Capture manual QA notes for construction + routing loop (TASK003 wrap-up)
-2. Monitor DebugPanel act() warnings in Vitest — evaluate alternate snapshot strategy if they become blocking
-3. Plan additional routing edge-case tests (multi-vehicle, path invalidation) for follow-up iteration
+1. Capture UX validation feedback for new HUD and iterate on priorities.
+2. Plan TASK005 execution (vehicle path following polish + UI integration).
+3. Identify data wiring needs to replace placeholder HUD metrics with live simulation data.
 
 ## Recent Changes
 
@@ -124,5 +124,5 @@ None.
 
 ---
 
-**Next Action**: Complete TASK003 subtask 3.4 (manual QA + documentation)
-**Last Updated**: 2025-10-15
+**Next Action**: Kick off TASK005 planning session for vehicle motion polish
+**Last Updated**: 2025-10-16
