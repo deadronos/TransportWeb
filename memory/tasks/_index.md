@@ -12,5 +12,6 @@
 - [TASK004] Vehicle routing & debug inspector - Completed on 2025-10-15
 - [TASK006] Modern HUD panels & minimap - Completed on 2025-10-16
 - [TASK007] Sidebar Growth Dashboard Panels - Completed on 2025-10-17
+- [TASK008] Economy simulation & sidebar integration - Completed on 2025-10-18
 
 ## Abandoned

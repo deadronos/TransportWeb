@@ -32,14 +32,14 @@ Implement full vehicle route following tied to the transport network and expose 
 
 ### Subtasks
 
-| ID  | Description                                        | Status      | Updated    | Notes                                             |
-| --- | -------------------------------------------------- | ----------- | ---------- | ------------------------------------------------- |
-| 4.1 | Update memory artifacts (requirements/design/task) | Complete    | 2025-10-15 | R9–R11 + DESIGN005 logged                         |
-| 4.2 | Extend ECS types & debug store                     | Complete    | 2025-10-15 | Vehicle.route + debug inspector flag              |
-| 4.3 | Implement vehicle route system + integration       | Complete    | 2025-10-15 | `advanceVehicleSimulation` wired into time system |
-| 4.4 | Build debug entity inspector UI                    | Complete    | 2025-10-15 | Toggleable list + spawn on network nodes          |
-| 4.5 | Author tests + run format/lint/test suite          | Complete    | 2025-10-15 | VehicleRoutes + DebugPanel tests authored & passing |
-| 4.6 | Update memory progress + PR summary                | Complete    | 2025-10-15 | Final documentation updated; PR prep notes added  |
+| ID  | Description                                        | Status   | Updated    | Notes                                               |
+| --- | -------------------------------------------------- | -------- | ---------- | --------------------------------------------------- |
+| 4.1 | Update memory artifacts (requirements/design/task) | Complete | 2025-10-15 | R9–R11 + DESIGN005 logged                           |
+| 4.2 | Extend ECS types & debug store                     | Complete | 2025-10-15 | Vehicle.route + debug inspector flag                |
+| 4.3 | Implement vehicle route system + integration       | Complete | 2025-10-15 | `advanceVehicleSimulation` wired into time system   |
+| 4.4 | Build debug entity inspector UI                    | Complete | 2025-10-15 | Toggleable list + spawn on network nodes            |
+| 4.5 | Author tests + run format/lint/test suite          | Complete | 2025-10-15 | VehicleRoutes + DebugPanel tests authored & passing |
+| 4.6 | Update memory progress + PR summary                | Complete | 2025-10-15 | Final documentation updated; PR prep notes added    |
 
 ## Progress Log
 

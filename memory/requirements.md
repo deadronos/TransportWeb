@@ -245,3 +245,55 @@
 **Status**: Active  
 **Created**: 2025-10-11  
 **Last Updated**: 2025-10-17
+
+### R18: Settlement Growth Simulation
+
+**WHEN** the fixed-timestep simulation advances, **THE SYSTEM SHALL** update town populations and satisfaction metrics based on service coverage so that economic growth trends evolve over time.
+
+**Acceptance Criteria:**
+
+- Advancing the simulation increases or decreases population figures deterministically according to service coverage inputs.
+- Satisfaction values remain clamped between 0 and 1 and trend toward coverage quality each tick.
+- Growth trend labels (e.g., "Growing", "Stagnant") change when the rolling population delta crosses ±1% thresholds.
+- Unit tests can step the simulation and assert the resulting population and satisfaction values.
+
+---
+
+### R19: Industry Production Dynamics
+
+**WHEN** the economy simulation ticks, **THE SYSTEM SHALL** adjust industry inventory and throughput using supply fulfillment ratios so production surpluses and shortages are tracked.
+
+**Acceptance Criteria:**
+
+- Each industry tracks input fulfillment (0–1) and output stock (>= 0) that update on every tick.
+- Shortages decrease output stock while surpluses accumulate inventory within capped limits.
+- Industries expose utilization percentages derived from supply fulfillment and stock.
+- Tests validate stock depletion when fulfillment is low and recovery when fulfillment improves.
+
+---
+
+### R20: Territory Summary Integration
+
+**WHEN** the management sidebar renders, **THE SYSTEM SHALL** source territory counts and status text from the live economy simulation instead of static placeholder arrays.
+
+**Acceptance Criteria:**
+
+- Territory rows read from a selector backed by the economy state.
+- Counts equal the number of simulated entities per category (towns, farms, industries, mines).
+- Status strings reflect aggregate sentiment (e.g., average satisfaction/utilization) and change as simulation data shifts.
+- UI tests cover that rendered content updates after mutating the store in a controlled fashion.
+
+---
+
+### R21: Opportunity Feed Generation
+
+**WHEN** industries exhibit unmet demand or surplus capacity, **THE SYSTEM SHALL** surface production opportunities with status chips and freshness text derived from in-game time.
+
+**Acceptance Criteria:**
+
+- Opportunity items originate from simulation selectors and include location, industry type, status, and updatedAgo text.
+- Status chips map to shortage ("needs-link"), idle, and expanding states based on fulfillment metrics.
+- Freshness strings reflect the simulated time elapsed since the condition last changed.
+- Tests confirm that shortages create "needs-link" entries and the freshness text updates when the clock advances.
+
+---

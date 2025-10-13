@@ -1,5 +1,12 @@
 import { useMemo } from "react";
 import { useUIStore } from "@/game/state/slices/ui";
+import {
+  useEconomyStore,
+  computeTerritorySummary,
+  computeProductionOpportunities,
+  computeAverageCoverage,
+} from "@/game/state/slices/economy";
+import { useClock } from "@/game/state/slices/clock";
 import { SidebarPanel } from "./SidebarPanel";
 import "./ManagementSidebar.css";
 
@@ -28,13 +35,7 @@ interface MilestoneProgress {
   status: string;
 }
 
-const MILESTONE_PROGRESS: MilestoneProgress[] = [
-  {
-    id: "coverage",
-    label: "Network Coverage",
-    value: 72,
-    status: "Ahead of plan",
-  },
+const STATIC_MILESTONES: MilestoneProgress[] = [
   {
     id: "electrification",
     label: "Electrification",
@@ -49,57 +50,15 @@ const MILESTONE_PROGRESS: MilestoneProgress[] = [
   },
 ];
 
-interface TerritoryCategory {
-  id: string;
-  label: string;
-  count: number;
-  status: string;
+function describeCoverageStatus(value: number): string {
+  if (value >= 75) {
+    return "Ahead of plan";
+  }
+  if (value >= 55) {
+    return "On track";
+  }
+  return "Needs expansion";
 }
-
-const TERRITORY_SUMMARY: TerritoryCategory[] = [
-  { id: "towns", label: "Towns", count: 12, status: "Growing ridership" },
-  { id: "farms", label: "Farms", count: 8, status: "Harvest season peak" },
-  { id: "industries", label: "Industries", count: 6, status: "Output steady" },
-  { id: "mines", label: "Mines", count: 5, status: "Ore demand rising" },
-];
-
-type OpportunityStatus = "expanding" | "idle" | "needs-link";
-
-interface OpportunityItem {
-  id: string;
-  location: string;
-  industry: string;
-  message: string;
-  status: OpportunityStatus;
-  updatedAgo: string;
-}
-
-const PRODUCTION_OPPORTUNITIES: OpportunityItem[] = [
-  {
-    id: "steel",
-    location: "Ironcrest Steelworks",
-    industry: "Steel Mill",
-    message: "Needs rail link",
-    status: "needs-link",
-    updatedAgo: "Updated 3h ago",
-  },
-  {
-    id: "grain",
-    location: "Northfield Farms",
-    industry: "Grain Farm",
-    message: "Expanding capacity",
-    status: "expanding",
-    updatedAgo: "Updated 1h ago",
-  },
-  {
-    id: "refinery",
-    location: "Seaside Refinery",
-    industry: "Oil Refinery",
-    message: "Idle - awaiting cargo",
-    status: "idle",
-    updatedAgo: "Updated 20m ago",
-  },
-];
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -112,6 +71,34 @@ function formatCurrency(value: number): string {
 export function ManagementSidebar() {
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
   const closeSidebar = useUIStore((state) => state.closeSidebar);
+  const gameMinutes = useClock((state) => state.gameMinutes);
+  const economyState = useEconomyStore((state) => state);
+  const territorySummary = useMemo(
+    () => computeTerritorySummary(economyState),
+    [economyState],
+  );
+  const opportunities = useMemo(
+    () => computeProductionOpportunities(economyState, gameMinutes),
+    [economyState, gameMinutes],
+  );
+  const averageCoverage = useMemo(
+    () => computeAverageCoverage(economyState),
+    [economyState],
+  );
+
+  const coverageValue = Math.round(averageCoverage * 100);
+  const milestoneProgress = useMemo(
+    () => [
+      {
+        id: "coverage",
+        label: "Network Coverage",
+        value: coverageValue,
+        status: describeCoverageStatus(coverageValue),
+      },
+      ...STATIC_MILESTONES,
+    ],
+    [coverageValue],
+  );
 
   const fleetRows = useMemo(
     () =>
@@ -129,7 +116,7 @@ export function ManagementSidebar() {
 
   const progressRows = useMemo(
     () =>
-      MILESTONE_PROGRESS.map((milestone) => {
+      milestoneProgress.map((milestone) => {
         const labelId = `milestone-${milestone.id}`;
         return (
           <li key={milestone.id} className="progress-row">
@@ -156,12 +143,12 @@ export function ManagementSidebar() {
           </li>
         );
       }),
-    [],
+    [milestoneProgress],
   );
 
   const territoryRows = useMemo(
     () =>
-      TERRITORY_SUMMARY.map((category) => (
+      territorySummary.map((category) => (
         <li key={category.id}>
           <div className="territory-list__info">
             <span className="label">{category.label}</span>
@@ -170,12 +157,12 @@ export function ManagementSidebar() {
           <span className="count">{category.count}</span>
         </li>
       )),
-    [],
+    [territorySummary],
   );
 
   const opportunityRows = useMemo(
     () =>
-      PRODUCTION_OPPORTUNITIES.map((opportunity) => (
+      opportunities.map((opportunity) => (
         <li key={opportunity.id} className="opportunity-row">
           <div className="opportunity-row__header">
             <div className="opportunity-row__titles">
@@ -191,7 +178,7 @@ export function ManagementSidebar() {
           </span>
         </li>
       )),
-    [],
+    [opportunities],
   );
 
   return (

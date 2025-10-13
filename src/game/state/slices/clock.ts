@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist, createJSONStorage } from "zustand/middleware";
 
 const START_DATE = Date.UTC(1950, 0, 1, 0, 0, 0);
-const MINUTES_PER_SECOND = 6; // 10 seconds of real time ≈ 1 in-game hour
+export const MINUTES_PER_SECOND = 6; // 10 seconds of real time ≈ 1 in-game hour
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",

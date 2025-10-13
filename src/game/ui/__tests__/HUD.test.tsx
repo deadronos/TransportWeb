@@ -12,9 +12,17 @@ import { ManagementSidebar } from "@/game/ui/ManagementSidebar";
 import { MinimapOverlay } from "@/game/ui/MinimapOverlay";
 import { useClock } from "@/game/state/slices/clock";
 import { useUIStore } from "@/game/state/slices/ui";
+import {
+  useEconomyStore,
+  resetEconomyState,
+  computeAverageCoverage,
+  computeTerritorySummary,
+  computeProductionOpportunities,
+} from "@/game/state/slices/economy";
 
 beforeEach(() => {
   act(() => {
+    resetEconomyState();
     useClock.getState().resetTime(0);
     useClock.setState({ paused: false, speed: 1 });
     useUIStore.setState({
@@ -98,11 +106,18 @@ describe("HUD integrations", () => {
     });
     expect(progressHeading).toBeInTheDocument();
 
+    const coveragePercent = Math.round(
+      computeAverageCoverage(useEconomyStore.getState()) * 100,
+    );
     const coverageBar = screen.getByRole("progressbar", {
       name: /network coverage/i,
     });
-    expect(coverageBar).toHaveAttribute("aria-valuenow", "72");
-    expect(screen.getByText("72%")).toBeInTheDocument();
+    expect(coverageBar).toHaveAttribute(
+      "aria-valuenow",
+      String(coveragePercent),
+    );
+    expect(screen.getByText(`${coveragePercent}%`)).toBeInTheDocument();
+    expect(screen.getByText(/Needs expansion/i)).toBeInTheDocument();
 
     const allBars = screen.getAllByRole("progressbar");
     expect(allBars).toHaveLength(3);
@@ -121,11 +136,14 @@ describe("HUD integrations", () => {
     expect(territorySection).not.toBeNull();
 
     const territoryWithin = within(territorySection!);
-    ["Towns", "Farms", "Industries", "Mines"].forEach((label) => {
-      expect(territoryWithin.getByText(label)).toBeInTheDocument();
+    const summary = computeTerritorySummary(useEconomyStore.getState());
+    summary.forEach(({ label, count, status }) => {
+      const row = territoryWithin.getByText(label).closest("li");
+      expect(row).not.toBeNull();
+      const scopedRow = within(row!);
+      expect(scopedRow.getByText(String(count))).toBeInTheDocument();
+      expect(scopedRow.getByText(status)).toBeInTheDocument();
     });
-    expect(territoryWithin.getByText("12")).toBeInTheDocument();
-    expect(territoryWithin.getByText(/Growing ridership/i)).toBeInTheDocument();
   });
 
   it("shows production opportunities with status chips", () => {
@@ -141,8 +159,28 @@ describe("HUD integrations", () => {
     expect(opportunitiesSection).not.toBeNull();
 
     const scoped = within(opportunitiesSection!);
-    expect(scoped.getByText(/Ironcrest Steelworks/i)).toBeInTheDocument();
-    expect(scoped.getByText(/Needs rail link/i)).toHaveClass("status-chip");
-    expect(scoped.getAllByText(/Updated/i)).toHaveLength(3);
+    const opportunitiesState = computeProductionOpportunities(
+      useEconomyStore.getState(),
+      useClock.getState().gameMinutes,
+    );
+    opportunitiesState.forEach((opportunity) => {
+      const row = scoped
+        .getByText(new RegExp(opportunity.location, "i"))
+        .closest("li");
+      expect(row).not.toBeNull();
+      const rowScope = within(row!);
+      expect(
+        rowScope.getByText(new RegExp(opportunity.message, "i")),
+      ).toBeInTheDocument();
+      const statusElement = rowScope.getByText(
+        new RegExp(opportunity.message, "i"),
+      );
+      expect(statusElement).toHaveClass(
+        `status-chip status-chip--${opportunity.status}`,
+      );
+    });
+    expect(scoped.getAllByText(/Updated/i)).toHaveLength(
+      opportunitiesState.length,
+    );
   });
 });

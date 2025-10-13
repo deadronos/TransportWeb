@@ -4,6 +4,7 @@ import type { World } from "miniplex";
 import type { Entity } from "../world";
 import { useClock } from "@/game/state/slices/clock";
 import { advanceVehicleSimulation } from "./vehicleRoutes";
+import { advanceEconomySimulation } from "@/game/simulation/economy";
 
 const FIXED_DT = 1 / 60; // 60fps fixed timestep
 
@@ -37,4 +38,5 @@ function tick(world: World<Entity>, dt: number) {
   const { advanceTime } = useClock.getState();
   advanceTime(dt);
   advanceVehicleSimulation(world, dt);
+  advanceEconomySimulation(dt);
 }

@@ -16,12 +16,12 @@ Connect construction interactions to the transport network so that track, road, 
 
 ## Implementation Plan
 
-| ID  | Description                                                     | Status      | Notes                                                      |
-| --- | --------------------------------------------------------------- | ----------- | ---------------------------------------------------------- |
-| 3.1 | Create `useNetworkStore` Zustand slice for graph + registry     | Complete    | 2025-10-12 – Centralized graph mutations + visual registry |
-| 3.2 | Enhance `useConstructionMode` with placement + demolition logic | Complete    | 2025-10-12 – Handles validation, placement, demolition     |
-| 3.3 | Extend `SceneGraph` renderables to support dimensions/rotation  | Complete    | 2025-10-12 – New dimensions + color mapping                |
-| 3.4 | Manual validation & documentation updates                       | Complete    | 2025-10-15 - Hover/placement QA + memory logs completed    |
+| ID  | Description                                                     | Status   | Notes                                                      |
+| --- | --------------------------------------------------------------- | -------- | ---------------------------------------------------------- |
+| 3.1 | Create `useNetworkStore` Zustand slice for graph + registry     | Complete | 2025-10-12 – Centralized graph mutations + visual registry |
+| 3.2 | Enhance `useConstructionMode` with placement + demolition logic | Complete | 2025-10-12 – Handles validation, placement, demolition     |
+| 3.3 | Extend `SceneGraph` renderables to support dimensions/rotation  | Complete | 2025-10-12 – New dimensions + color mapping                |
+| 3.4 | Manual validation & documentation updates                       | Complete | 2025-10-15 - Hover/placement QA + memory logs completed    |
 
 ## Dependencies
 
