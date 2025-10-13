@@ -2,7 +2,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stats, Grid } from "@react-three/drei";
 import { useEffect, useRef, type RefObject } from "react";
 import { nanoid } from "nanoid";
-import { WorldProvider, useWorld } from "./ecs/world";
+import { useWorld } from "./ecs/world";
 import { useTimeSystem } from "./ecs/systems/time";
 import { SceneGraph } from "./SceneGraph";
 import { useConstruction } from "./state/slices/construction";
@@ -82,7 +82,7 @@ export function GameCanvas() {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
 
   return (
-    <WorldProvider>
+    <>
       <Canvas
         shadows
         camera={{ position: [12, 12, 12], fov: 50 }}
@@ -105,7 +105,7 @@ export function GameCanvas() {
         {showStats && <Stats />}
       </Canvas>
       <DebugPanel />
-    </WorldProvider>
+    </>
   );
 }
 
