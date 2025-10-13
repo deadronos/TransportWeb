@@ -15,7 +15,17 @@ export type Entity = {
     scale?: [number, number, number];
   };
   Renderable?: {
-    kind: "track" | "road" | "station" | "depot" | "vehicle" | "tree";
+    kind:
+      | "track"
+      | "road"
+      | "station"
+      | "depot"
+      | "vehicle"
+      | "tree"
+      | "town"
+      | "farm"
+      | "industry"
+      | "mine";
     meshId?: string;
     dimensions?: [number, number, number];
     color?: string;
@@ -24,7 +34,13 @@ export type Entity = {
     speed: number;
     accel: number;
     maxSpeed: number;
+    capacity: number;
     type: "train" | "truck";
+    assignment?: {
+      lineId: string | null;
+      nextStopIndex: number;
+      direction: 1 | -1;
+    };
     route?: {
       state: "idle" | "moving" | "waiting";
       currentNodeId: string | null;

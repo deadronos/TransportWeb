@@ -7,6 +7,7 @@ import {
   screen,
   within,
 } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { TopMenuBar } from "@/game/ui/TopMenuBar";
 import { ManagementSidebar } from "@/game/ui/ManagementSidebar";
 import { MinimapOverlay } from "@/game/ui/MinimapOverlay";
@@ -19,6 +20,11 @@ import {
   computeTerritorySummary,
   computeProductionOpportunities,
 } from "@/game/state/slices/economy";
+import { WorldProvider } from "@/game/ecs/world";
+
+function renderWithWorld(node: ReactNode) {
+  return render(<WorldProvider>{node}</WorldProvider>);
+}
 
 beforeEach(() => {
   act(() => {
@@ -60,7 +66,7 @@ describe("HUD integrations", () => {
   });
 
   it("applies open class when management sidebar is visible", () => {
-    const { container } = render(<ManagementSidebar />);
+    const { container } = renderWithWorld(<ManagementSidebar />);
 
     const sidebar = container.querySelector(".management-sidebar");
     expect(sidebar).not.toHaveClass("open");
@@ -98,7 +104,7 @@ describe("HUD integrations", () => {
       useUIStore.setState({ sidebarOpen: true });
     });
 
-    render(<ManagementSidebar />);
+    renderWithWorld(<ManagementSidebar />);
 
     const progressHeading = screen.getByRole("heading", {
       level: 2,
@@ -128,7 +134,7 @@ describe("HUD integrations", () => {
       useUIStore.setState({ sidebarOpen: true });
     });
 
-    render(<ManagementSidebar />);
+    renderWithWorld(<ManagementSidebar />);
 
     const territorySection = screen
       .getByRole("heading", { level: 2, name: /territory summary/i })
@@ -151,7 +157,7 @@ describe("HUD integrations", () => {
       useUIStore.setState({ sidebarOpen: true });
     });
 
-    render(<ManagementSidebar />);
+    renderWithWorld(<ManagementSidebar />);
 
     const opportunitiesSection = screen
       .getByRole("heading", { level: 2, name: /production opportunities/i })

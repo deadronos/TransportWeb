@@ -1,197 +1,26 @@
 import { create } from "zustand";
 import type {
+  DemandEntry,
   EconomyEntities,
   Farm,
+  GoodType,
   Industry,
   Mine,
+  OpportunityStatus,
   ProductionOpportunity,
   TerritoryCategory,
   Town,
-  OpportunityStatus,
+  Trend,
 } from "@/game/simulation/types";
+import {
+  ECONOMY_DEFAULT_SEED,
+  generateEconomyEntities,
+  type EconomyGenerationOptions,
+} from "@/game/state/generation/economyGenerator";
 
 export interface EconomyState extends EconomyEntities {
   lastTickMinutes: number;
-}
-
-const ECONOMY_SEED: EconomyEntities = {
-  towns: [
-    {
-      id: "town-northport",
-      kind: "town",
-      name: "Northport",
-      position: [120, 0, -80],
-      population: 34.5,
-      satisfaction: 0.62,
-      growthTrend: "growing",
-      rollingDelta: 0.012,
-      coverage: 0.58,
-      baselineCoverage: 0.6,
-      seasonalAmplitude: 0.12,
-      seasonalPeriodMinutes: 43200,
-      seasonalPhase: 1.1,
-      lastCoverageSample: 0.58,
-    },
-    {
-      id: "town-lakeside",
-      kind: "town",
-      name: "Lakeside",
-      position: [-60, 0, 140],
-      population: 27.8,
-      satisfaction: 0.54,
-      growthTrend: "stable",
-      rollingDelta: 0.002,
-      coverage: 0.47,
-      baselineCoverage: 0.5,
-      seasonalAmplitude: 0.08,
-      seasonalPeriodMinutes: 50400,
-      seasonalPhase: 2.7,
-      lastCoverageSample: 0.47,
-    },
-    {
-      id: "town-westvale",
-      kind: "town",
-      name: "Westvale",
-      position: [-180, 0, -30],
-      population: 19.6,
-      satisfaction: 0.42,
-      growthTrend: "declining",
-      rollingDelta: -0.009,
-      coverage: 0.33,
-      baselineCoverage: 0.38,
-      seasonalAmplitude: 0.15,
-      seasonalPeriodMinutes: 57600,
-      seasonalPhase: 5.9,
-      lastCoverageSample: 0.33,
-    },
-  ],
-  farms: [
-    {
-      id: "farm-northfield",
-      kind: "farm",
-      name: "Northfield Farms",
-      position: [60, 0, 220],
-      baseOutput: 42,
-      outputTonsPerMonth: 44,
-      utilization: 0.71,
-      coverage: 0.52,
-      baselineCoverage: 0.55,
-      seasonalAmplitude: 0.18,
-      seasonalPeriodMinutes: 28800,
-      seasonalPhase: 0.4,
-      lastCoverageSample: 0.52,
-    },
-    {
-      id: "farm-greenvalley",
-      kind: "farm",
-      name: "Green Valley Co-op",
-      position: [-150, 0, 200],
-      baseOutput: 37,
-      outputTonsPerMonth: 32,
-      utilization: 0.48,
-      coverage: 0.41,
-      baselineCoverage: 0.45,
-      seasonalAmplitude: 0.14,
-      seasonalPeriodMinutes: 36000,
-      seasonalPhase: 3.8,
-      lastCoverageSample: 0.41,
-    },
-  ],
-  industries: [
-    {
-      id: "industry-ironcrest",
-      kind: "industry",
-      name: "Ironcrest Steelworks",
-      industryType: "Steel Mill",
-      position: [-220, 0, 40],
-      capacity: 120,
-      inputFulfillment: 0.38,
-      outputStock: 22,
-      utilization: 0.41,
-      status: "needs-link",
-      lastStatusChangeMinutes: 0,
-      coverage: 0.36,
-      baselineCoverage: 0.4,
-      seasonalAmplitude: 0.1,
-      seasonalPeriodMinutes: 43200,
-      seasonalPhase: 4.2,
-      lastCoverageSample: 0.36,
-    },
-    {
-      id: "industry-seaside-refinery",
-      kind: "industry",
-      name: "Seaside Refinery",
-      industryType: "Oil Refinery",
-      position: [200, 0, -160],
-      capacity: 140,
-      inputFulfillment: 0.58,
-      outputStock: 64,
-      utilization: 0.63,
-      status: "idle",
-      lastStatusChangeMinutes: 0,
-      coverage: 0.52,
-      baselineCoverage: 0.55,
-      seasonalAmplitude: 0.09,
-      seasonalPeriodMinutes: 39600,
-      seasonalPhase: 1.6,
-      lastCoverageSample: 0.52,
-    },
-    {
-      id: "industry-hilltop-factory",
-      kind: "industry",
-      name: "Hilltop Goods Factory",
-      industryType: "Manufacturing",
-      position: [40, 0, 40],
-      capacity: 90,
-      inputFulfillment: 0.74,
-      outputStock: 68,
-      utilization: 0.78,
-      status: "expanding",
-      lastStatusChangeMinutes: 0,
-      coverage: 0.66,
-      baselineCoverage: 0.68,
-      seasonalAmplitude: 0.07,
-      seasonalPeriodMinutes: 32400,
-      seasonalPhase: 5.1,
-      lastCoverageSample: 0.66,
-    },
-  ],
-  mines: [
-    {
-      id: "mine-ember",
-      kind: "mine",
-      name: "Ember Ridge Mine",
-      position: [-260, 0, -140],
-      baseOutput: 58,
-      outputRate: 62,
-      exhaustion: 0.32,
-      coverage: 0.49,
-      baselineCoverage: 0.5,
-      seasonalAmplitude: 0.08,
-      seasonalPeriodMinutes: 50400,
-      seasonalPhase: 2.3,
-      lastCoverageSample: 0.49,
-    },
-    {
-      id: "mine-silverfall",
-      kind: "mine",
-      name: "Silverfall Quarry",
-      position: [150, 0, -260],
-      baseOutput: 46,
-      outputRate: 39,
-      exhaustion: 0.57,
-      coverage: 0.37,
-      baselineCoverage: 0.42,
-      seasonalAmplitude: 0.13,
-      seasonalPeriodMinutes: 57600,
-      seasonalPhase: 0.9,
-      lastCoverageSample: 0.37,
-    },
-  ],
-};
-
-function cloneSeed(): EconomyEntities {
-  return JSON.parse(JSON.stringify(ECONOMY_SEED)) as EconomyEntities;
+  seed: string;
 }
 
 function average(values: number[]): number {
@@ -203,23 +32,41 @@ function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
 }
 
+type CreateEconomyStateOptions = EconomyGenerationOptions & {
+  overrides?: Partial<EconomyState>;
+};
+
+function createInitialEconomyState(
+  options?: CreateEconomyStateOptions,
+): EconomyState {
+  const generation = generateEconomyEntities({
+    seed: options?.seed ?? ECONOMY_DEFAULT_SEED,
+    configOverrides: options?.configOverrides,
+  });
+
+  return {
+    towns: generation.towns,
+    farms: generation.farms,
+    industries: generation.industries,
+    mines: generation.mines,
+    lastTickMinutes: 0,
+    seed: generation.seed,
+    ...(options?.overrides ?? {}),
+  };
+}
+
 const STATUS_MESSAGES: Record<OpportunityStatus, string> = {
   expanding: "Expanding capacity",
   idle: "Idle - awaiting cargo",
   "needs-link": "Needs rail link",
 };
 
-export const useEconomyStore = create<EconomyState>()(() => ({
-  ...cloneSeed(),
-  lastTickMinutes: 0,
-}));
+export const useEconomyStore = create<EconomyState>()(() =>
+  createInitialEconomyState(),
+);
 
-export function resetEconomyState(overrides?: Partial<EconomyState>) {
-  useEconomyStore.setState(() => ({
-    ...cloneSeed(),
-    lastTickMinutes: 0,
-    ...overrides,
-  }));
+export function resetEconomyState(options?: CreateEconomyStateOptions) {
+  useEconomyStore.setState(() => createInitialEconomyState(options));
 }
 
 export function computeTerritorySummary(
@@ -326,12 +173,17 @@ function deriveOpportunity(
     currentMinutes - industry.lastStatusChangeMinutes,
   );
 
+  const primaryOutput = industry.outputs[0];
+  const priceSuffix = primaryOutput
+    ? ` • $${Math.round(primaryOutput.price)}/${primaryOutput.good}`
+    : "";
+
   return {
     id: industry.id,
     location: industry.name,
     industry: industry.industryType,
     status: industry.status,
-    message: STATUS_MESSAGES[industry.status],
+    message: `${STATUS_MESSAGES[industry.status]}${priceSuffix}`,
     updatedAgo: formatUpdatedAgo(deltaMinutes),
   };
 }
@@ -363,5 +215,172 @@ export function computeAverageCoverage(state: EconomyState): number {
     ...state.mines,
   ];
 
-  return clamp01(average(allSites.map((site) => site.coverage)));
+  return clamp01(
+    average(
+      allSites.map((site) => Math.max(site.coverage, site.serviceCoverage)),
+    ),
+  );
 }
+
+function shortageOf(entry: DemandEntry): number {
+  return Math.max(0, entry.demand - entry.fulfilled);
+}
+
+function combineTrends(trends: Trend[]): Trend {
+  if (trends.length === 0) {
+    return "stable";
+  }
+
+  const counts: Record<Trend, number> = {
+    rising: 0,
+    stable: 0,
+    falling: 0,
+  };
+
+  for (const trend of trends) {
+    counts[trend] += 1;
+  }
+
+  if (counts.rising >= counts.falling && counts.rising > counts.stable) {
+    return "rising";
+  }
+  if (counts.falling > counts.rising && counts.falling > counts.stable) {
+    return "falling";
+  }
+  return "stable";
+}
+
+export interface DemandInsight {
+  id: string;
+  location: string;
+  good: DemandEntry["good"];
+  shortage: number;
+  shortageRatio: number;
+  price: number;
+  trend: Trend;
+}
+
+export interface CommodityPriceSnapshot {
+  good: GoodType;
+  averagePrice: number;
+  producers: number;
+  trend: Trend;
+}
+
+export function computeDemandInsights(
+  state: EconomyState,
+  limit = 5,
+): DemandInsight[] {
+  const insights: DemandInsight[] = [];
+
+  for (const town of state.towns) {
+    const passengerShortage = shortageOf(town.demand.passengers);
+    if (passengerShortage > 0.5) {
+      const ratio =
+        town.demand.passengers.demand > 0
+          ? passengerShortage / town.demand.passengers.demand
+          : 0;
+      insights.push({
+        id: `${town.id}-passengers`,
+        location: town.name,
+        good: town.demand.passengers.good,
+        shortage: passengerShortage,
+        shortageRatio: ratio,
+        price: town.demand.passengers.price,
+        trend: town.demand.passengers.trend,
+      });
+    }
+
+    for (const entry of town.demand.goods) {
+      const shortage = shortageOf(entry);
+      if (shortage <= 0.25) {
+        continue;
+      }
+      const ratio = entry.demand > 0 ? shortage / entry.demand : 0;
+      insights.push({
+        id: `${town.id}-${entry.good}`,
+        location: town.name,
+        good: entry.good,
+        shortage,
+        shortageRatio: ratio,
+        price: entry.price,
+        trend: entry.trend,
+      });
+    }
+  }
+
+  for (const industry of state.industries) {
+    for (const input of industry.inputs) {
+      const shortage = shortageOf(input);
+      if (shortage <= 0.25) {
+        continue;
+      }
+      const ratio = input.demand > 0 ? shortage / input.demand : 0;
+      insights.push({
+        id: `${industry.id}-${input.good}`,
+        location: industry.name,
+        good: input.good,
+        shortage,
+        shortageRatio: ratio,
+        price: input.price,
+        trend: input.trend,
+      });
+    }
+  }
+
+  return insights
+    .sort(
+      (a, b) => b.shortageRatio - a.shortageRatio || b.shortage - a.shortage,
+    )
+    .slice(0, limit);
+}
+
+export function computeCommodityPrices(
+  state: EconomyState,
+): CommodityPriceSnapshot[] {
+  const accumulator = new Map<
+    GoodType,
+    { priceSum: number; producers: number; trends: Trend[] }
+  >();
+
+  const addSupply = (good: GoodType, price: number, trend: Trend) => {
+    const bucket = accumulator.get(good) ?? {
+      priceSum: 0,
+      producers: 0,
+      trends: [],
+    };
+    bucket.priceSum += price;
+    bucket.producers += 1;
+    bucket.trends.push(trend);
+    accumulator.set(good, bucket);
+  };
+
+  for (const farm of state.farms) {
+    for (const output of farm.outputs) {
+      addSupply(output.good, output.price, output.trend);
+    }
+  }
+
+  for (const industry of state.industries) {
+    for (const output of industry.outputs) {
+      addSupply(output.good, output.price, output.trend);
+    }
+  }
+
+  for (const mine of state.mines) {
+    for (const output of mine.outputs) {
+      addSupply(output.good, output.price, output.trend);
+    }
+  }
+
+  return Array.from(accumulator.entries())
+    .map(([good, value]) => ({
+      good,
+      averagePrice: value.producers > 0 ? value.priceSum / value.producers : 0,
+      producers: value.producers,
+      trend: combineTrends(value.trends),
+    }))
+    .sort((a, b) => a.good.localeCompare(b.good));
+}
+
+export type EconomyResetOptions = CreateEconomyStateOptions;

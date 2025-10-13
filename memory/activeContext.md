@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Phase**: Economy Simulation Integration (TASK008) - Completed
+**Phase**: Economy Site Visual Layer (TASK009) - Completed
 
-**Status**: Economy simulation 2.0 now powers the management sidebar with live settlement, territory, and opportunity data.
+**Status**: Placeholder meshes now mirror economy settlements in the ECS world, ready for future art pass.
 
 ## What We're Building Now
 
@@ -52,10 +52,10 @@
 
 ### Next Steps
 
-1. Monitor simulation balance and tune growth/fulfillment coefficients with playtesting feedback.
-2. Plan TASK005 path-following polish now that economy telemetry is live.
+1. Monitor settlement visuals for scale/palette adjustments during playtesting.
+2. Revisit TASK005 planning for vehicle motion polish with new map landmarks.
 3. Explore cargo throughput hooks to replace seeded coverage baselines.
-4. Document future save/load requirements for persisting economy state.
+4. Outline art direction requirements for future settlement asset upgrades.
 
 ## Recent Changes
 
@@ -139,4 +139,4 @@ None.
 ---
 
 **Next Action**: Schedule TASK005 planning session for vehicle motion polish
-**Last Updated**: 2025-10-18
+**Last Updated**: 2025-10-19

@@ -2,7 +2,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stats, Grid } from "@react-three/drei";
 import { useEffect, useRef, type RefObject } from "react";
 import { nanoid } from "nanoid";
-import { WorldProvider, useWorld } from "./ecs/world";
+import { useWorld } from "./ecs/world";
 import { useTimeSystem } from "./ecs/systems/time";
 import { SceneGraph } from "./SceneGraph";
 import { useConstruction } from "./state/slices/construction";
@@ -14,11 +14,13 @@ import { DebugPanel } from "./ui/DebugPanel";
 import { useUIStore } from "./state/slices/ui";
 import { Vector3 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import { useEconomySiteRenderables } from "./scene/useEconomySiteRenderables";
 
 function Simulation() {
   const world = useWorld();
   const showGrid = useConstruction((state) => state.showGrid);
   useTimeSystem(world);
+  useEconomySiteRenderables();
 
   // Enable construction mode interactions
   useConstructionMode();
@@ -32,6 +34,7 @@ function Simulation() {
         speed: 0,
         accel: 0.5,
         maxSpeed: 2,
+        capacity: 80,
         type: "train",
         route: {
           state: "idle",
@@ -81,7 +84,7 @@ export function GameCanvas() {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
 
   return (
-    <WorldProvider>
+    <>
       <Canvas
         shadows
         camera={{ position: [12, 12, 12], fov: 50 }}
@@ -104,7 +107,7 @@ export function GameCanvas() {
         {showStats && <Stats />}
       </Canvas>
       <DebugPanel />
-    </WorldProvider>
+    </>
   );
 }
 

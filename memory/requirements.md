@@ -297,3 +297,43 @@
 - Tests confirm that shortages create "needs-link" entries and the freshness text updates when the clock advances.
 
 ---
+
+### R22: Economy Site Visualization Sync
+
+**WHEN** the economy state initializes or resets, **THE SYSTEM SHALL** populate the ECS world with renderable entities for every town, farm, industry, and mine so their locations appear in the 3D scene.
+
+**Acceptance Criteria:**
+
+- Each generated settlement site corresponds to an ECS entity with a `Transform.position` matching the economy state's coordinates.
+- Entities are created for all settlement categories (town, farm, industry, mine) without omissions.
+- Entities are removed and recreated when the economy seed resets so there are no stale renderables left in the world.
+- Unit tests verify that syncing after a reset yields the correct entity counts and positions.
+
+---
+
+### R23: Economy Site Updates
+
+**WHEN** the economy store gains or loses settlement entries, **THE SYSTEM SHALL** reconcile ECS renderables so additions appear and removals disappear on the next tick without duplicating entities.
+
+**Acceptance Criteria:**
+
+- Adding a new settlement to the store spawns exactly one new ECS entity with the expected renderable metadata.
+- Removing a settlement from the store deletes its corresponding ECS entity.
+- No duplicate ECS entities remain after repeated updates to the same settlement list.
+- Tests simulate store mutations and assert entity counts remain consistent with the store contents.
+
+---
+
+### R24: Distinct Settlement Placeholder Meshes
+
+**WHEN** the SceneGraph renders settlement renderables, **THE SYSTEM SHALL** display distinctive placeholder meshes for towns, farms, industries, and mines so players can differentiate them at a glance.
+
+**Acceptance Criteria:**
+
+- Towns render as clustered multi-building placeholders with warm accent colors.
+- Farms render with barn-and-silo style geometry using earth tones.
+- Industries render as factory blocks with smokestack shapes.
+- Mines render as excavated pits or conveyors with darker palette cues.
+- Visual regressions are covered by component-level tests or snapshot verification that ensures the correct mesh hierarchy per kind.
+
+---

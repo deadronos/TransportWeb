@@ -1,6 +1,7 @@
 import type { World } from "miniplex";
 import type { Entity } from "../world";
 import { useNetworkStore } from "@/game/state/slices/network";
+import { useLogisticsStore } from "@/game/state/slices/logistics";
 import {
   PathCache,
   findPath,
@@ -18,6 +19,46 @@ const ARRIVAL_DWELL_SECONDS = 1;
 const RETRY_DELAY_SECONDS = 1;
 const EPSILON = 1e-4;
 
+type VehicleComponent = NonNullable<Entity["Vehicle"]>;
+type VehicleAssignment = NonNullable<VehicleComponent["assignment"]>;
+
+function normalizeAssignment(
+  assignment: VehicleAssignment,
+  stopsLength: number,
+): VehicleAssignment {
+  const length = Math.max(1, stopsLength);
+  return {
+    lineId: assignment.lineId ?? null,
+    nextStopIndex: Math.max(0, Math.min(assignment.nextStopIndex, length - 1)),
+    direction: assignment.direction === -1 ? -1 : 1,
+  };
+}
+
+function advanceAssignment(
+  assignment: VehicleAssignment,
+  stopsLength: number,
+): VehicleAssignment {
+  if (stopsLength <= 1) {
+    return {
+      lineId: assignment.lineId ?? null,
+      nextStopIndex: 0,
+      direction: 1,
+    };
+  }
+  const normalized = normalizeAssignment(assignment, stopsLength);
+  let nextIndex = normalized.nextStopIndex + normalized.direction;
+  let direction = normalized.direction;
+  if (nextIndex >= stopsLength || nextIndex < 0) {
+    direction = (direction * -1) as 1 | -1;
+    nextIndex = normalized.nextStopIndex + direction;
+  }
+  return {
+    lineId: normalized.lineId ?? null,
+    nextStopIndex: Math.max(0, Math.min(nextIndex, stopsLength - 1)),
+    direction,
+  };
+}
+
 function ensureRoute(vehicle: NonNullable<Entity["Vehicle"]>) {
   vehicle.route ??= {
     state: "idle",
@@ -28,6 +69,8 @@ function ensureRoute(vehicle: NonNullable<Entity["Vehicle"]>) {
     distanceAlongEdge: 0,
     dwellTimeRemaining: 0,
   };
+
+  vehicle.assignment ??= { lineId: null, nextStopIndex: 0, direction: 1 };
 
   return vehicle.route;
 }
@@ -84,9 +127,15 @@ function clearRoute(
   vehicleId: string,
   reason: "arrived" | "failed",
   incrementDirty: () => void,
+  onComplete?: (
+    result: "arrived" | "failed",
+    arrivedNodeId: string | null,
+  ) => void,
 ) {
   const route = vehicle.route;
   if (!route) return;
+
+  const arrivalNodeId = route.targetNodeId ?? route.currentNodeId;
 
   if (route.path) {
     releasePath(graph, route.path, vehicleId);
@@ -101,10 +150,13 @@ function clearRoute(
   route.state = reason === "arrived" ? "waiting" : "idle";
   route.dwellTimeRemaining =
     reason === "arrived" ? ARRIVAL_DWELL_SECONDS : RETRY_DELAY_SECONDS;
+
+  onComplete?.(reason, arrivalNodeId ?? null);
 }
 
 export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
   const networkStore = useNetworkStore.getState();
+  const logisticsStore = useLogisticsStore.getState();
   const { graph } = networkStore;
   const allNodes = graph.getAllNodes();
 
@@ -113,6 +165,12 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
   for (const entity of world.with("Vehicle", "Transform")) {
     const { Vehicle: vehicle, Transform: transform } = entity;
     const route = ensureRoute(vehicle);
+    const assignment = vehicle.assignment ?? {
+      lineId: null,
+      nextStopIndex: 0,
+      direction: 1 as 1 | -1,
+    };
+    vehicle.assignment = assignment;
 
     if (route.dwellTimeRemaining > 0) {
       route.dwellTimeRemaining = Math.max(route.dwellTimeRemaining - dt, 0);
@@ -123,6 +181,9 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
         route.state = "idle";
       }
       vehicle.speed = 0;
+      if (assignment.lineId) {
+        logisticsStore.updateVehicleStatus(entity.id, "waiting");
+      }
       continue;
     }
 
@@ -131,70 +192,178 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
         continue;
       }
 
-      if (allNodes.length < 2) {
-        vehicle.speed = 0;
-        continue;
-      }
+      let dispatched = false;
 
-      const startNode = (() => {
-        if (route.currentNodeId) {
-          const node = graph.getNode(route.currentNodeId);
-          if (node) {
-            return node;
-          }
-        }
+      const line =
+        assignment.lineId !== null
+          ? logisticsStore.getLine(assignment.lineId)
+          : undefined;
+      if (line && line.stops.length >= 2) {
+        const normalized = normalizeAssignment(assignment, line.stops.length);
+        vehicle.assignment = normalized;
+        const targetStop = line.stops[normalized.nextStopIndex];
+        const targetNode = targetStop
+          ? graph.getNode(targetStop.nodeId)
+          : undefined;
 
-        return findClosestNode(allNodes, transform.position) ?? null;
-      })();
-
-      if (!startNode) {
-        vehicle.speed = 0;
-        continue;
-      }
-
-      const destinationNode = pickDestinationNode(allNodes, startNode.id);
-      if (!destinationNode) {
-        route.dwellTimeRemaining = RETRY_DELAY_SECONDS;
-        vehicle.speed = 0;
-        continue;
-      }
-
-      let path: Path | null = pathCache.get(
-        startNode.id,
-        destinationNode.id,
-        graph,
-      );
-
-      if (!path) {
-        const result = findPath(graph, startNode.id, destinationNode.id);
-        if (!result.success || !result.path || result.path.edges.length === 0) {
+        if (!targetNode) {
+          vehicle.assignment = advanceAssignment(normalized, line.stops.length);
           route.dwellTimeRemaining = RETRY_DELAY_SECONDS;
           vehicle.speed = 0;
+          dispatched = true;
+        } else {
+          let startNode =
+            route.currentNodeId !== null
+              ? graph.getNode(route.currentNodeId)
+              : undefined;
+          if (!startNode) {
+            startNode =
+              findClosestNode(allNodes, transform.position) ?? targetNode;
+            if (startNode) {
+              route.currentNodeId = startNode.id;
+              alignTransformToNode(transform, startNode);
+            }
+          }
+
+          if (!startNode) {
+            route.dwellTimeRemaining = RETRY_DELAY_SECONDS;
+            vehicle.speed = 0;
+            logisticsStore.updateVehicleStatus(entity.id, "idle");
+            dispatched = true;
+          } else if (startNode.id === targetNode.id) {
+            vehicle.assignment = advanceAssignment(
+              normalized,
+              line.stops.length,
+            );
+            route.state = "waiting";
+            route.dwellTimeRemaining = ARRIVAL_DWELL_SECONDS;
+            logisticsStore.updateVehicleStatus(entity.id, "waiting");
+            dispatched = true;
+          } else {
+            let path: Path | null = pathCache.get(
+              startNode.id,
+              targetNode.id,
+              graph,
+            );
+            if (!path) {
+              const result = findPath(graph, startNode.id, targetNode.id);
+              if (
+                !result.success ||
+                !result.path ||
+                result.path.edges.length === 0
+              ) {
+                route.dwellTimeRemaining = RETRY_DELAY_SECONDS;
+                vehicle.speed = 0;
+                logisticsStore.updateVehicleStatus(entity.id, "idle");
+                dispatched = true;
+              } else {
+                path = result.path;
+                pathCache.set(startNode.id, targetNode.id, path);
+              }
+            }
+
+            if (path && !dispatched) {
+              if (!reservePath(graph, path, entity.id)) {
+                route.dwellTimeRemaining = RETRY_DELAY_SECONDS;
+                vehicle.speed = 0;
+                logisticsStore.updateVehicleStatus(entity.id, "waiting");
+                dispatched = true;
+              } else {
+                graphDirty = true;
+                route.state = "moving";
+                route.currentNodeId = startNode.id;
+                route.targetNodeId = targetNode.id;
+                route.path = path;
+                route.currentEdgeIndex = 0;
+                route.distanceAlongEdge = 0;
+                route.dwellTimeRemaining = 0;
+                vehicle.speed = 0;
+                alignTransformToNode(transform, startNode);
+                logisticsStore.updateVehicleStatus(entity.id, "enroute");
+                dispatched = true;
+                continue;
+              }
+            }
+          }
+        }
+      }
+
+      if (!dispatched) {
+        if (allNodes.length < 2) {
+          vehicle.speed = 0;
+          logisticsStore.updateVehicleStatus(entity.id, "idle");
           continue;
         }
 
-        path = result.path;
-        pathCache.set(startNode.id, destinationNode.id, path);
-      }
+        const startNode = (() => {
+          if (route.currentNodeId) {
+            const node = graph.getNode(route.currentNodeId);
+            if (node) {
+              return node;
+            }
+          }
 
-      if (!reservePath(graph, path, entity.id)) {
-        route.dwellTimeRemaining = RETRY_DELAY_SECONDS;
+          return findClosestNode(allNodes, transform.position) ?? null;
+        })();
+
+        if (!startNode) {
+          vehicle.speed = 0;
+          logisticsStore.updateVehicleStatus(entity.id, "idle");
+          continue;
+        }
+
+        const destinationNode = pickDestinationNode(allNodes, startNode.id);
+        if (!destinationNode) {
+          route.dwellTimeRemaining = RETRY_DELAY_SECONDS;
+          vehicle.speed = 0;
+          logisticsStore.updateVehicleStatus(entity.id, "idle");
+          continue;
+        }
+
+        let path: Path | null = pathCache.get(
+          startNode.id,
+          destinationNode.id,
+          graph,
+        );
+
+        if (!path) {
+          const result = findPath(graph, startNode.id, destinationNode.id);
+          if (
+            !result.success ||
+            !result.path ||
+            result.path.edges.length === 0
+          ) {
+            route.dwellTimeRemaining = RETRY_DELAY_SECONDS;
+            vehicle.speed = 0;
+            logisticsStore.updateVehicleStatus(entity.id, "idle");
+            continue;
+          }
+
+          path = result.path;
+          pathCache.set(startNode.id, destinationNode.id, path);
+        }
+
+        if (!reservePath(graph, path, entity.id)) {
+          route.dwellTimeRemaining = RETRY_DELAY_SECONDS;
+          vehicle.speed = 0;
+          logisticsStore.updateVehicleStatus(entity.id, "waiting");
+          continue;
+        }
+
+        graphDirty = true;
+
+        route.state = "moving";
+        route.currentNodeId = startNode.id;
+        route.targetNodeId = destinationNode.id;
+        route.path = path;
+        route.currentEdgeIndex = 0;
+        route.distanceAlongEdge = 0;
+        route.dwellTimeRemaining = 0;
         vehicle.speed = 0;
+        alignTransformToNode(transform, startNode);
+        logisticsStore.updateVehicleStatus(entity.id, "enroute");
         continue;
       }
-
-      graphDirty = true;
-
-      route.state = "moving";
-      route.currentNodeId = startNode.id;
-      route.targetNodeId = destinationNode.id;
-      route.path = path;
-      route.currentEdgeIndex = 0;
-      route.distanceAlongEdge = 0;
-      route.dwellTimeRemaining = 0;
-      vehicle.speed = 0;
-      alignTransformToNode(transform, startNode);
-      continue;
     }
 
     if (route.state !== "moving" || !route.path) {
@@ -202,15 +371,45 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
       continue;
     }
 
-    // Accelerate vehicle using motion helper
     accelerateVehicle(vehicle, dt);
     let distanceRemaining = vehicle.speed * dt;
 
     while (distanceRemaining > EPSILON) {
       if (!route.path || route.currentEdgeIndex >= route.path.edges.length) {
-        clearRoute(graph, vehicle, entity.id, "arrived", () => {
-          graphDirty = true;
-        });
+        clearRoute(
+          graph,
+          vehicle,
+          entity.id,
+          "arrived",
+          () => {
+            graphDirty = true;
+          },
+          (result) => {
+            if (result === "arrived") {
+              if (vehicle.assignment?.lineId) {
+                const line = logisticsStore.getLine(vehicle.assignment.lineId);
+                if (line) {
+                  vehicle.assignment = advanceAssignment(
+                    vehicle.assignment,
+                    line.stops.length,
+                  );
+                  logisticsStore.updateVehicleStatus(entity.id, "waiting");
+                } else {
+                  vehicle.assignment = {
+                    lineId: null,
+                    nextStopIndex: 0,
+                    direction: 1,
+                  };
+                  logisticsStore.updateVehicleStatus(entity.id, "idle");
+                }
+              } else {
+                logisticsStore.updateVehicleStatus(entity.id, "waiting");
+              }
+            } else {
+              logisticsStore.updateVehicleStatus(entity.id, "idle");
+            }
+          },
+        );
         break;
       }
 
@@ -222,28 +421,30 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
       const toNode = toNodeId ? graph.getNode(toNodeId) : undefined;
       const edge = edgeId ? graph.getEdge(edgeId) : undefined;
 
-      // If the expected edge or nodes are missing, try to reroute from the
-      // current node (only when not already mid-edge). If reroute fails,
-      // clear the route and mark graph dirty.
       if (!fromNode || !toNode || !edge || edge.length <= 0) {
         if (route.distanceAlongEdge <= EPSILON) {
           const rerouted = attemptReroute(graph, route, entity.id, pathCache);
           if (rerouted) {
             graphDirty = true;
-            // Start processing the new path in this tick
             continue;
           }
         }
 
-        clearRoute(graph, vehicle, entity.id, "failed", () => {
-          graphDirty = true;
-        });
+        clearRoute(
+          graph,
+          vehicle,
+          entity.id,
+          "failed",
+          () => {
+            graphDirty = true;
+          },
+          () => {
+            logisticsStore.updateVehicleStatus(entity.id, "idle");
+          },
+        );
         break;
       }
 
-      // If next edge is now at capacity and doesn't include this vehicle's
-      // reservation, attempt to reroute (only when we haven't started the
-      // edge yet). If reroute fails, fallback to clearing the route.
       if (
         edge.occupied.length >= edge.capacity &&
         !edge.occupied.includes(entity.id)
@@ -256,9 +457,18 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
           }
         }
 
-        clearRoute(graph, vehicle, entity.id, "failed", () => {
-          graphDirty = true;
-        });
+        clearRoute(
+          graph,
+          vehicle,
+          entity.id,
+          "failed",
+          () => {
+            graphDirty = true;
+          },
+          () => {
+            logisticsStore.updateVehicleStatus(entity.id, "idle");
+          },
+        );
         break;
       }
 
@@ -283,7 +493,6 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
       transform.rotation = [0, yaw, 0];
 
       if (edgeRemaining - travel <= EPSILON) {
-        // Completed the edge
         route.currentEdgeIndex += 1;
         route.distanceAlongEdge = 0;
         route.currentNodeId = toNode.id;
@@ -292,14 +501,44 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
           graphDirty = true;
         }
 
-        // Snap to node to avoid drift
         alignTransformToNode(transform, toNode);
       }
 
       if (route.currentEdgeIndex >= route.path.edges.length) {
-        clearRoute(graph, vehicle, entity.id, "arrived", () => {
-          graphDirty = true;
-        });
+        clearRoute(
+          graph,
+          vehicle,
+          entity.id,
+          "arrived",
+          () => {
+            graphDirty = true;
+          },
+          (result) => {
+            if (result === "arrived") {
+              if (vehicle.assignment?.lineId) {
+                const line = logisticsStore.getLine(vehicle.assignment.lineId);
+                if (line) {
+                  vehicle.assignment = advanceAssignment(
+                    vehicle.assignment,
+                    line.stops.length,
+                  );
+                  logisticsStore.updateVehicleStatus(entity.id, "waiting");
+                } else {
+                  vehicle.assignment = {
+                    lineId: null,
+                    nextStopIndex: 0,
+                    direction: 1,
+                  };
+                  logisticsStore.updateVehicleStatus(entity.id, "idle");
+                }
+              } else {
+                logisticsStore.updateVehicleStatus(entity.id, "waiting");
+              }
+            } else {
+              logisticsStore.updateVehicleStatus(entity.id, "idle");
+            }
+          },
+        );
         break;
       }
     }

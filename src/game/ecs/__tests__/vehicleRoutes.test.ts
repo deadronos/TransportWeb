@@ -71,6 +71,7 @@ function createVehicle(world: World<Entity>, id: string) {
       speed: 0,
       accel: 2,
       maxSpeed: 6,
+      capacity: 80,
       type: "train",
       route: initialRoute,
     },

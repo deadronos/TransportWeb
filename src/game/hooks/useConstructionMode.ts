@@ -23,6 +23,14 @@ export interface ConstructionModeState {
 const GRID_SIZE = 10;
 const NODE_TOLERANCE = 0.5;
 
+const FACILITY_RADIUS: Partial<Record<BuildTool, number>> = {
+  station: 140,
+  depot: 90,
+};
+
+let stationSequence = 1;
+let depotSequence = 1;
+
 type BuildTool = Extract<
   ConstructionTool,
   "rail" | "road" | "station" | "depot"
@@ -283,6 +291,16 @@ export function useConstructionMode() {
       nodePosition[1] = 0; // ensure structures rest on the terrain plane
 
       const metadata: Record<string, unknown> = { trackType: config.trackType };
+
+      if (activeTool === "station") {
+        metadata.name = `Station ${stationSequence.toString().padStart(2, "0")}`;
+        metadata.serviceRadius = FACILITY_RADIUS.station;
+        stationSequence += 1;
+      } else if (activeTool === "depot") {
+        metadata.name = `Depot ${depotSequence.toString().padStart(2, "0")}`;
+        metadata.serviceRadius = FACILITY_RADIUS.depot;
+        depotSequence += 1;
+      }
 
       if (config.building) {
         const buildingId = nanoid();

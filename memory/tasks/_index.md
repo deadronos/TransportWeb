@@ -13,5 +13,6 @@
 - [TASK006] Modern HUD panels & minimap - Completed on 2025-10-16
 - [TASK007] Sidebar Growth Dashboard Panels - Completed on 2025-10-17
 - [TASK008] Economy simulation & sidebar integration - Completed on 2025-10-18
+- [TASK009] Economy site visual layer - Completed on 2025-10-19
 
 ## Abandoned

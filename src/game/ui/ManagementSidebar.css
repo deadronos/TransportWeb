@@ -401,6 +401,194 @@
   color: rgba(255, 231, 193, 0.7);
 }
 
+.logistics-planner {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.logistics-planner__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logistics-planner__buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.logistics-planner__buttons button {
+  flex: 1;
+  padding: 8px 10px;
+  background: rgba(74, 124, 89, 0.2);
+  border: 1px solid rgba(74, 124, 89, 0.5);
+  color: #e4efe2;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s ease;
+}
+
+.logistics-planner__buttons button:hover {
+  background: rgba(74, 124, 89, 0.35);
+}
+
+.logistics-planner__form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.logistics-planner__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: rgba(233, 243, 229, 0.85);
+}
+
+.logistics-planner__form input,
+.logistics-planner__form select {
+  background: rgba(24, 32, 24, 0.9);
+  border: 1px solid rgba(74, 124, 89, 0.4);
+  border-radius: 6px;
+  color: #f6f8f5;
+  padding: 6px 8px;
+}
+
+.logistics-planner__form button {
+  margin-top: 4px;
+  padding: 8px 10px;
+  background: linear-gradient(90deg, #4a7c59, #7fb685);
+  border: none;
+  border-radius: 8px;
+  color: #112015;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logistics-planner__form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.logistics-planner__vehicle-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.logistics-planner__vehicle-item {
+  background: rgba(27, 36, 27, 0.85);
+  border: 1px solid rgba(74, 124, 89, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logistics-planner__vehicle-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.logistics-planner__vehicle-empty {
+  text-align: center;
+  padding: 12px;
+  background: rgba(24, 32, 24, 0.6);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  margin-left: 8px;
+}
+
+.status-tag--idle {
+  background: rgba(74, 124, 89, 0.25);
+  color: #cbe4c5;
+}
+
+.status-tag--waiting {
+  background: rgba(255, 196, 74, 0.3);
+  color: #ffe0a3;
+}
+
+.status-tag--enroute {
+  background: rgba(74, 163, 255, 0.3);
+  color: #bde0ff;
+}
+
+.demand-list,
+.price-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.demand-row,
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(27, 36, 27, 0.85);
+  border: 1px solid rgba(74, 124, 89, 0.35);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.demand-row__meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.demand-row .shortage {
+  font-weight: 600;
+}
+
+.trend {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.trend--rising {
+  background: rgba(74, 163, 255, 0.2);
+  color: #8ad1ff;
+}
+
+.trend--falling {
+  background: rgba(255, 107, 74, 0.2);
+  color: #ffb09c;
+}
+
+.trend--stable {
+  background: rgba(74, 124, 89, 0.2);
+  color: #cde7c4;
+}
+
 @media (max-width: 1200px) {
   .management-sidebar {
     width: 280px;

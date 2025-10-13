@@ -1,7 +1,12 @@
 import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
 import { useWorld, type Entity } from "./ecs/world";
 import type { Mesh } from "three";
+import { useEntityTransformSync } from "./scene/useEntityTransformSync";
+import {
+  SettlementPlaceholder,
+  SETTLEMENT_PLACEHOLDER_DESCRIPTORS,
+  type SettlementRenderableKind,
+} from "./scene/settlementPlaceholders";
 
 export function SceneGraph() {
   const world = useWorld();
@@ -14,7 +19,17 @@ export function SceneGraph() {
     depot: "#8c6239",
     vehicle: "#c0392b",
     tree: "#2d8659",
+    town: "#f6c177",
+    farm: "#d26a52",
+    industry: "#7f8fa6",
+    mine: "#4b4b4b",
   };
+
+  const settlementKinds = new Set<SettlementRenderableKind>(
+    Object.keys(
+      SETTLEMENT_PLACEHOLDER_DESCRIPTORS,
+    ) as SettlementRenderableKind[],
+  );
 
   // Small per-entity mesh that syncs the underlying Three.js object
   // from the entity's Transform each frame. We avoid relying on React
@@ -30,27 +45,7 @@ export function SceneGraph() {
     color: string;
   }) {
     const meshRef = useRef<Mesh | null>(null);
-
-    useFrame(() => {
-      const t = entity.Transform;
-      const m = meshRef.current;
-      if (!t || !m) return;
-
-      const p = t.position;
-      if (p) {
-        m.position.set(p[0], p[1], p[2]);
-      }
-
-      const r = t.rotation;
-      if (r) {
-        m.rotation.set(r[0] ?? 0, r[1] ?? 0, r[2] ?? 0);
-      }
-
-      const s = t.scale;
-      if (s) {
-        m.scale.set(s[0] ?? 1, s[1] ?? 1, s[2] ?? 1);
-      }
-    });
+    useEntityTransformSync(entity, meshRef);
 
     return (
       <mesh ref={meshRef} castShadow receiveShadow>
@@ -71,6 +66,16 @@ export function SceneGraph() {
         const dimensions = renderable.dimensions ?? [1, 1, 1];
         const color =
           renderable.color ?? colorByKind[renderable.kind] ?? "#888888";
+
+        if (settlementKinds.has(renderable.kind as SettlementRenderableKind)) {
+          return (
+            <SettlementPlaceholder
+              key={entity.id}
+              entity={entity}
+              kind={renderable.kind as SettlementRenderableKind}
+            />
+          );
+        }
 
         return (
           <EntityMesh
