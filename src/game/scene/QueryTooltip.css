@@ -1,0 +1,91 @@
+.query-tooltip {
+  min-width: 220px;
+  background: rgba(16, 24, 32, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #f5f7fa;
+  font-family: "IBM Plex Sans", sans-serif;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.query-tooltip__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.query-tooltip__title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.query-tooltip__badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(255, 255, 255, 0.16);
+  color: #f8fafc;
+}
+
+.query-tooltip__badge--town {
+  background: rgba(246, 193, 119, 0.22);
+  color: #f6c177;
+}
+
+.query-tooltip__badge--farm {
+  background: rgba(210, 106, 82, 0.22);
+  color: #f2b29f;
+}
+
+.query-tooltip__badge--industry {
+  background: rgba(127, 143, 166, 0.22);
+  color: #d0d8e7;
+}
+
+.query-tooltip__badge--mine {
+  background: rgba(75, 75, 75, 0.32);
+  color: #f0f0f0;
+}
+
+.query-tooltip__subtitle {
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.78);
+  margin-bottom: 6px;
+}
+
+.query-tooltip__metrics {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.query-tooltip__metric {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.query-tooltip__metric dt {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: rgba(208, 214, 224, 0.7);
+  letter-spacing: 0.08em;
+}
+
+.query-tooltip__metric dd {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: right;
+}

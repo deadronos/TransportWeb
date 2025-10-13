@@ -1,4 +1,7 @@
+import { DoubleSide } from "three";
+
 import { useConstruction } from "../state/slices/construction";
+import { useToolPreviewStore } from "../state/slices/toolPreview";
 
 /**
  * Renders a semi-transparent preview of the building/track being placed.
@@ -8,42 +11,51 @@ export function GhostPreview() {
   const tool = useConstruction((state) => state.tool);
   const ghostPosition = useConstruction((state) => state.ghostPosition);
   const isValidPlacement = useConstruction((state) => state.isValidPlacement);
+  const previewSegments = useToolPreviewStore((state) => state.segments);
+  const facilityPreview = useToolPreviewStore((state) => state.facility);
 
-  // Don't render if no tool selected or no ghost position
-  if (tool === "none" || tool === "query" || !ghostPosition) {
+  const hasGhost =
+    tool !== "none" && tool !== "query" && ghostPosition !== null;
+  const hasSegments = previewSegments.length > 0;
+  const hasFacility = Boolean(facilityPreview);
+
+  if (!hasGhost && !hasSegments && !hasFacility) {
     return null;
   }
 
-  const [x, y, z] = ghostPosition;
   const color = isValidPlacement ? "#4a7c59" : "#c24747";
 
   // Different preview shapes for different tools
   const renderPreview = () => {
+    if (!ghostPosition || !hasGhost) {
+      return null;
+    }
+
+    const [x, y, z] = ghostPosition;
+
     switch (tool) {
       case "rail":
-        // Preview: Long thin box for track segment
         return (
-          <mesh position={[x, y + 0.1, z]}>
-            <boxGeometry args={[10, 0.2, 2]} />
+          <mesh position={[x, y + 0.05, z]}>
+            <cylinderGeometry args={[1.6, 1.6, 0.25, 24]} />
             <meshStandardMaterial
               color={color}
               transparent
-              opacity={0.6}
+              opacity={0.55}
               emissive={color}
-              emissiveIntensity={0.3}
+              emissiveIntensity={0.35}
             />
           </mesh>
         );
 
       case "road":
-        // Preview: Wide flat box for road segment
         return (
           <mesh position={[x, y + 0.05, z]}>
-            <boxGeometry args={[10, 0.1, 4]} />
+            <cylinderGeometry args={[2, 2, 0.2, 20]} />
             <meshStandardMaterial
               color={color}
               transparent
-              opacity={0.6}
+              opacity={0.5}
               emissive={color}
               emissiveIntensity={0.3}
             />
@@ -51,7 +63,6 @@ export function GhostPreview() {
         );
 
       case "station":
-        // Preview: Building footprint (20x10 for train station)
         return (
           <mesh position={[x, y + 2, z]}>
             <boxGeometry args={[20, 4, 10]} />
@@ -66,7 +77,6 @@ export function GhostPreview() {
         );
 
       case "depot":
-        // Preview: Depot building (15x15 square)
         return (
           <mesh position={[x, y + 2, z]}>
             <boxGeometry args={[15, 4, 15]} />
@@ -107,7 +117,6 @@ export function GhostPreview() {
         );
 
       case "demolish":
-        // Preview: Red X indicator
         return (
           <group position={[x, y + 1, z]}>
             <mesh rotation={[0, 0, Math.PI / 4]}>
@@ -126,5 +135,74 @@ export function GhostPreview() {
     }
   };
 
-  return <>{renderPreview()}</>;
+  const segmentColor: Record<string, string> = {
+    rail: "#6bd49b",
+    road: "#b0b0b0",
+  };
+
+  return (
+    <>
+      {renderPreview()}
+      {previewSegments.map((segment) => {
+        const colorKey = segment.trackType;
+        const segColor = segmentColor[colorKey] ?? "#6bd49b";
+        return (
+          <mesh
+            key={`preview-segment-${segment.id}`}
+            position={segment.midpoint}
+            rotation={[0, segment.rotationY, 0]}
+          >
+            <boxGeometry
+              args={[segment.length, segment.thickness, segment.width]}
+            />
+            <meshStandardMaterial
+              color={segColor}
+              transparent
+              opacity={0.35}
+              emissive={segColor}
+              emissiveIntensity={0.25}
+            />
+          </mesh>
+        );
+      })}
+      {facilityPreview ? (
+        <group
+          position={[
+            facilityPreview.position[0],
+            facilityPreview.position[1] + 0.05,
+            facilityPreview.position[2],
+          ]}
+        >
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <ringGeometry
+              args={[facilityPreview.radius - 2, facilityPreview.radius, 64]}
+            />
+            <meshStandardMaterial
+              color={facilityPreview.color}
+              transparent
+              opacity={0.35}
+              side={DoubleSide}
+              emissive={facilityPreview.color}
+              emissiveIntensity={0.15}
+            />
+          </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]}>
+            <ringGeometry
+              args={[
+                facilityPreview.radius * 0.35,
+                facilityPreview.radius * 0.5,
+                48,
+              ]}
+            />
+            <meshStandardMaterial
+              color={facilityPreview.color}
+              transparent
+              opacity={0.15}
+              side={DoubleSide}
+            />
+          </mesh>
+        </group>
+      ) : null}
+    </>
+  );
 }

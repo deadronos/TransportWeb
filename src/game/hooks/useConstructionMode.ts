@@ -11,6 +11,8 @@ import {
 } from "../state/slices/construction";
 import { useWorld, type Entity } from "../ecs/world";
 import { useNetworkStore } from "../state/slices/network";
+import { useToolPreviewStore } from "../state/slices/toolPreview";
+import { useEconomyStore } from "../state/slices/economy";
 import type { NetworkNode, TrackType } from "../network/types";
 import {
   calculateDistance,
@@ -19,6 +21,9 @@ import {
   isGridNeighbor,
 } from "../network/utils";
 import type { NetworkSignal } from "../network/types";
+import type { Farm, Industry, Mine, Town } from "../simulation/types";
+
+type Settlement = Town | Farm | Industry | Mine;
 
 export interface ConstructionModeState {
   hoverPosition: Vector3 | null;
@@ -32,6 +37,7 @@ const SIGNAL_SEARCH_RADIUS = 6;
 const SIGNAL_ALONG_OFFSET = 4;
 const SIGNAL_LATERAL_OFFSET = 2;
 const SIGNAL_HEIGHT_OFFSET = 1.8;
+const QUERY_SEARCH_RADIUS = 24;
 
 const FACILITY_RADIUS: Partial<Record<BuildTool, number>> = {
   station: 140,
@@ -184,6 +190,34 @@ function isNeighborCompatible(
   );
 }
 
+function findNearestSettlement(
+  position: Vector3,
+  radius: number,
+): Settlement | null {
+  const state = useEconomyStore.getState();
+  const candidates: Settlement[] = [
+    ...state.towns,
+    ...state.farms,
+    ...state.industries,
+    ...state.mines,
+  ];
+
+  const sample: [number, number, number] = [position.x, position.y, position.z];
+
+  let closest: Settlement | null = null;
+  let closestDistance = radius;
+
+  for (const settlement of candidates) {
+    const distance = calculateDistance(settlement.position, sample);
+    if (distance <= closestDistance) {
+      closest = settlement;
+      closestDistance = distance;
+    }
+  }
+
+  return closest;
+}
+
 /**
  * Hook for managing construction mode interactions.
  * Handles mouse movement, raycasting, grid snapping, and placement logic.
@@ -213,6 +247,10 @@ export function useConstructionMode() {
     (state) => state.unregisterVisualEntity,
   );
   const version = useNetworkStore((state) => state.version);
+  const setSegments = useToolPreviewStore((state) => state.setSegments);
+  const setFacility = useToolPreviewStore((state) => state.setFacility);
+  const setQuery = useToolPreviewStore((state) => state.setQuery);
+  const reset = useToolPreviewStore((state) => state.reset);
 
   const [hoverPosition, setHoverPosition] = useState<Vector3 | null>(null);
   const [isValid, setIsValid] = useState(true);
@@ -225,7 +263,8 @@ export function useConstructionMode() {
   const lastWorldPositionRef = useRef<Vector3 | null>(null);
 
   // Construction mode is active when a tool is selected (but not Query)
-  const isActive = tool !== "none" && tool !== "query";
+  const isPlacementTool = tool !== "none" && tool !== "query";
+  const hasActiveTool = tool !== "none";
 
   const createSegmentVisual = useCallback(
     (
@@ -457,6 +496,9 @@ export function useConstructionMode() {
         setGhostPosition(null);
         setIsValid(false);
         setValidPlacement(false);
+        setSegments([]);
+        setFacility(null);
+        setQuery(null);
         return;
       }
 
@@ -546,6 +588,10 @@ export function useConstructionMode() {
           setValidPlacement(false);
         }
 
+        setSegments([]);
+        setFacility(null);
+        setQuery(null);
+
         return;
       }
 
@@ -564,12 +610,72 @@ export function useConstructionMode() {
 
       setIsValid(valid);
       setValidPlacement(valid);
+
+      if (tool === "rail" || tool === "road") {
+        if (!valid) {
+          setSegments([]);
+          setFacility(null);
+          return;
+        }
+
+        const config = TOOL_CONFIG[tool];
+        const neighbors = graph
+          .getAllNodes()
+          .filter(
+            (candidate) =>
+              candidate.id !== existing?.id &&
+              isNeighborCompatible(candidate, nodePosition, config.trackType),
+          );
+
+        const segments = neighbors.map((neighbor) => {
+          const midpoint: [number, number, number] = [
+            (neighbor.position[0] + nodePosition[0]) / 2,
+            nodePosition[1] + config.segment.thickness / 2,
+            (neighbor.position[2] + nodePosition[2]) / 2,
+          ];
+          return {
+            id: neighbor.id,
+            midpoint,
+            rotationY: calculateYaw(nodePosition, neighbor.position),
+            length: calculateDistance(nodePosition, neighbor.position),
+            thickness: config.segment.thickness,
+            width: config.segment.width,
+            trackType: config.trackType,
+          };
+        });
+
+        setSegments(segments);
+        setFacility(null);
+        return;
+      }
+
+      setSegments([]);
+
+      if (tool === "station" || tool === "depot") {
+        const radius = FACILITY_RADIUS[tool];
+        if (radius) {
+          setFacility({
+            position: [snappedPos.x, 0, snappedPos.z],
+            radius,
+            color: tool === "station" ? "#f5c66a" : "#c18b5a",
+          });
+        } else {
+          setFacility(null);
+        }
+      } else {
+        setFacility(null);
+      }
+
+      setQuery(null);
     },
     [
       findNodeAtPosition,
       getSignalsForEdge,
       graph,
+      setFacility,
       setGhostPosition,
+      setQuery,
+      setSegments,
       setValidPlacement,
       tool,
     ],
@@ -577,13 +683,14 @@ export function useConstructionMode() {
 
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
-      if (!isActive) {
+      if (!hasActiveTool) {
         lastWorldPositionRef.current = null;
         setHoverPosition(null);
         setGhostPosition(null);
         setIsValid(false);
         setValidPlacement(false);
         setSignalCandidate(null);
+        reset();
         return;
       }
 
@@ -612,15 +719,45 @@ export function useConstructionMode() {
         lastWorldPositionRef.current = null;
       }
 
+      if (tool === "query") {
+        setHoverPosition(null);
+        setGhostPosition(null);
+        setIsValid(false);
+        setValidPlacement(false);
+
+        if (!worldPos) {
+          setQuery(null);
+          setSegments([]);
+          setFacility(null);
+          return;
+        }
+
+        const settlement = findNearestSettlement(worldPos, QUERY_SEARCH_RADIUS);
+        if (settlement) {
+          setQuery({ settlement });
+        } else {
+          setQuery(null);
+        }
+        setSegments([]);
+        setFacility(null);
+        return;
+      }
+
+      setQuery(null);
       recomputePlacement(worldPos, modifiers);
     },
     [
       gl.domElement,
-      isActive,
+      hasActiveTool,
       raycast,
       recomputePlacement,
+      reset,
+      setFacility,
       setGhostPosition,
+      setQuery,
+      setSegments,
       setValidPlacement,
+      tool,
     ],
   );
 
@@ -667,7 +804,18 @@ export function useConstructionMode() {
   }, []);
 
   useEffect(() => {
-    if (!isActive) {
+    if (!isPlacementTool) {
+      setSegments([]);
+      setFacility(null);
+    }
+
+    if (tool !== "query") {
+      setQuery(null);
+    }
+  }, [isPlacementTool, setFacility, setSegments, setQuery, tool]);
+
+  useEffect(() => {
+    if (!isPlacementTool) {
       return;
     }
 
@@ -677,11 +825,11 @@ export function useConstructionMode() {
     }
 
     recomputePlacement(lastWorld.clone(), modifierState);
-  }, [isActive, modifierState, recomputePlacement]);
+  }, [isPlacementTool, modifierState, recomputePlacement]);
 
   const handleClick = useCallback(
     (event: MouseEvent) => {
-      if (!isActive || !hoverPosition) {
+      if (!isPlacementTool || !hoverPosition) {
         return;
       }
 
@@ -786,7 +934,7 @@ export function useConstructionMode() {
       demolishStructure,
       findNodeAtPosition,
       hoverPosition,
-      isActive,
+      isPlacementTool,
       modifierState,
       placeStructure,
       removeSignal,
@@ -802,7 +950,7 @@ export function useConstructionMode() {
 
   // Validate placement validity when hover position changes
   useEffect(() => {
-    if (!isActive || !hoverPosition) {
+    if (!isPlacementTool || !hoverPosition) {
       return;
     }
 
@@ -820,7 +968,7 @@ export function useConstructionMode() {
   }, [
     findNodeAtPosition,
     hoverPosition,
-    isActive,
+    isPlacementTool,
     setValidPlacement,
     signalCandidate,
     tool,
@@ -842,6 +990,6 @@ export function useConstructionMode() {
   return {
     hoverPosition,
     isValid,
-    isActive,
+    isActive: isPlacementTool,
   };
 }

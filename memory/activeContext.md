@@ -59,6 +59,12 @@
 
 ## Recent Changes
 
+**2025-10-21 (Construction Tool Previews)**: Extended building UX with live previews
+
+- Added neighbor-aware rail/road ghost segments that mirror the connections created on placement, giving early feedback on diagonals and junctions.
+- Rendered station/depot service radii during placement so coverage tradeoffs are visible before committing.
+- Introduced a query overlay that summarizes town growth, industry utilization, and site coverage in-world when the Query tool hovers a settlement.
+
 **2025-10-20 (Signal Orientation Controls)**: Added modifier-driven placement options for signals
 
 - Shift now targets the reverse-direction edge so signals can be placed for opposing traffic without repositioning the cursor.

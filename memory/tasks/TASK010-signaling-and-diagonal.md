@@ -57,3 +57,5 @@ Implement directional rail signaling with UI controls, ensure trains respect sig
 - 2025-10-20: Added modifier-based signal orientation controls (Shift toggles
   reverse direction, Alt mirrors placement) with in-place updates when clicking
   existing signals.
+- 2025-10-21: Preview overlays show future rail/road connections, service radii,
+  and settlement stats while using construction or query tools.

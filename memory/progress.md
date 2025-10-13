@@ -167,6 +167,12 @@
 
 ## Recent Achievements
 
+**2025-10-21 (Construction Previews & Query Overlay)**: Improved spatial feedback during building
+
+- ✅ Ghost previews for rails and roads now extend to their future connections, clarifying diagonal and junction layouts ahead of time.
+- ✅ Station and depot placement highlights their service radius with translucent rings for faster coverage planning.
+- ✅ Query tool surfaces settlement stats (demand, utilization, coverage) directly in the scene via an anchored tooltip.
+
 **2025-10-20 (Signal Orientation Controls)**: Expanded signal tooling ergonomics
 
 - ✅ Added Shift/Alt modifiers to flip signal direction or mirror placement while preview updates live.
