@@ -110,6 +110,17 @@ export const useLogisticsStore = create<LogisticsState>()((set, get) => ({
     }));
   },
   assignVehicleToLine: (entityId, lineId) => {
+    const current = get().vehicles.find(
+      (vehicle) => vehicle.entityId === entityId,
+    );
+    if (!current) {
+      return;
+    }
+
+    if (current.lineId === lineId) {
+      return;
+    }
+
     set((state) => ({
       vehicles: state.vehicles.map((vehicle) =>
         vehicle.entityId === entityId
@@ -136,6 +147,13 @@ export const useLogisticsStore = create<LogisticsState>()((set, get) => ({
     }));
   },
   updateVehicleStatus: (entityId, status) => {
+    const current = get().vehicles.find(
+      (vehicle) => vehicle.entityId === entityId,
+    );
+    if (!current || current.status === status) {
+      return;
+    }
+
     set((state) => ({
       vehicles: state.vehicles.map((vehicle) =>
         vehicle.entityId === entityId ? { ...vehicle, status } : vehicle,

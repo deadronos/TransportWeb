@@ -61,6 +61,30 @@ describe("logistics store", () => {
     ).toBe("enroute");
   });
 
+  it("ignores redundant vehicle updates", () => {
+    const store = useLogisticsStore.getState();
+
+    store.registerVehicle({
+      entityId: "veh-2",
+      type: "train",
+      name: "Train 2",
+      lineId: null,
+      status: "idle",
+      maxSpeed: 4,
+      capacity: 90,
+      purchaseCost: 120000,
+    });
+
+    const beforeStatus = useLogisticsStore.getState().vehicles;
+    store.updateVehicleStatus("veh-2", "idle");
+    const afterStatus = useLogisticsStore.getState().vehicles;
+    expect(afterStatus).toBe(beforeStatus);
+
+    store.assignVehicleToLine("veh-2", null);
+    const afterAssign = useLogisticsStore.getState().vehicles;
+    expect(afterAssign).toBe(afterStatus);
+  });
+
   it("caps facility boosts to the configured maximum", () => {
     const store = useLogisticsStore.getState();
     const line = store.createLine({
