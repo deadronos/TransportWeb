@@ -14,11 +14,13 @@ import { DebugPanel } from "./ui/DebugPanel";
 import { useUIStore } from "./state/slices/ui";
 import { Vector3 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import { useEconomySiteRenderables } from "./scene/useEconomySiteRenderables";
 
 function Simulation() {
   const world = useWorld();
   const showGrid = useConstruction((state) => state.showGrid);
   useTimeSystem(world);
+  useEconomySiteRenderables();
 
   // Enable construction mode interactions
   useConstructionMode();

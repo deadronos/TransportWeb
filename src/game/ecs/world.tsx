@@ -15,7 +15,17 @@ export type Entity = {
     scale?: [number, number, number];
   };
   Renderable?: {
-    kind: "track" | "road" | "station" | "depot" | "vehicle" | "tree";
+    kind:
+      | "track"
+      | "road"
+      | "station"
+      | "depot"
+      | "vehicle"
+      | "tree"
+      | "town"
+      | "farm"
+      | "industry"
+      | "mine";
     meshId?: string;
     dimensions?: [number, number, number];
     color?: string;
