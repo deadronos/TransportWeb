@@ -59,6 +59,12 @@
 
 ## Recent Changes
 
+**2025-10-22 (Rail/Road Connection Heuristics)**: Made construction tools default to sensible links
+
+- Limited automatic junction fan-out to the two best neighbors so freshly placed rails and roads extend straight instead of sprouting every diagonal.
+- Reused Shift as a "fan-out" modifier so intersections are still one-click when desired, while the preview now mirrors the eventual links.
+- Persisted the last placement context to keep dragging along a corridor intuitive across multiple clicks.
+
 **2025-10-21 (Construction Tool Previews)**: Extended building UX with live previews
 
 - Added neighbor-aware rail/road ghost segments that mirror the connections created on placement, giving early feedback on diagonals and junctions.
@@ -151,4 +157,4 @@ None.
 ---
 
 **Next Action**: Schedule TASK005 planning session for vehicle motion polish
-**Last Updated**: 2025-10-19
+**Last Updated**: 2025-10-22

@@ -15,6 +15,11 @@ import { useToolPreviewStore } from "../state/slices/toolPreview";
 import { useEconomyStore } from "../state/slices/economy";
 import type { NetworkNode, TrackType } from "../network/types";
 import {
+  chooseNeighborsForConnection,
+  type NeighborAnchor,
+  type NeighborSelectionOptions,
+} from "../network/placementHeuristics";
+import {
   calculateDistance,
   calculateYaw,
   computeSignalPlacement,
@@ -38,6 +43,7 @@ const SIGNAL_ALONG_OFFSET = 4;
 const SIGNAL_LATERAL_OFFSET = 2;
 const SIGNAL_HEIGHT_OFFSET = 1.8;
 const QUERY_SEARCH_RADIUS = 24;
+const CONTINUATION_THRESHOLD = GRID_SIZE * 1.5;
 
 const FACILITY_RADIUS: Partial<Record<BuildTool, number>> = {
   station: 140,
@@ -148,6 +154,13 @@ interface SignalCandidate {
 interface ModifierState {
   alt: boolean;
   shift: boolean;
+}
+
+interface LastPlacement {
+  tool: BuildTool;
+  nodeId: string;
+  position: [number, number, number];
+  direction: [number, number, number] | null;
 }
 
 function determinePlacementValidity(
@@ -261,6 +274,30 @@ export function useConstructionMode() {
     shift: false,
   });
   const lastWorldPositionRef = useRef<Vector3 | null>(null);
+  const lastPlacementRef = useRef<LastPlacement | null>(null);
+
+  const resolvePreviousPlacement = useCallback(
+    (activeTool: BuildTool, position: [number, number, number]) => {
+      const lastPlacement = lastPlacementRef.current;
+      if (!lastPlacement || lastPlacement.tool !== activeTool) {
+        return null;
+      }
+
+      const distance = calculateDistance(lastPlacement.position, position);
+      if (distance > CONTINUATION_THRESHOLD) {
+        return null;
+      }
+
+      const anchor: NeighborAnchor = {
+        nodeId: lastPlacement.nodeId,
+        position: lastPlacement.position,
+        direction: lastPlacement.direction,
+      };
+
+      return anchor;
+    },
+    [],
+  );
 
   // Construction mode is active when a tool is selected (but not Query)
   const isPlacementTool = tool !== "none" && tool !== "query";
@@ -327,6 +364,7 @@ export function useConstructionMode() {
       nodeId: string,
       nodePosition: [number, number, number],
       config: ToolConfig,
+      options: NeighborSelectionOptions,
     ) => {
       const neighbors = graph
         .getAllNodes()
@@ -336,7 +374,13 @@ export function useConstructionMode() {
             isNeighborCompatible(candidate, nodePosition, config.trackType),
         );
 
-      for (const neighbor of neighbors) {
+      const selected = chooseNeighborsForConnection(
+        nodePosition,
+        neighbors,
+        options,
+      );
+
+      for (const neighbor of selected) {
         if (graph.getEdgesBetweenNodes(nodeId, neighbor.id).length > 0) {
           continue;
         }
@@ -375,7 +419,7 @@ export function useConstructionMode() {
   );
 
   const placeStructure = useCallback(
-    (activeTool: BuildTool, position: Vector3) => {
+    (activeTool: BuildTool, position: Vector3, modifiers: ModifierState) => {
       const config = TOOL_CONFIG[activeTool];
       const nodeId = nanoid();
       const nodePosition: [number, number, number] = [
@@ -428,9 +472,46 @@ export function useConstructionMode() {
         metadata,
       });
 
-      connectNeighbors(nodeId, nodePosition, config);
+      const previousAnchor =
+        activeTool === "rail" || activeTool === "road"
+          ? resolvePreviousPlacement(activeTool, nodePosition)
+          : null;
+
+      const directionHint = previousAnchor
+        ? ([
+            nodePosition[0] - previousAnchor.position[0],
+            nodePosition[1] - previousAnchor.position[1],
+            nodePosition[2] - previousAnchor.position[2],
+          ] as [number, number, number])
+        : null;
+
+      const selectionOptions: NeighborSelectionOptions = {
+        previousPlacement: previousAnchor,
+        directionHint,
+        fanOut: modifiers.shift,
+      };
+
+      connectNeighbors(nodeId, nodePosition, config, selectionOptions);
+
+      if (activeTool === "rail" || activeTool === "road") {
+        const continuationDirection = previousAnchor ? directionHint : null;
+        lastPlacementRef.current = {
+          tool: activeTool,
+          nodeId,
+          position: nodePosition,
+          direction: continuationDirection,
+        };
+      } else {
+        lastPlacementRef.current = null;
+      }
     },
-    [addNode, connectNeighbors, registerVisualEntity, world],
+    [
+      addNode,
+      connectNeighbors,
+      registerVisualEntity,
+      resolvePreviousPlacement,
+      world,
+    ],
   );
 
   const demolishStructure = useCallback(
@@ -627,7 +708,28 @@ export function useConstructionMode() {
               isNeighborCompatible(candidate, nodePosition, config.trackType),
           );
 
-        const segments = neighbors.map((neighbor) => {
+        const previousAnchor = resolvePreviousPlacement(tool, nodePosition);
+        const directionHint = previousAnchor
+          ? ([
+              nodePosition[0] - previousAnchor.position[0],
+              nodePosition[1] - previousAnchor.position[1],
+              nodePosition[2] - previousAnchor.position[2],
+            ] as [number, number, number])
+          : null;
+
+        const selectionOptions: NeighborSelectionOptions = {
+          previousPlacement: previousAnchor,
+          directionHint,
+          fanOut: modifiers.shift,
+        };
+
+        const selected = chooseNeighborsForConnection(
+          nodePosition,
+          neighbors,
+          selectionOptions,
+        );
+
+        const segments = selected.map((neighbor) => {
           const midpoint: [number, number, number] = [
             (neighbor.position[0] + nodePosition[0]) / 2,
             nodePosition[1] + config.segment.thickness / 2,
@@ -672,6 +774,7 @@ export function useConstructionMode() {
       findNodeAtPosition,
       getSignalsForEdge,
       graph,
+      resolvePreviousPlacement,
       setFacility,
       setGhostPosition,
       setQuery,
@@ -925,7 +1028,7 @@ export function useConstructionMode() {
         tool === "station" ||
         tool === "depot"
       ) {
-        placeStructure(tool, hoverPosition);
+        placeStructure(tool, hoverPosition, modifierState);
       }
     },
     [

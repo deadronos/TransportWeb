@@ -167,6 +167,12 @@
 
 ## Recent Achievements
 
+**2025-10-22 (Rail/Road Placement Heuristics)**: Smoothed network building defaults
+
+- ✅ Added neighbor-selection heuristics so new rails/roads connect to the previous tile and forward heading instead of fanning across every adjacent node.
+- ✅ Shift now temporarily reconnects every eligible neighbor when crafting large junctions, keeping the default workflow tidy.
+- ✅ Ghost previews reuse the same heuristics, so the in-progress overlay now mirrors the links that will be created on click.
+
 **2025-10-21 (Construction Previews & Query Overlay)**: Improved spatial feedback during building
 
 - ✅ Ghost previews for rails and roads now extend to their future connections, clarifying diagonal and junction layouts ahead of time.
