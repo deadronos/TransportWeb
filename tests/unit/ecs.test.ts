@@ -24,7 +24,13 @@ describe("ECS World", () => {
     world.add({
       id: "2",
       Transform: { position: [1, 1, 1] },
-      Vehicle: { speed: 0, accel: 1, maxSpeed: 5, type: "train" },
+      Vehicle: {
+        speed: 0,
+        accel: 1,
+        maxSpeed: 5,
+        capacity: 80,
+        type: "train",
+      },
     });
     world.add({ id: "3", Renderable: { kind: "tree" } });
 

@@ -32,6 +32,7 @@ function Simulation() {
         speed: 0,
         accel: 0.5,
         maxSpeed: 2,
+        capacity: 80,
         type: "train",
         route: {
           state: "idle",

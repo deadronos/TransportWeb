@@ -24,7 +24,13 @@ export type Entity = {
     speed: number;
     accel: number;
     maxSpeed: number;
+    capacity: number;
     type: "train" | "truck";
+    assignment?: {
+      lineId: string | null;
+      nextStopIndex: number;
+      direction: 1 | -1;
+    };
     route?: {
       state: "idle" | "moving" | "waiting";
       currentNodeId: string | null;

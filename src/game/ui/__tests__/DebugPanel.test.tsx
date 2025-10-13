@@ -24,6 +24,7 @@ function DebugPanelHarness() {
         speed: 1,
         accel: 0,
         maxSpeed: 5,
+        capacity: 80,
         type: "train",
         route: {
           state: "idle",

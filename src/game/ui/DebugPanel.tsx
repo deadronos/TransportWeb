@@ -106,7 +106,9 @@ export function DebugPanel() {
           speed: 0,
           accel: Math.max(0, acceleration),
           maxSpeed: Math.max(0.1, maxSpeed),
+          capacity: vehicleType === "train" ? 80 : 40,
           type: vehicleType,
+          assignment: { lineId: null, nextStopIndex: 0, direction: 1 },
           route: {
             state: "idle",
             currentNodeId,

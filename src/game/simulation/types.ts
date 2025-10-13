@@ -1,5 +1,27 @@
 export type SettlementKind = "town" | "farm" | "industry" | "mine";
 
+export type GoodType = "grain" | "lumber" | "ore" | "steel" | "goods";
+
+export type Trend = "rising" | "stable" | "falling";
+
+export interface DemandEntry {
+  good: GoodType | "passengers";
+  demand: number;
+  fulfilled: number;
+  price: number;
+  basePrice: number;
+  trend: Trend;
+}
+
+export interface SupplyEntry {
+  good: GoodType;
+  stock: number;
+  capacity: number;
+  price: number;
+  basePrice: number;
+  trend: Trend;
+}
+
 export type GrowthTrend = "growing" | "stable" | "declining";
 
 export type OpportunityStatus = "expanding" | "idle" | "needs-link";
@@ -14,6 +36,7 @@ export interface BaseSite {
   seasonalPeriodMinutes: number;
   seasonalPhase: number;
   lastCoverageSample: number;
+  serviceCoverage: number;
 }
 
 export interface Town extends BaseSite {
@@ -22,6 +45,10 @@ export interface Town extends BaseSite {
   satisfaction: number;
   growthTrend: GrowthTrend;
   rollingDelta: number;
+  demand: {
+    passengers: DemandEntry;
+    goods: DemandEntry[];
+  };
 }
 
 export interface Farm extends BaseSite {
@@ -29,6 +56,7 @@ export interface Farm extends BaseSite {
   baseOutput: number;
   outputTonsPerMonth: number;
   utilization: number;
+  outputs: SupplyEntry[];
 }
 
 export interface Industry extends BaseSite {
@@ -40,6 +68,8 @@ export interface Industry extends BaseSite {
   status: OpportunityStatus;
   lastStatusChangeMinutes: number;
   industryType: string;
+  outputs: SupplyEntry[];
+  inputs: DemandEntry[];
 }
 
 export interface Mine extends BaseSite {
@@ -47,6 +77,7 @@ export interface Mine extends BaseSite {
   baseOutput: number;
   outputRate: number;
   exhaustion: number;
+  outputs: SupplyEntry[];
 }
 
 export interface TerritoryCategory {

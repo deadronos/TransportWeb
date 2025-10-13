@@ -5,9 +5,12 @@ import {
   computeTerritorySummary,
   computeProductionOpportunities,
   computeAverageCoverage,
+  computeDemandInsights,
+  computeCommodityPrices,
 } from "@/game/state/slices/economy";
 import { useClock } from "@/game/state/slices/clock";
 import { SidebarPanel } from "./SidebarPanel";
+import { LogisticsPlanner } from "./LogisticsPlanner";
 import "./ManagementSidebar.css";
 
 const FLEET_SUMMARY = [
@@ -83,6 +86,14 @@ export function ManagementSidebar() {
   );
   const averageCoverage = useMemo(
     () => computeAverageCoverage(economyState),
+    [economyState],
+  );
+  const demandInsights = useMemo(
+    () => computeDemandInsights(economyState, 5),
+    [economyState],
+  );
+  const commodityPrices = useMemo(
+    () => computeCommodityPrices(economyState),
     [economyState],
   );
 
@@ -181,6 +192,45 @@ export function ManagementSidebar() {
     [opportunities],
   );
 
+  const demandRows = useMemo(
+    () =>
+      demandInsights.map((insight) => (
+        <li key={insight.id} className="demand-row">
+          <div>
+            <span className="label">{insight.location}</span>
+            <span className="status">{insight.good}</span>
+          </div>
+          <div className="demand-row__meta">
+            <span className="shortage">
+              {Math.round(insight.shortage)} unmet
+            </span>
+            <span className={`trend trend--${insight.trend}`}>
+              {insight.trend}
+            </span>
+          </div>
+        </li>
+      )),
+    [demandInsights],
+  );
+
+  const priceRows = useMemo(
+    () =>
+      commodityPrices.map((snapshot) => (
+        <li key={snapshot.good} className="price-row">
+          <div>
+            <span className="label">{snapshot.good}</span>
+            <span className={`trend trend--${snapshot.trend}`}>
+              {snapshot.trend}
+            </span>
+          </div>
+          <span className="value">
+            ${Math.round(snapshot.averagePrice)} ({snapshot.producers})
+          </span>
+        </li>
+      )),
+    [commodityPrices],
+  );
+
   return (
     <aside
       className={`management-sidebar ${sidebarOpen ? "open" : ""}`}
@@ -249,6 +299,27 @@ export function ManagementSidebar() {
           description="Regional coverage snapshot"
         >
           <ul className="territory-list">{territoryRows}</ul>
+        </SidebarPanel>
+        <SidebarPanel
+          icon="🛠️"
+          title="Operations Planner"
+          description="Build hubs and schedule services"
+        >
+          <LogisticsPlanner />
+        </SidebarPanel>
+        <SidebarPanel
+          icon="📦"
+          title="Demand Signals"
+          description="Unmet passenger and cargo needs"
+        >
+          <ul className="demand-list">{demandRows}</ul>
+        </SidebarPanel>
+        <SidebarPanel
+          icon="💹"
+          title="Commodity Prices"
+          description="Average market sell prices"
+        >
+          <ul className="price-list">{priceRows}</ul>
         </SidebarPanel>
         <SidebarPanel
           icon="🏭"

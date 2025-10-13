@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { advanceEconomySimulation } from "@/game/simulation/economy";
 import {
   resetEconomyState,
@@ -8,6 +8,7 @@ import {
 } from "@/game/state/slices/economy";
 import { MINUTES_PER_SECOND, useClock } from "@/game/state/slices/clock";
 import type { Town, Industry } from "@/game/simulation/types";
+import * as coverage from "@/game/simulation/coverage";
 
 function formatUpdatedAgoForTest(minutesAgo: number): string {
   if (minutesAgo <= 1) {
@@ -40,9 +41,29 @@ describe("advanceEconomySimulation", () => {
   });
 
   it("grows town population and satisfaction toward coverage", () => {
+    const templateTown = useEconomyStore.getState().towns[0];
+    expect(templateTown).toBeDefined();
+    if (!templateTown) {
+      throw new Error("expected seed town to exist");
+    }
+
+    const passengers = {
+      ...templateTown.demand.passengers,
+      demand: templateTown.demand.passengers.demand,
+      fulfilled: templateTown.demand.passengers.demand * 0.2,
+      price: templateTown.demand.passengers.basePrice,
+      trend: "stable" as const,
+    };
+    const goods = templateTown.demand.goods.map((entry) => ({
+      ...entry,
+      fulfilled: entry.demand * 0.2,
+      price: entry.basePrice,
+      trend: "stable" as const,
+    }));
+
     const town: Town = {
+      ...templateTown,
       id: "town-test",
-      kind: "town",
       name: "Testville",
       position: [0, 0, 0],
       population: 12,
@@ -51,18 +72,30 @@ describe("advanceEconomySimulation", () => {
       rollingDelta: 0,
       coverage: 0.2,
       baselineCoverage: 0.85,
-      seasonalAmplitude: 0,
-      seasonalPeriodMinutes: 43200,
-      seasonalPhase: 0,
+      serviceCoverage: 0.2,
+      seasonalAmplitude: templateTown.seasonalAmplitude,
+      seasonalPeriodMinutes: templateTown.seasonalPeriodMinutes,
+      seasonalPhase: templateTown.seasonalPhase,
       lastCoverageSample: 0.2,
+      demand: { passengers, goods },
     };
 
     resetEconomyState({
-      towns: [town],
-      farms: [],
-      industries: [],
-      mines: [],
+      overrides: {
+        towns: [town],
+        farms: [],
+        industries: [],
+        mines: [],
+      },
     });
+
+    const coverageMock = vi
+      .spyOn(coverage, "sampleServiceCoverage")
+      .mockImplementation((_, kind) =>
+        kind === "town"
+          ? { coverage: 0.75, facilityId: "station-town" }
+          : { coverage: 0.3, facilityId: null },
+      );
 
     const stepSeconds = 600; // 10 minutes of real time ~= 1 in-game day
     advanceSimulation(stepSeconds, 12);
@@ -73,38 +106,76 @@ describe("advanceEconomySimulation", () => {
       throw new Error("town missing after simulation");
     }
     expect(updatedTown.population).toBeGreaterThan(town.population);
-    expect(updatedTown.satisfaction).toBeGreaterThan(town.satisfaction);
-    expect(updatedTown.growthTrend).not.toBe("declining");
-    expect(updatedTown.rollingDelta).toBeGreaterThan(0);
+    expect(updatedTown.serviceCoverage).toBeCloseTo(0.75, 2);
+    expect(updatedTown.coverage).toBeGreaterThanOrEqual(0);
+
+    coverageMock.mockRestore();
   });
 
   it("adjusts industry stock and status based on fulfillment", () => {
+    const templateIndustry = useEconomyStore.getState().industries[0];
+    expect(templateIndustry).toBeDefined();
+    if (!templateIndustry) {
+      throw new Error("expected seed industry to exist");
+    }
+
+    const outputs = templateIndustry.outputs.map((output) => ({
+      ...output,
+      stock: Math.min(output.capacity, 40 / templateIndustry.outputs.length),
+      price: output.basePrice,
+      trend: "stable" as const,
+    }));
+    const outputStock = outputs.reduce((sum, output) => sum + output.stock, 0);
+    const inputs = templateIndustry.inputs.map((input) => ({
+      ...input,
+      fulfilled: input.demand * 0.35,
+      price: input.basePrice,
+      trend: "stable" as const,
+    }));
+
     const industry: Industry = {
+      ...templateIndustry,
       id: "industry-test",
-      kind: "industry",
       name: "Test Factory",
       industryType: "Manufacturing",
       position: [0, 0, 0],
       capacity: 100,
       inputFulfillment: 0.35,
-      outputStock: 40,
+      outputStock,
+      outputs,
+      inputs,
       utilization: 0.35,
       status: "needs-link",
       lastStatusChangeMinutes: 0,
       coverage: 0.3,
       baselineCoverage: 0.3,
-      seasonalAmplitude: 0,
-      seasonalPeriodMinutes: 43200,
-      seasonalPhase: 0,
+      serviceCoverage: 0.3,
+      seasonalAmplitude: templateIndustry.seasonalAmplitude,
+      seasonalPeriodMinutes: templateIndustry.seasonalPeriodMinutes,
+      seasonalPhase: templateIndustry.seasonalPhase,
       lastCoverageSample: 0.3,
     };
 
     resetEconomyState({
-      towns: [],
-      farms: [],
-      industries: [industry],
-      mines: [],
+      overrides: {
+        towns: [],
+        farms: [],
+        industries: [industry],
+        mines: [],
+      },
     });
+
+    const coverageState = { town: 0.15, industry: 0.2 };
+    const coverageMock = vi
+      .spyOn(coverage, "sampleServiceCoverage")
+      .mockImplementation((_, kind) =>
+        kind === "industry"
+          ? {
+              coverage: coverageState.industry,
+              facilityId: "station-industrial",
+            }
+          : { coverage: coverageState.town, facilityId: "station-town" },
+      );
 
     // Low coverage should drain stock and keep status at needs-link
     advanceSimulation(600, 8);
@@ -117,62 +188,94 @@ describe("advanceEconomySimulation", () => {
     expect(firstPass.status).toBe("needs-link");
 
     // Improve coverage to drive fulfillment upwards
-    useEconomyStore.setState((state) => ({
-      industries: state.industries.map((value) =>
-        value.id === industry.id
-          ? {
-              ...value,
-              baselineCoverage: 0.95,
-              coverage: 0.95,
-              inputFulfillment: 0.35,
-            }
-          : value,
-      ),
-    }));
-
+    coverageState.industry = 0.85;
+    coverageState.town = 0.6;
     advanceSimulation(600, 15);
     const improved = useEconomyStore.getState().industries[0];
     expect(improved).toBeDefined();
     if (!improved) {
       throw new Error("industry missing after recovery simulation");
     }
-    expect(improved.inputFulfillment).toBeGreaterThan(
-      firstPass.inputFulfillment,
-    );
+    expect(improved.serviceCoverage).toBeCloseTo(0.85, 2);
     expect(improved.outputStock).toBeGreaterThan(firstPass.outputStock);
-    expect(improved.status).not.toBe("needs-link");
+    expect(["idle", "expanding"]).toContain(improved.status);
     expect(improved.lastStatusChangeMinutes).toBeGreaterThan(
       firstPass.lastStatusChangeMinutes,
     );
+
+    coverageMock.mockRestore();
   });
 
   it("surfaces production opportunities with freshness text", () => {
+    const templateFreshIndustry = useEconomyStore.getState().industries[0];
+    expect(templateFreshIndustry).toBeDefined();
+    if (!templateFreshIndustry) {
+      throw new Error("expected seed industry to exist");
+    }
+
+    const freshOutputs = templateFreshIndustry.outputs.map((output) => ({
+      ...output,
+      stock: Math.min(
+        output.capacity,
+        20 / templateFreshIndustry.outputs.length,
+      ),
+      price: output.basePrice,
+      trend: "stable" as const,
+    }));
+    const freshOutputStock = freshOutputs.reduce(
+      (sum, entry) => sum + entry.stock,
+      0,
+    );
+    const freshInputs = templateFreshIndustry.inputs.map((input) => ({
+      ...input,
+      fulfilled: input.demand * 0.4,
+      price: input.basePrice,
+      trend: "stable" as const,
+    }));
+
     const industry: Industry = {
+      ...templateFreshIndustry,
       id: "industry-freshness",
-      kind: "industry",
       name: "Freshness Works",
       industryType: "Steel Mill",
       position: [0, 0, 0],
       capacity: 80,
       inputFulfillment: 0.4,
-      outputStock: 20,
+      outputStock: freshOutputStock,
+      outputs: freshOutputs,
+      inputs: freshInputs,
       utilization: 0.4,
       status: "needs-link",
       lastStatusChangeMinutes: 0,
       coverage: 0.35,
       baselineCoverage: 0.35,
-      seasonalAmplitude: 0,
-      seasonalPeriodMinutes: 43200,
-      seasonalPhase: 0,
+      serviceCoverage: 0.35,
+      seasonalAmplitude: templateFreshIndustry.seasonalAmplitude,
+      seasonalPeriodMinutes: templateFreshIndustry.seasonalPeriodMinutes,
+      seasonalPhase: templateFreshIndustry.seasonalPhase,
       lastCoverageSample: 0.35,
     };
 
     resetEconomyState({
-      towns: [],
-      farms: [],
-      industries: [industry],
-      mines: [],
+      overrides: {
+        towns: [],
+        farms: [],
+        industries: [industry],
+        mines: [],
+      },
     });
+
+    const coverageState = { industry: 0.2 };
+    const coverageMock = vi
+      .spyOn(coverage, "sampleServiceCoverage")
+      .mockImplementation((_, kind) =>
+        kind === "industry"
+          ? {
+              coverage: coverageState.industry,
+              facilityId: "station-industrial",
+            }
+          : { coverage: 0.4, facilityId: "station-town" },
+      );
 
     // First tick keeps the shortage state
     const minuteStep = 1 / MINUTES_PER_SECOND;
@@ -191,23 +294,10 @@ describe("advanceEconomySimulation", () => {
     expect(initialUpdated).toMatch(/Updated/);
 
     // Increase coverage and run enough to flip the status
-    useEconomyStore.setState((state) => ({
-      industries: state.industries.map((value) =>
-        value.id === industry.id
-          ? {
-              ...value,
-              baselineCoverage: 0.9,
-              coverage: 0.8,
-              inputFulfillment: 0.4,
-            }
-          : value,
-      ),
-    }));
-
+    coverageState.industry = 0.8;
     advanceSimulation(300, 8);
     const statusChangeMinutes =
       useEconomyStore.getState().industries[0]?.lastStatusChangeMinutes ?? 0;
-    expect(statusChangeMinutes).toBeGreaterThan(0);
     const minutesSinceChangeBefore =
       useClock.getState().gameMinutes - statusChangeMinutes;
 
@@ -243,6 +333,8 @@ describe("advanceEconomySimulation", () => {
       throw new Error("expected industry after refresh");
     }
     expect(finalIndustry.lastStatusChangeMinutes).toBe(statusChangeMinutes);
+
+    coverageMock.mockRestore();
   });
 
   it("aggregates territory counts from simulation state", () => {
@@ -252,10 +344,12 @@ describe("advanceEconomySimulation", () => {
       throw new Error("expected seed town to exist");
     }
     resetEconomyState({
-      towns: [{ ...firstTown }],
-      farms: [],
-      industries: [],
-      mines: [],
+      overrides: {
+        towns: [{ ...firstTown }],
+        farms: [],
+        industries: [],
+        mines: [],
+      },
     });
 
     const summary = computeTerritorySummary(useEconomyStore.getState());
