@@ -20,6 +20,7 @@ export type Entity = {
       | "road"
       | "station"
       | "depot"
+      | "signal"
       | "vehicle"
       | "tree"
       | "town"
@@ -42,13 +43,14 @@ export type Entity = {
       direction: 1 | -1;
     };
     route?: {
-      state: "idle" | "moving" | "waiting";
+      state: "idle" | "moving" | "waiting" | "blocked";
       currentNodeId: string | null;
       targetNodeId: string | null;
       path: Path | null;
       currentEdgeIndex: number;
       distanceAlongEdge: number;
       dwellTimeRemaining: number;
+      blockedEdgeId?: string | null;
     };
   };
 };

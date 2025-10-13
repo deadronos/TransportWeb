@@ -7,6 +7,7 @@ export type ConstructionTool =
   | "road"
   | "station"
   | "depot"
+  | "signal"
   | "demolish"
   | "query";
 

@@ -167,6 +167,12 @@
 
 ## Recent Achievements
 
+**2025-10-20 (Signal Orientation Controls)**: Expanded signal tooling ergonomics
+
+- ✅ Added Shift/Alt modifiers to flip signal direction or mirror placement while preview updates live.
+- ✅ Reused existing signals when modifiers change, preserving IDs and metadata while moving visuals.
+- ✅ Refreshed construction memory entries documenting the new workflow.
+
 **2025-10-16 (HUD Modernization)**: Modernized in-game HUD for Transport Tycoon feel
 
 - ✅ Enhanced clock slice with in-game calendar/time formatting surfaced in TopMenuBar.

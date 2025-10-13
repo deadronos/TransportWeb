@@ -68,6 +68,7 @@ function ensureRoute(vehicle: NonNullable<Entity["Vehicle"]>) {
     currentEdgeIndex: 0,
     distanceAlongEdge: 0,
     dwellTimeRemaining: 0,
+    blockedEdgeId: null,
   };
 
   vehicle.assignment ??= { lineId: null, nextStopIndex: 0, direction: 1 };
@@ -112,6 +113,41 @@ function removeOccupancy(
   return edge.occupied.length !== previous;
 }
 
+function isSignalBlockClear(
+  graph: ReturnType<typeof useNetworkStore.getState>["graph"],
+  route: NonNullable<Entity["Vehicle"]>["route"],
+  startEdgeIndex: number,
+  vehicleId: string,
+): boolean {
+  if (!route?.path) {
+    return true;
+  }
+
+  const path = route.path;
+
+  for (let i = startEdgeIndex; i < path.edges.length; i += 1) {
+    const edgeId = path.edges[i];
+    if (!edgeId) continue;
+
+    const edge = graph.getEdge(edgeId);
+    if (!edge) {
+      return false;
+    }
+
+    for (const occupant of edge.occupied) {
+      if (occupant !== vehicleId) {
+        return false;
+      }
+    }
+
+    if (i > startEdgeIndex && graph.getSignalsForEdge(edgeId).length > 0) {
+      break;
+    }
+  }
+
+  return true;
+}
+
 function alignTransformToNode(
   transform: NonNullable<Entity["Transform"]>,
   node: NetworkNode,
@@ -150,6 +186,7 @@ function clearRoute(
   route.state = reason === "arrived" ? "waiting" : "idle";
   route.dwellTimeRemaining =
     reason === "arrived" ? ARRIVAL_DWELL_SECONDS : RETRY_DELAY_SECONDS;
+  route.blockedEdgeId = null;
 
   onComplete?.(reason, arrivalNodeId ?? null);
 }
@@ -185,6 +222,26 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
         logisticsStore.updateVehicleStatus(entity.id, "waiting");
       }
       continue;
+    }
+
+    if (route.state === "blocked") {
+      const canProceed = isSignalBlockClear(
+        graph,
+        route,
+        route.currentEdgeIndex,
+        entity.id,
+      );
+
+      if (canProceed) {
+        route.state = "moving";
+        route.blockedEdgeId = null;
+      } else {
+        vehicle.speed = 0;
+        if (assignment.lineId) {
+          logisticsStore.updateVehicleStatus(entity.id, "waiting");
+        }
+        continue;
+      }
     }
 
     if (route.state === "idle") {
@@ -277,6 +334,7 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
                 route.currentEdgeIndex = 0;
                 route.distanceAlongEdge = 0;
                 route.dwellTimeRemaining = 0;
+                route.blockedEdgeId = null;
                 vehicle.speed = 0;
                 alignTransformToNode(transform, startNode);
                 logisticsStore.updateVehicleStatus(entity.id, "enroute");
@@ -359,6 +417,7 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
         route.currentEdgeIndex = 0;
         route.distanceAlongEdge = 0;
         route.dwellTimeRemaining = 0;
+        route.blockedEdgeId = null;
         vehicle.speed = 0;
         alignTransformToNode(transform, startNode);
         logisticsStore.updateVehicleStatus(entity.id, "enroute");
@@ -443,6 +502,25 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
           },
         );
         break;
+      }
+
+      const signals = graph.getSignalsForEdge(edgeId!);
+      if (signals.length > 0) {
+        const clear = isSignalBlockClear(
+          graph,
+          route,
+          route.currentEdgeIndex,
+          entity.id,
+        );
+        if (!clear) {
+          route.state = "blocked";
+          route.blockedEdgeId = edgeId;
+          vehicle.speed = 0;
+          if (assignment.lineId) {
+            logisticsStore.updateVehicleStatus(entity.id, "waiting");
+          }
+          break;
+        }
       }
 
       if (

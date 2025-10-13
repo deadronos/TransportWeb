@@ -19,6 +19,7 @@ const CONSTRUCTION_TOOLS: ToolButton[] = [
   { id: "road", label: "Build Roads", icon: "🛣️", hotkey: "O" },
   { id: "station", label: "Build Station", icon: "🚉", hotkey: "S" },
   { id: "depot", label: "Build Depot", icon: "🏭", hotkey: "D" },
+  { id: "signal", label: "Place Signals", icon: "🚦", hotkey: "L" },
   { id: "demolish", label: "Demolish", icon: "💣", hotkey: "X" },
   { id: "query", label: "Query Tool", icon: "❓", hotkey: "Q" },
 ];

@@ -3,6 +3,7 @@
 ## Pending
 
 - [TASK005] Path following & vehicle motion details - Pending (2025-10-15)
+- [TASK010] Signaling system & diagonal track support - In Progress (2025-10-20)
 
 ## Completed
 

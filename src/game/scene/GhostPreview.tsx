@@ -80,6 +80,32 @@ export function GhostPreview() {
           </mesh>
         );
 
+      case "signal":
+        return (
+          <group position={[x, y + 1.2, z]}>
+            <mesh>
+              <boxGeometry args={[0.4, 2, 0.4]} />
+              <meshStandardMaterial
+                color={color}
+                transparent
+                opacity={0.7}
+                emissive={color}
+                emissiveIntensity={0.4}
+              />
+            </mesh>
+            <mesh position={[0, 0.8, 0]}>
+              <boxGeometry args={[0.6, 0.4, 0.6]} />
+              <meshStandardMaterial
+                color={color}
+                transparent
+                opacity={0.8}
+                emissive={color}
+                emissiveIntensity={0.6}
+              />
+            </mesh>
+          </group>
+        );
+
       case "demolish":
         // Preview: Red X indicator
         return (

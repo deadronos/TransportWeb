@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { NetworkGraph } from "../../network/graph";
-import type { NetworkEdge, NetworkNode } from "../../network/types";
+import type {
+  NetworkEdge,
+  NetworkNode,
+  NetworkSignal,
+  SignalDirection,
+} from "../../network/types";
 import { positionsEqual } from "../../network/utils";
 import type { Entity } from "../../ecs/world";
 
@@ -12,10 +17,16 @@ export interface NetworkState {
   removeNode: (nodeId: string) => void;
   addEdge: (edge: NetworkEdge) => void;
   removeEdge: (edgeId: string) => void;
+  addSignal: (signal: NetworkSignal) => void;
+  removeSignal: (signalId: string) => void;
   findNodeAtPosition: (
     position: [number, number, number],
     tolerance?: number,
   ) => NetworkNode | null;
+  getSignalsForEdge: (
+    edgeId: string,
+    direction?: SignalDirection,
+  ) => NetworkSignal[];
   registerVisualEntity: (id: string, entity: Entity) => void;
   unregisterVisualEntity: (id: string) => Entity | undefined;
   getVisualEntity: (id: string) => Entity | undefined;
@@ -44,6 +55,14 @@ export const useNetworkStore = create<NetworkState>()((set, get) => ({
     graph.removeEdge(edgeId);
     set((state) => ({ version: state.version + 1 }));
   },
+  addSignal: (signal) => {
+    graph.addSignal(signal);
+    set((state) => ({ version: state.version + 1 }));
+  },
+  removeSignal: (signalId) => {
+    graph.removeSignal(signalId);
+    set((state) => ({ version: state.version + 1 }));
+  },
   findNodeAtPosition: (position, tolerance = 0.1) => {
     const nodes = graph.getAllNodes();
     return (
@@ -52,6 +71,8 @@ export const useNetworkStore = create<NetworkState>()((set, get) => ({
       ) ?? null
     );
   },
+  getSignalsForEdge: (edgeId, direction) =>
+    graph.getSignalsForEdge(edgeId, direction),
   registerVisualEntity: (id, entity) => {
     set((state) => ({
       visualEntities: {

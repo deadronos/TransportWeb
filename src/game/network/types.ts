@@ -5,6 +5,7 @@
 
 export type NodeType = "junction" | "station" | "depot" | "waypoint";
 export type TrackType = "rail" | "road";
+export type SignalDirection = "forward" | "backward";
 
 /**
  * Represents a point in the network where tracks connect or vehicles stop.
@@ -49,12 +50,33 @@ export interface NetworkEdge {
 }
 
 /**
+ * Represents a signal guarding travel along a directed edge.
+ */
+export interface NetworkSignal {
+  /** Unique identifier */
+  id: string;
+  /** Directed edge this signal controls */
+  edgeId: string;
+  /** Direction of travel (relative to owning edge) */
+  direction: SignalDirection;
+  /** World position [x, y, z] */
+  position: [number, number, number];
+  /** Rotation around Y axis for visualization */
+  rotationY: number;
+  /** Linked renderable entity */
+  visualEntityId: string | null;
+  /** Optional metadata (e.g., placement mode) */
+  metadata?: Record<string, unknown>;
+}
+
+/**
  * Serializable representation of the network graph.
  */
 export interface NetworkGraphData {
   version: number;
   nodes: NetworkNode[];
   edges: NetworkEdge[];
+  signals: NetworkSignal[];
 }
 
 /**

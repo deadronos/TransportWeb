@@ -1,6 +1,6 @@
 import { useThree } from "@react-three/fiber";
-import { useState, useCallback, useEffect } from "react";
-import { Vector2, type Vector3 } from "three";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Vector2, Vector3 } from "three";
 import { nanoid } from "nanoid";
 
 import { useTerrainRaycaster } from "./useTerrainRaycaster";
@@ -12,7 +12,13 @@ import {
 import { useWorld, type Entity } from "../ecs/world";
 import { useNetworkStore } from "../state/slices/network";
 import type { NetworkNode, TrackType } from "../network/types";
-import { calculateDistance } from "../network/utils";
+import {
+  calculateDistance,
+  calculateYaw,
+  computeSignalPlacement,
+  isGridNeighbor,
+} from "../network/utils";
+import type { NetworkSignal } from "../network/types";
 
 export interface ConstructionModeState {
   hoverPosition: Vector3 | null;
@@ -22,6 +28,10 @@ export interface ConstructionModeState {
 
 const GRID_SIZE = 10;
 const NODE_TOLERANCE = 0.5;
+const SIGNAL_SEARCH_RADIUS = 6;
+const SIGNAL_ALONG_OFFSET = 4;
+const SIGNAL_LATERAL_OFFSET = 2;
+const SIGNAL_HEIGHT_OFFSET = 1.8;
 
 const FACILITY_RADIUS: Partial<Record<BuildTool, number>> = {
   station: 140,
@@ -120,13 +130,30 @@ const TOOL_CONFIG: Record<BuildTool, ToolConfig> = {
   },
 };
 
+interface SignalCandidate {
+  edgeId: string;
+  position: [number, number, number];
+  rotationY: number;
+  existingSignal: NetworkSignal | null;
+  reverse: boolean;
+  sideMultiplier: 1 | -1;
+}
+
+interface ModifierState {
+  alt: boolean;
+  shift: boolean;
+}
+
 function determinePlacementValidity(
   tool: ConstructionTool,
   existing: NetworkNode | null,
+  signalCandidate: SignalCandidate | null,
 ): boolean {
   switch (tool) {
     case "demolish":
       return Boolean(existing);
+    case "signal":
+      return Boolean(signalCandidate);
     case "rail":
     case "road":
     case "station":
@@ -148,15 +175,13 @@ function isNeighborCompatible(
     return false;
   }
 
-  const dx = Math.abs(node.position[0] - position[0]);
-  const dz = Math.abs(node.position[2] - position[2]);
-  const dy = Math.abs(node.position[1] - position[1]);
-
-  const isCardinalNeighbor =
-    dy < NODE_TOLERANCE &&
-    ((dx === GRID_SIZE && dz === 0) || (dz === GRID_SIZE && dx === 0));
-
-  return isCardinalNeighbor;
+  return isGridNeighbor(
+    node.position,
+    position,
+    GRID_SIZE,
+    NODE_TOLERANCE,
+    true,
+  );
 }
 
 /**
@@ -175,9 +200,12 @@ export function useConstructionMode() {
   const addNode = useNetworkStore((state) => state.addNode);
   const addEdge = useNetworkStore((state) => state.addEdge);
   const removeNode = useNetworkStore((state) => state.removeNode);
+  const addSignal = useNetworkStore((state) => state.addSignal);
+  const removeSignal = useNetworkStore((state) => state.removeSignal);
   const findNodeAtPosition = useNetworkStore(
     (state) => state.findNodeAtPosition,
   );
+  const getSignalsForEdge = useNetworkStore((state) => state.getSignalsForEdge);
   const registerVisualEntity = useNetworkStore(
     (state) => state.registerVisualEntity,
   );
@@ -188,6 +216,13 @@ export function useConstructionMode() {
 
   const [hoverPosition, setHoverPosition] = useState<Vector3 | null>(null);
   const [isValid, setIsValid] = useState(true);
+  const [signalCandidate, setSignalCandidate] =
+    useState<SignalCandidate | null>(null);
+  const [modifierState, setModifierState] = useState<ModifierState>({
+    alt: false,
+    shift: false,
+  });
+  const lastWorldPositionRef = useRef<Vector3 | null>(null);
 
   // Construction mode is active when a tool is selected (but not Query)
   const isActive = tool !== "none" && tool !== "query";
@@ -205,8 +240,7 @@ export function useConstructionMode() {
         from[1] + segment.thickness / 2,
         (from[2] + to[2]) / 2,
       ];
-      const alongZ = Math.abs(to[2] - from[2]) > Math.abs(to[0] - from[0]);
-      const rotationY = alongZ ? Math.PI / 2 : 0;
+      const rotationY = calculateYaw(from, to);
 
       const entity = world.add({
         id: entityId,
@@ -223,6 +257,28 @@ export function useConstructionMode() {
       registerVisualEntity(entityId, entity);
 
       return { visualEntityId: entityId, length };
+    },
+    [registerVisualEntity, world],
+  );
+
+  const createSignalVisual = useCallback(
+    (position: [number, number, number], rotationY: number) => {
+      const entityId = nanoid();
+      const entity = world.add({
+        id: entityId,
+        Transform: {
+          position: [position[0], position[1], position[2]],
+          rotation: [0, rotationY, 0],
+        },
+        Renderable: {
+          kind: "signal",
+          dimensions: [0.6, 2.4, 0.6],
+          color: "#ffcc33",
+        },
+      });
+
+      registerVisualEntity(entityId, entity);
+      return entityId;
     },
     [registerVisualEntity, world],
   );
@@ -358,6 +414,14 @@ export function useConstructionMode() {
         if (edge.visualEntityId) {
           visualIds.add(edge.visualEntityId);
         }
+
+        const signals = getSignalsForEdge(edge.id);
+        for (const signal of signals) {
+          if (signal.visualEntityId) {
+            visualIds.add(signal.visualEntityId);
+          }
+          removeSignal(signal.id);
+        }
       }
 
       const metadataVisualId = node.metadata?.visualEntityId;
@@ -374,16 +438,152 @@ export function useConstructionMode() {
 
       removeNode(node.id);
     },
-    [findNodeAtPosition, graph, removeNode, unregisterVisualEntity, world],
+    [
+      findNodeAtPosition,
+      getSignalsForEdge,
+      graph,
+      removeNode,
+      removeSignal,
+      unregisterVisualEntity,
+      world,
+    ],
+  );
+
+  const recomputePlacement = useCallback(
+    (worldPos: Vector3 | null, modifiers: ModifierState) => {
+      if (!worldPos) {
+        setSignalCandidate(null);
+        setHoverPosition(null);
+        setGhostPosition(null);
+        setIsValid(false);
+        setValidPlacement(false);
+        return;
+      }
+
+      if (tool === "signal") {
+        const sideMultiplier: 1 | -1 = modifiers.alt ? -1 : 1;
+        const useReverse = modifiers.shift;
+        const processedPairs = new Set<string>();
+        let bestCandidate: SignalCandidate | null = null;
+        let bestDistance = SIGNAL_SEARCH_RADIUS;
+
+        for (const edge of graph.getAllEdges()) {
+          if (edge.trackType !== "rail") {
+            continue;
+          }
+
+          let activeEdge = edge;
+          let reverseMode = false;
+
+          if (useReverse) {
+            const reverseEdge = graph.getReverseEdge(edge.id);
+            if (!reverseEdge) {
+              continue;
+            }
+
+            const key = [edge.id, reverseEdge.id].sort().join("|");
+            if (processedPairs.has(key)) {
+              continue;
+            }
+            processedPairs.add(key);
+
+            activeEdge = reverseEdge;
+            reverseMode = true;
+          }
+
+          const from = graph.getNode(activeEdge.fromNode);
+          const to = graph.getNode(activeEdge.toNode);
+          if (!from || !to) {
+            continue;
+          }
+
+          const placement = computeSignalPlacement(
+            from.position,
+            to.position,
+            SIGNAL_ALONG_OFFSET,
+            SIGNAL_LATERAL_OFFSET,
+            SIGNAL_HEIGHT_OFFSET,
+            sideMultiplier,
+          );
+
+          const distance = calculateDistance(placement.position, [
+            worldPos.x,
+            worldPos.y,
+            worldPos.z,
+          ]);
+
+          if (distance < bestDistance) {
+            const existingSignal = getSignalsForEdge(activeEdge.id)[0] ?? null;
+            bestDistance = distance;
+            bestCandidate = {
+              edgeId: activeEdge.id,
+              position: placement.position,
+              rotationY: placement.rotationY,
+              existingSignal,
+              reverse: reverseMode,
+              sideMultiplier,
+            };
+          }
+        }
+
+        if (bestCandidate) {
+          setSignalCandidate(bestCandidate);
+          setHoverPosition(
+            new Vector3(
+              bestCandidate.position[0],
+              bestCandidate.position[1],
+              bestCandidate.position[2],
+            ),
+          );
+          setGhostPosition(bestCandidate.position);
+          setIsValid(true);
+          setValidPlacement(true);
+        } else {
+          setSignalCandidate(null);
+          setHoverPosition(null);
+          setGhostPosition(null);
+          setIsValid(false);
+          setValidPlacement(false);
+        }
+
+        return;
+      }
+
+      const snappedPos = snapToGrid(worldPos, GRID_SIZE);
+      setSignalCandidate(null);
+      setHoverPosition(snappedPos);
+      setGhostPosition([snappedPos.x, snappedPos.y, snappedPos.z]);
+
+      const nodePosition: [number, number, number] = [
+        snappedPos.x,
+        snappedPos.y,
+        snappedPos.z,
+      ];
+      const existing = findNodeAtPosition(nodePosition, NODE_TOLERANCE);
+      const valid = determinePlacementValidity(tool, existing, null);
+
+      setIsValid(valid);
+      setValidPlacement(valid);
+    },
+    [
+      findNodeAtPosition,
+      getSignalsForEdge,
+      graph,
+      setGhostPosition,
+      setValidPlacement,
+      tool,
+    ],
   );
 
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
       if (!isActive) {
+        lastWorldPositionRef.current = null;
         setHoverPosition(null);
         setGhostPosition(null);
         setIsValid(false);
         setValidPlacement(false);
+        setSignalCandidate(null);
         return;
       }
 
@@ -394,42 +594,162 @@ export function useConstructionMode() {
       const mouseNDC = new Vector2(x, y);
       const worldPos = raycast(mouseNDC);
 
+      const modifiers: ModifierState = {
+        alt: event.altKey,
+        shift: event.shiftKey,
+      };
+
+      setModifierState((prev) => {
+        if (prev.alt === modifiers.alt && prev.shift === modifiers.shift) {
+          return prev;
+        }
+        return modifiers;
+      });
+
       if (worldPos) {
-        const snappedPos = snapToGrid(worldPos, GRID_SIZE);
-        setHoverPosition(snappedPos);
-        setGhostPosition([snappedPos.x, snappedPos.y, snappedPos.z]);
-
-        const nodePosition: [number, number, number] = [
-          snappedPos.x,
-          snappedPos.y,
-          snappedPos.z,
-        ];
-        const existing = findNodeAtPosition(nodePosition, NODE_TOLERANCE);
-        const valid = determinePlacementValidity(tool, existing);
-
-        setIsValid(valid);
-        setValidPlacement(valid);
+        lastWorldPositionRef.current = worldPos.clone();
       } else {
-        setHoverPosition(null);
-        setGhostPosition(null);
-        setIsValid(false);
-        setValidPlacement(false);
+        lastWorldPositionRef.current = null;
       }
+
+      recomputePlacement(worldPos, modifiers);
     },
     [
-      findNodeAtPosition,
       gl.domElement,
       isActive,
       raycast,
+      recomputePlacement,
       setGhostPosition,
       setValidPlacement,
-      tool,
     ],
   );
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Alt" && event.key !== "Shift") {
+        return;
+      }
+      setModifierState((prev) => {
+        const next: ModifierState = {
+          alt: event.key === "Alt" ? true : prev.alt,
+          shift: event.key === "Shift" ? true : prev.shift,
+        };
+        if (prev.alt === next.alt && prev.shift === next.shift) {
+          return prev;
+        }
+        return next;
+      });
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key !== "Alt" && event.key !== "Shift") {
+        return;
+      }
+      setModifierState((prev) => {
+        const next: ModifierState = {
+          alt: event.key === "Alt" ? false : prev.alt,
+          shift: event.key === "Shift" ? false : prev.shift,
+        };
+        if (prev.alt === next.alt && prev.shift === next.shift) {
+          return prev;
+        }
+        return next;
+      });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
+    const lastWorld = lastWorldPositionRef.current;
+    if (!lastWorld) {
+      return;
+    }
+
+    recomputePlacement(lastWorld.clone(), modifierState);
+  }, [isActive, modifierState, recomputePlacement]);
 
   const handleClick = useCallback(
     (event: MouseEvent) => {
       if (!isActive || !hoverPosition) {
+        return;
+      }
+
+      if (tool === "signal") {
+        if (!signalCandidate) {
+          return;
+        }
+
+        event.stopPropagation();
+
+        const { existingSignal, position, rotationY, edgeId } = signalCandidate;
+
+        if (existingSignal) {
+          const samePlacement =
+            calculateDistance(existingSignal.position, position) < 1e-3 &&
+            Math.abs(existingSignal.rotationY - rotationY) < 1e-3;
+
+          const visualId = existingSignal.visualEntityId;
+          if (visualId) {
+            const entity = unregisterVisualEntity(visualId);
+            if (entity) {
+              world.remove(entity);
+            }
+          }
+
+          removeSignal(existingSignal.id);
+
+          if (!samePlacement) {
+            const newVisualId = createSignalVisual(position, rotationY);
+            addSignal({
+              ...existingSignal,
+              edgeId,
+              position,
+              rotationY,
+              visualEntityId: newVisualId,
+            });
+          }
+
+          const lastWorld = lastWorldPositionRef.current;
+          if (lastWorld) {
+            recomputePlacement(lastWorld.clone(), modifierState);
+          } else {
+            setSignalCandidate(null);
+            setHoverPosition(null);
+            setGhostPosition(null);
+            setIsValid(false);
+            setValidPlacement(false);
+          }
+
+          return;
+        }
+
+        const visualId = createSignalVisual(position, rotationY);
+        addSignal({
+          id: nanoid(),
+          edgeId,
+          direction: "forward",
+          position,
+          rotationY,
+          visualEntityId: visualId,
+        });
+
+        if (lastWorldPositionRef.current) {
+          recomputePlacement(
+            lastWorldPositionRef.current.clone(),
+            modifierState,
+          );
+        }
         return;
       }
 
@@ -440,7 +760,7 @@ export function useConstructionMode() {
       ];
       const existing = findNodeAtPosition(nodePosition, NODE_TOLERANCE);
 
-      if (!determinePlacementValidity(tool, existing)) {
+      if (!determinePlacementValidity(tool, existing, null)) {
         return;
       }
 
@@ -461,12 +781,22 @@ export function useConstructionMode() {
       }
     },
     [
+      addSignal,
+      createSignalVisual,
       demolishStructure,
       findNodeAtPosition,
       hoverPosition,
       isActive,
+      modifierState,
       placeStructure,
+      removeSignal,
+      recomputePlacement,
+      signalCandidate,
       tool,
+      unregisterVisualEntity,
+      setGhostPosition,
+      setValidPlacement,
+      world,
     ],
   );
 
@@ -482,7 +812,7 @@ export function useConstructionMode() {
       hoverPosition.z,
     ];
     const existing = findNodeAtPosition(nodePosition, NODE_TOLERANCE);
-    const valid = determinePlacementValidity(tool, existing);
+    const valid = determinePlacementValidity(tool, existing, signalCandidate);
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsValid(valid);
@@ -492,6 +822,7 @@ export function useConstructionMode() {
     hoverPosition,
     isActive,
     setValidPlacement,
+    signalCandidate,
     tool,
     version,
   ]);
