@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { nanoid } from "nanoid";
 import {
@@ -52,9 +52,14 @@ export function LogisticsPlanner() {
   const getLine = useLogisticsStore((state) => state.getLine);
 
   const graph = useNetworkStore((state) => state.graph);
-  const facilities = useNetworkStore((state) =>
-    state.graph
-      .getAllNodes()
+  const networkVersion = useNetworkStore((state) => state.version);
+  const facilities = useMemo<FacilityOption[]>(() => {
+    const nodes = graph.getAllNodes();
+    if (networkVersion > 0 && nodes.length === 0) {
+      return [];
+    }
+
+    return nodes
       .filter((node) => node.type === "station" || node.type === "depot")
       .map((node) => {
         const metadataName = node.metadata?.name;
@@ -66,8 +71,8 @@ export function LogisticsPlanner() {
               ? metadataName
               : `${node.type === "station" ? "Station" : "Depot"} ${node.id.slice(-4)}`,
         } satisfies FacilityOption;
-      }),
-  );
+      });
+  }, [graph, networkVersion]);
 
   const [lineName, setLineName] = useState("New Line");
   const [lineMode, setLineMode] = useState<TransportLine["mode"]>("train");
