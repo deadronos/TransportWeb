@@ -28,13 +28,13 @@
 
 ### Subtasks
 
-| ID  | Description                                                  | Status      | Updated    | Notes |
-| --- | ------------------------------------------------------------ | ----------- | ---------- | ----- |
-| 7.1 | Define placeholder datasets for milestones and region stats  | Complete    | 2025-10-17 | Added Milestone/Territory/Opportunity data arrays |
-| 7.2 | Implement UI rendering for new panels                        | Complete    | 2025-10-17 | Panels for progress, territory, opportunities |
-| 7.3 | Author supporting CSS for progress bars and status chips     | Complete    | 2025-10-17 | Styled meters, territory rows, status chips |
-| 7.4 | Update Vitest coverage for sidebar growth dashboard features | Complete    | 2025-10-17 | Added assertions for new panels |
-| 7.5 | Update memory docs and contexts after implementation         | Complete    | 2025-10-17 | Active context + requirements refreshed |
+| ID  | Description                                                  | Status   | Updated    | Notes                                             |
+| --- | ------------------------------------------------------------ | -------- | ---------- | ------------------------------------------------- |
+| 7.1 | Define placeholder datasets for milestones and region stats  | Complete | 2025-10-17 | Added Milestone/Territory/Opportunity data arrays |
+| 7.2 | Implement UI rendering for new panels                        | Complete | 2025-10-17 | Panels for progress, territory, opportunities     |
+| 7.3 | Author supporting CSS for progress bars and status chips     | Complete | 2025-10-17 | Styled meters, territory rows, status chips       |
+| 7.4 | Update Vitest coverage for sidebar growth dashboard features | Complete | 2025-10-17 | Added assertions for new panels                   |
+| 7.5 | Update memory docs and contexts after implementation         | Complete | 2025-10-17 | Active context + requirements refreshed           |
 
 ## Progress Log
 

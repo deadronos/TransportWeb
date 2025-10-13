@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Phase**: Sidebar Growth Dashboard (TASK007) - Completed
+**Phase**: Economy Simulation Integration (TASK008) - Completed
 
-**Status**: Management sidebar now surfaces progress milestones, territory coverage, and production opportunities.
+**Status**: Economy simulation 2.0 now powers the management sidebar with live settlement, territory, and opportunity data.
 
 ## What We're Building Now
 
@@ -52,12 +52,19 @@
 
 ### Next Steps
 
-1. Capture UX validation feedback for new HUD and iterate on priorities.
-2. Plan TASK005 execution (vehicle path following polish + UI integration).
-3. Identify data wiring needs to replace placeholder HUD metrics with live simulation data.
-4. Prioritize simulation hooks to populate new sidebar panels with live metrics.
+1. Monitor simulation balance and tune growth/fulfillment coefficients with playtesting feedback.
+2. Plan TASK005 path-following polish now that economy telemetry is live.
+3. Explore cargo throughput hooks to replace seeded coverage baselines.
+4. Document future save/load requirements for persisting economy state.
 
 ## Recent Changes
+
+**2025-10-18 (Economy Simulation 2.0)**: Replaced placeholder sidebar data with live economy state
+
+- Added dedicated economy store with seeded settlements, industries, and mines.
+- Implemented fixed-timestep simulation covering growth, fulfillment, stock, and opportunity freshness.
+- Wired ManagementSidebar selectors + Vitest coverage to validate live data rendering.
+- Updated memory artifacts (requirements, design, tasks) to reflect completion.
 
 **2025-10-15 (Vehicle Routing + Inspector)**: Integrated network-backed vehicle motion and live debug tooling
 
@@ -131,5 +138,5 @@ None.
 
 ---
 
-**Next Action**: Kick off TASK005 planning session for vehicle motion polish
-**Last Updated**: 2025-10-17
+**Next Action**: Schedule TASK005 planning session for vehicle motion polish
+**Last Updated**: 2025-10-18

@@ -30,10 +30,10 @@
 
 ### Subtasks
 
-| ID  | Description                                           | Status   | Updated    | Notes                                         |
-| --- | ----------------------------------------------------- | -------- | ---------- | --------------------------------------------- |
+| ID  | Description                                           | Status   | Updated    | Notes                                        |
+| --- | ----------------------------------------------------- | -------- | ---------- | -------------------------------------------- |
 | 6.1 | Add clock slice enhancements and formatting selectors | Complete | 2025-10-16 | MINUTES_PER_SECOND constant + format helpers |
-| 6.2 | Create UI state slice for sidebar/minimap toggles     | Complete | 2025-10-16 | Added camera telemetry + recenter handler     |
+| 6.2 | Create UI state slice for sidebar/minimap toggles     | Complete | 2025-10-16 | Added camera telemetry + recenter handler    |
 | 6.3 | Implement sidebar + panels with styling               | Complete | 2025-10-16 | ManagementSidebar w/ fleet, finance, alerts  |
 | 6.4 | Implement bottom info dock + minimap overlay          | Complete | 2025-10-16 | Canvas minimap + selection/finance cards     |
 | 6.5 | Update HUD composition and top bar integration        | Complete | 2025-10-16 | Brand block + dynamic clock + toggle wiring  |
