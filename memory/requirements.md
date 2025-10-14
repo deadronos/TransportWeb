@@ -337,3 +337,53 @@
 - Visual regressions are covered by component-level tests or snapshot verification that ensures the correct mesh hierarchy per kind.
 
 ---
+
+### R25: Signal Placement & Visualization
+
+**WHEN** the player activates the signal construction tool and clicks near an existing rail segment, **THE SYSTEM SHALL** create a directional signal anchored to that segment with an in-world visual indicator.
+
+**Acceptance Criteria:**
+
+- A new signal is persisted in the `NetworkGraph` with the associated edge ID and orientation
+- A signal mesh appears offset from the track in the scene graph
+- Subsequent queries for signals on that edge return the placed signal
+- Signals cannot be placed on non-rail edges or without a nearby segment target
+
+---
+
+### R26: Signal Removal Workflow
+
+**WHEN** the player uses the signal tool on the location of an existing signal, **THE SYSTEM SHALL** remove that signal and its visual representation from the network.
+
+**Acceptance Criteria:**
+
+- The targeted signal no longer appears in `NetworkGraph.getSignalsForEdge`
+- The associated ECS renderable is destroyed and disappears from the scene
+- Removing a signal does not disturb neighboring signals or tracks
+- Removing a track or node automatically cleans up any attached signals
+
+---
+
+### R27: Signal-Constrained Train Movement
+
+**WHEN** a vehicle attempts to enter a rail edge protected by a signal whose block contains another vehicle, **THE SYSTEM SHALL** hold the vehicle at the signal until the block ahead becomes clear.
+
+**Acceptance Criteria:**
+
+- Vehicles encountering an occupied signal block transition into a waiting/blocked state without clearing their route
+- Vehicles resume travel automatically once the controlling block is free of other vehicles
+- Block checks ignore the waiting vehicle’s own reservations to prevent self-deadlocks
+- Automated tests cover multi-vehicle scenarios demonstrating the hold-and-release behavior
+
+---
+
+### R28: Diagonal Track Connectivity
+
+**WHEN** the player builds rails or roads on diagonally adjacent grid tiles, **THE SYSTEM SHALL** connect the nodes with correctly oriented geometry and reciprocal edges.
+
+**Acceptance Criteria:**
+
+- Nodes offset by equal X/Z grid steps are considered neighbors during placement
+- Generated track meshes rotate to align with diagonal headings
+- Network edges between diagonal nodes report accurate lengths via `calculateDistance`
+- Unit tests verify diagonal adjacency detection and edge creation

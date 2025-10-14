@@ -167,6 +167,24 @@
 
 ## Recent Achievements
 
+**2025-10-22 (Rail/Road Placement Heuristics)**: Smoothed network building defaults
+
+- ✅ Added neighbor-selection heuristics so new rails/roads connect to the previous tile and forward heading instead of fanning across every adjacent node.
+- ✅ Shift now temporarily reconnects every eligible neighbor when crafting large junctions, keeping the default workflow tidy.
+- ✅ Ghost previews reuse the same heuristics, so the in-progress overlay now mirrors the links that will be created on click.
+
+**2025-10-21 (Construction Previews & Query Overlay)**: Improved spatial feedback during building
+
+- ✅ Ghost previews for rails and roads now extend to their future connections, clarifying diagonal and junction layouts ahead of time.
+- ✅ Station and depot placement highlights their service radius with translucent rings for faster coverage planning.
+- ✅ Query tool surfaces settlement stats (demand, utilization, coverage) directly in the scene via an anchored tooltip.
+
+**2025-10-20 (Signal Orientation Controls)**: Expanded signal tooling ergonomics
+
+- ✅ Added Shift/Alt modifiers to flip signal direction or mirror placement while preview updates live.
+- ✅ Reused existing signals when modifiers change, preserving IDs and metadata while moving visuals.
+- ✅ Refreshed construction memory entries documenting the new workflow.
+
 **2025-10-16 (HUD Modernization)**: Modernized in-game HUD for Transport Tycoon feel
 
 - ✅ Enhanced clock slice with in-game calendar/time formatting surfaced in TopMenuBar.

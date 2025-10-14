@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-**Phase**: Economy Site Visual Layer (TASK009) - Completed
+**Phase**: Signaling & Diagonal Track Support (TASK010) - In Progress
 
-**Status**: Placeholder meshes now mirror economy settlements in the ECS world, ready for future art pass.
+**Status**: Requirements/design drafted for directional signals, vehicle gating, and diagonal connectivity.
 
 ## What We're Building Now
 
@@ -52,12 +52,30 @@
 
 ### Next Steps
 
-1. Monitor settlement visuals for scale/palette adjustments during playtesting.
-2. Revisit TASK005 planning for vehicle motion polish with new map landmarks.
-3. Explore cargo throughput hooks to replace seeded coverage baselines.
-4. Outline art direction requirements for future settlement asset upgrades.
+1. Implement `NetworkSignal` storage + serialization within the graph.
+2. Wire construction tooling for signal placement/removal with ghost preview updates.
+3. Integrate signal-aware block checks into the vehicle route system.
+4. Validate diagonal adjacency math and update rendering rotations.
 
 ## Recent Changes
+
+**2025-10-22 (Rail/Road Connection Heuristics)**: Made construction tools default to sensible links
+
+- Limited automatic junction fan-out to the two best neighbors so freshly placed rails and roads extend straight instead of sprouting every diagonal.
+- Reused Shift as a "fan-out" modifier so intersections are still one-click when desired, while the preview now mirrors the eventual links.
+- Persisted the last placement context to keep dragging along a corridor intuitive across multiple clicks.
+
+**2025-10-21 (Construction Tool Previews)**: Extended building UX with live previews
+
+- Added neighbor-aware rail/road ghost segments that mirror the connections created on placement, giving early feedback on diagonals and junctions.
+- Rendered station/depot service radii during placement so coverage tradeoffs are visible before committing.
+- Introduced a query overlay that summarizes town growth, industry utilization, and site coverage in-world when the Query tool hovers a settlement.
+
+**2025-10-20 (Signal Orientation Controls)**: Added modifier-driven placement options for signals
+
+- Shift now targets the reverse-direction edge so signals can be placed for opposing traffic without repositioning the cursor.
+- Alt mirrors the placement to the opposite side of the track, with ghost previews updating as modifiers change.
+- Clicking an existing signal updates its orientation when modifiers adjust; repeated placement without modifiers still removes it.
 
 **2025-10-18 (Economy Simulation 2.0)**: Replaced placeholder sidebar data with live economy state
 
@@ -139,4 +157,4 @@ None.
 ---
 
 **Next Action**: Schedule TASK005 planning session for vehicle motion polish
-**Last Updated**: 2025-10-19
+**Last Updated**: 2025-10-22

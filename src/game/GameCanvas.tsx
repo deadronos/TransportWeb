@@ -8,6 +8,7 @@ import { SceneGraph } from "./SceneGraph";
 import { useConstruction } from "./state/slices/construction";
 import { Terrain } from "./scene/Terrain";
 import { GhostPreview } from "./scene/GhostPreview";
+import { QueryTooltip } from "./scene/QueryTooltip";
 import { useConstructionMode } from "./hooks/useConstructionMode";
 import { useDebug } from "./state/slices/debug";
 import { DebugPanel } from "./ui/DebugPanel";
@@ -54,6 +55,7 @@ function Simulation() {
       <Terrain />
       <SceneGraph />
       <GhostPreview />
+      <QueryTooltip />
       {/* Construction grid - toggleable */}
       <Grid
         visible={showGrid}

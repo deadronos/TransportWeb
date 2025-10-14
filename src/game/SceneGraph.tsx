@@ -17,6 +17,7 @@ export function SceneGraph() {
     road: "#505050",
     station: "#d1a054",
     depot: "#8c6239",
+    signal: "#ffcc33",
     vehicle: "#c0392b",
     tree: "#2d8659",
     town: "#f6c177",

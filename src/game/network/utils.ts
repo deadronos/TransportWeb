@@ -15,6 +15,17 @@ export function calculateDistance(
 }
 
 /**
+ * Determine if two scalar values are approximately equal within tolerance.
+ */
+export function approximatelyEqual(
+  value: number,
+  target: number,
+  tolerance = 1e-3,
+): boolean {
+  return Math.abs(value - target) <= tolerance;
+}
+
+/**
  * Calculate Manhattan distance between two positions (grid-aligned).
  */
 export function calculateManhattanDistance(
@@ -80,6 +91,43 @@ export function vector3ToPosition(vector: Vector3): [number, number, number] {
 }
 
 /**
+ * Check if two world positions are neighbors on a square grid.
+ */
+export function isGridNeighbor(
+  posA: [number, number, number],
+  posB: [number, number, number],
+  gridSize: number,
+  tolerance = 0.5,
+  allowDiagonal = true,
+): boolean {
+  const dx = Math.abs(posA[0] - posB[0]);
+  const dz = Math.abs(posA[2] - posB[2]);
+  const dy = Math.abs(posA[1] - posB[1]);
+
+  if (dy > tolerance) {
+    return false;
+  }
+
+  const isCardinal =
+    (approximatelyEqual(dx, gridSize, tolerance) && dz <= tolerance) ||
+    (approximatelyEqual(dz, gridSize, tolerance) && dx <= tolerance);
+
+  if (isCardinal) {
+    return true;
+  }
+
+  if (!allowDiagonal) {
+    return false;
+  }
+
+  const isDiagonal =
+    approximatelyEqual(dx, gridSize, tolerance) &&
+    approximatelyEqual(dz, gridSize, tolerance);
+
+  return isDiagonal;
+}
+
+/**
  * Generate a unique ID for network elements.
  * @param prefix Prefix for the ID (e.g., 'node', 'edge')
  */
@@ -116,6 +164,46 @@ export function getDirection(
     to[2] - from[2],
   );
   return direction.normalize();
+}
+
+/**
+ * Calculate yaw rotation (around Y axis) from one position to another.
+ */
+export function calculateYaw(
+  from: [number, number, number],
+  to: [number, number, number],
+): number {
+  const dx = to[0] - from[0];
+  const dz = to[2] - from[2];
+  return Math.atan2(dx, dz);
+}
+
+/**
+ * Compute a lateral signal placement offset relative to an edge.
+ */
+export function computeSignalPlacement(
+  from: [number, number, number],
+  to: [number, number, number],
+  alongOffset: number,
+  lateralOffset: number,
+  heightOffset: number,
+  sideMultiplier: 1 | -1 = 1,
+): { position: [number, number, number]; rotationY: number } {
+  const dx = to[0] - from[0];
+  const dz = to[2] - from[2];
+  const length = Math.sqrt(dx * dx + dz * dz) || 1;
+
+  const nx = dx / length;
+  const nz = dz / length;
+
+  const px = from[0] + nx * alongOffset - nz * lateralOffset * sideMultiplier;
+  const pz = from[2] + nz * alongOffset + nx * lateralOffset * sideMultiplier;
+  const py = from[1] + heightOffset;
+
+  return {
+    position: [px, py, pz],
+    rotationY: calculateYaw(from, to),
+  };
 }
 
 /**

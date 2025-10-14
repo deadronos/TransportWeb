@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { NetworkGraph } from "../graph";
-import type { NetworkNode, NetworkEdge } from "../types";
+import type { NetworkNode, NetworkEdge, NetworkSignal } from "../types";
 
 describe("NetworkGraph", () => {
   let graph: NetworkGraph;
@@ -202,6 +202,97 @@ describe("NetworkGraph", () => {
     });
   });
 
+  describe("Signal Operations", () => {
+    let nodeA: NetworkNode;
+    let nodeB: NetworkNode;
+    let edgeAB: NetworkEdge;
+
+    beforeEach(() => {
+      nodeA = {
+        id: "nodeA",
+        position: [0, 0, 0],
+        type: "junction",
+        connections: [],
+      };
+      nodeB = {
+        id: "nodeB",
+        position: [10, 0, 0],
+        type: "junction",
+        connections: [],
+      };
+      graph.addNode(nodeA);
+      graph.addNode(nodeB);
+
+      edgeAB = {
+        id: "edgeAB",
+        fromNode: nodeA.id,
+        toNode: nodeB.id,
+        trackType: "rail",
+        length: 10,
+        speedLimit: 50,
+        capacity: 1,
+        occupied: [],
+        visualEntityId: null,
+      };
+
+      graph.addEdge(edgeAB);
+    });
+
+    it("should add a signal for an edge", () => {
+      const signal: NetworkSignal = {
+        id: "signal1",
+        edgeId: edgeAB.id,
+        direction: "forward",
+        position: [1, 2, 0],
+        rotationY: 0,
+        visualEntityId: null,
+      };
+
+      graph.addSignal(signal);
+
+      const signals = graph.getSignalsForEdge(edgeAB.id);
+      expect(signals).toHaveLength(1);
+      expect(signals[0]).toEqual(signal);
+    });
+
+    it("should reject duplicate directional signals", () => {
+      const base: NetworkSignal = {
+        id: "signal1",
+        edgeId: edgeAB.id,
+        direction: "forward",
+        position: [1, 2, 0],
+        rotationY: 0,
+        visualEntityId: null,
+      };
+
+      graph.addSignal(base);
+
+      expect(() =>
+        graph.addSignal({
+          ...base,
+          id: "signal2",
+        }),
+      ).toThrow();
+    });
+
+    it("should remove signals when edge removed", () => {
+      const signal: NetworkSignal = {
+        id: "signal1",
+        edgeId: edgeAB.id,
+        direction: "forward",
+        position: [1, 2, 0],
+        rotationY: 0,
+        visualEntityId: "visual1",
+      };
+
+      graph.addSignal(signal);
+      graph.removeEdge(edgeAB.id);
+
+      expect(graph.getSignalsForEdge(edgeAB.id)).toHaveLength(0);
+      expect(graph.getSignal(signal.id)).toBeUndefined();
+    });
+  });
+
   describe("Graph Queries", () => {
     beforeEach(() => {
       // Create a simple network: node1 -- edge1 --> node2 -- edge2 --> node3
@@ -274,6 +365,27 @@ describe("NetworkGraph", () => {
       expect(edges[0]?.id).toBe("edge1");
     });
 
+    it("should locate reverse edges when present", () => {
+      graph.addEdge({
+        id: "edge1-rev",
+        fromNode: "node2",
+        toNode: "node1",
+        trackType: "rail",
+        length: 10,
+        speedLimit: 50,
+        capacity: 1,
+        occupied: [],
+        visualEntityId: null,
+      });
+
+      const reverse = graph.getReverseEdge("edge1");
+      expect(reverse?.id).toBe("edge1-rev");
+    });
+
+    it("should return undefined when no reverse edge exists", () => {
+      expect(graph.getReverseEdge("edge2")).toBeUndefined();
+    });
+
     it("should calculate stats", () => {
       const stats = graph.getStats();
       expect(stats.nodeCount).toBe(3);
@@ -297,6 +409,7 @@ describe("NetworkGraph", () => {
       expect(json.version).toBe(1);
       expect(json.nodes).toHaveLength(1);
       expect(json.edges).toHaveLength(0);
+      expect(json.signals).toHaveLength(0);
     });
 
     it("should deserialize from JSON", () => {
@@ -311,6 +424,7 @@ describe("NetworkGraph", () => {
           },
         ],
         edges: [],
+        signals: [],
       };
 
       const newGraph = NetworkGraph.fromJSON(data, false);
@@ -342,12 +456,22 @@ describe("NetworkGraph", () => {
         visualEntityId: null,
       });
 
+      graph.addSignal({
+        id: "signal1",
+        edgeId: "edge1",
+        direction: "forward",
+        position: [1, 2, 0],
+        rotationY: 0,
+        visualEntityId: null,
+      });
+
       const json = graph.toJSON();
       const newGraph = NetworkGraph.fromJSON(json, false);
 
       expect(newGraph.getAllNodes()).toHaveLength(2);
       expect(newGraph.getAllEdges()).toHaveLength(1);
       expect(newGraph.areNodesConnected("node1", "node2")).toBe(true);
+      expect(newGraph.getSignalsForEdge("edge1")).toHaveLength(1);
     });
   });
 

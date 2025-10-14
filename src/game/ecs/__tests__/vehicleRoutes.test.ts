@@ -61,6 +61,7 @@ function createVehicle(world: World<Entity>, id: string) {
     currentEdgeIndex: 0,
     distanceAlongEdge: 0,
     dwellTimeRemaining: 0,
+    blockedEdgeId: null,
   };
 
   const entity = world.add({
@@ -197,6 +198,49 @@ describe("advanceVehicleSimulation", () => {
     expect(v2.Vehicle?.route?.state).toBe("moving");
     const edgeFinal = store.graph.getEdge(EDGE_AB);
     expect(edgeFinal?.occupied).toContain("vehicle-2");
+  });
+
+  it("holds trailing vehicles at a signal until the block clears", () => {
+    const world = new World<Entity>();
+    const store = useNetworkStore.getState();
+
+    const edge = store.graph.getEdge(EDGE_AB);
+    if (edge) edge.capacity = 2;
+
+    store.addSignal({
+      id: "signal-edge-ab",
+      edgeId: EDGE_AB,
+      direction: "forward",
+      position: [1, 1.8, 0],
+      rotationY: 0,
+      visualEntityId: null,
+    });
+
+    const v1 = createVehicle(world, "vehicle-1");
+    const v2 = createVehicle(world, "vehicle-2");
+
+    advanceVehicleSimulation(world, 1 / 60);
+
+    expect(v1.Vehicle?.route?.state).toBe("moving");
+    expect(v2.Vehicle?.route?.state).toBe("moving");
+
+    for (let i = 0; i < 60; i += 1) {
+      advanceVehicleSimulation(world, 1 / 60);
+    }
+
+    expect(v2.Vehicle?.route?.state).toBe("blocked");
+    expect(v2.Vehicle?.route?.blockedEdgeId).toBe(EDGE_AB);
+
+    for (let i = 0; i < 240; i += 1) {
+      advanceVehicleSimulation(world, 1 / 60);
+    }
+
+    const route = v2.Vehicle?.route;
+    expect(route).toBeDefined();
+    if (!route) return;
+
+    expect(route.state === "moving" || route.state === "waiting").toBe(true);
+    expect(route.currentNodeId).toBe(NODE_B);
   });
 
   it("clears a vehicle's route and releases occupancy when an edge is removed mid-travel", () => {

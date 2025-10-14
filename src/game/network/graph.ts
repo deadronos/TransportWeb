@@ -3,6 +3,8 @@ import type {
   NetworkEdge,
   NetworkGraphData,
   NetworkStats,
+  NetworkSignal,
+  SignalDirection,
 } from "./types";
 
 /**
@@ -12,10 +14,14 @@ import type {
 export class NetworkGraph {
   private nodes: Map<string, NetworkNode>;
   private edges: Map<string, NetworkEdge>;
+  private signals: Map<string, NetworkSignal>;
+  private signalsByEdge: Map<string, Set<string>>;
 
   constructor() {
     this.nodes = new Map();
     this.edges = new Map();
+    this.signals = new Map();
+    this.signalsByEdge = new Map();
   }
 
   // ============================================================================
@@ -48,12 +54,12 @@ export class NetworkGraph {
     if (!node) return;
 
     // Remove all edges connected to this node
-    for (const edgeId of node.connections) {
-      this.edges.delete(edgeId);
+    for (const edgeId of [...node.connections]) {
+      this.removeEdge(edgeId);
     }
 
     // Remove edges that reference this node from other nodes
-    for (const edge of this.edges.values()) {
+    for (const edge of [...this.edges.values()]) {
       if (edge.fromNode === id || edge.toNode === id) {
         this.removeEdge(edge.id);
       }
@@ -139,6 +145,15 @@ export class NetworkGraph {
     }
 
     this.edges.delete(id);
+
+    // Remove attached signals
+    const signalIds = this.signalsByEdge.get(id);
+    if (signalIds) {
+      for (const signalId of signalIds) {
+        this.signals.delete(signalId);
+      }
+      this.signalsByEdge.delete(id);
+    }
   }
 
   /**
@@ -146,6 +161,87 @@ export class NetworkGraph {
    */
   getAllEdges(): NetworkEdge[] {
     return Array.from(this.edges.values());
+  }
+
+  /**
+   * Add a signal guarding a directed edge.
+   */
+  addSignal(signal: NetworkSignal): void {
+    if (this.signals.has(signal.id)) {
+      throw new Error(`Signal with id ${signal.id} already exists`);
+    }
+
+    const edge = this.edges.get(signal.edgeId);
+    if (!edge) {
+      throw new Error(`Edge ${signal.edgeId} does not exist`);
+    }
+
+    const existing = this.getSignalsForEdge(signal.edgeId).find(
+      (candidate) => candidate.direction === signal.direction,
+    );
+    if (existing) {
+      throw new Error(
+        `Signal already exists for edge ${signal.edgeId} direction ${signal.direction}`,
+      );
+    }
+
+    this.signals.set(signal.id, signal);
+    if (!this.signalsByEdge.has(signal.edgeId)) {
+      this.signalsByEdge.set(signal.edgeId, new Set());
+    }
+    this.signalsByEdge.get(signal.edgeId)?.add(signal.id);
+  }
+
+  /**
+   * Remove a signal by ID.
+   */
+  removeSignal(signalId: string): void {
+    const signal = this.signals.get(signalId);
+    if (!signal) return;
+
+    const set = this.signalsByEdge.get(signal.edgeId);
+    if (set) {
+      set.delete(signalId);
+      if (set.size === 0) {
+        this.signalsByEdge.delete(signal.edgeId);
+      }
+    }
+
+    this.signals.delete(signalId);
+  }
+
+  /**
+   * Get a signal by ID.
+   */
+  getSignal(signalId: string): NetworkSignal | undefined {
+    return this.signals.get(signalId);
+  }
+
+  /**
+   * Get all signals for a given edge.
+   */
+  getSignalsForEdge(
+    edgeId: string,
+    direction?: SignalDirection,
+  ): NetworkSignal[] {
+    const ids = this.signalsByEdge.get(edgeId);
+    if (!ids) return [];
+
+    const results: NetworkSignal[] = [];
+    for (const id of ids) {
+      const signal = this.signals.get(id);
+      if (!signal) continue;
+      if (direction && signal.direction !== direction) continue;
+      results.push(signal);
+    }
+    return results;
+  }
+
+  /**
+   * Get all signals in the graph.
+   */
+  getAllSignals(): NetworkSignal[] {
+    return Array.from(this.signals.values());
   }
 
   /**
@@ -168,6 +264,24 @@ export class NetworkGraph {
       (edge) =>
         (edge.fromNode === nodeA && edge.toNode === nodeB) ||
         (edge.fromNode === nodeB && edge.toNode === nodeA),
+    );
+  }
+
+  /**
+   * Find the reverse edge (opposite direction) for a given edge.
+   */
+  getReverseEdge(edgeId: string): NetworkEdge | undefined {
+    const edge = this.edges.get(edgeId);
+    if (!edge) {
+      return undefined;
+    }
+
+    const candidates = this.getEdgesBetweenNodes(edge.toNode, edge.fromNode);
+    return candidates.find(
+      (candidate) =>
+        candidate.fromNode === edge.toNode &&
+        candidate.toNode === edge.fromNode &&
+        candidate.trackType === edge.trackType,
     );
   }
 
@@ -253,6 +367,8 @@ export class NetworkGraph {
   clear(): void {
     this.nodes.clear();
     this.edges.clear();
+    this.signals.clear();
+    this.signalsByEdge.clear();
   }
 
   // ============================================================================
@@ -267,6 +383,7 @@ export class NetworkGraph {
       version: 1,
       nodes: this.getAllNodes(),
       edges: this.getAllEdges(),
+      signals: this.getAllSignals(),
     };
   }
 
@@ -293,6 +410,17 @@ export class NetworkGraph {
         graph.addEdge(edge);
       } catch (error) {
         console.warn(`Failed to add edge ${edge.id}:`, error);
+      }
+    }
+
+    // Add all signals
+    if (Array.isArray(data.signals)) {
+      for (const signal of data.signals) {
+        try {
+          graph.addSignal(signal);
+        } catch (error) {
+          console.warn(`Failed to add signal ${signal.id}:`, error);
+        }
       }
     }
 
@@ -329,6 +457,16 @@ export class NetworkGraph {
     for (const node of this.nodes.values()) {
       if (node.type !== "waypoint" && node.connections.length === 0) {
         console.warn(`Node ${node.id} (${node.type}) has no connections`);
+        issueCount++;
+      }
+    }
+
+    // Check for dangling signals (edge removed)
+    for (const signal of this.signals.values()) {
+      if (!this.edges.has(signal.edgeId)) {
+        console.warn(
+          `Signal ${signal.id} references non-existent edge ${signal.edgeId}`,
+        );
         issueCount++;
       }
     }

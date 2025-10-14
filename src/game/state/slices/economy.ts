@@ -55,7 +55,7 @@ function createInitialEconomyState(
   };
 }
 
-const STATUS_MESSAGES: Record<OpportunityStatus, string> = {
+export const STATUS_MESSAGES: Record<OpportunityStatus, string> = {
   expanding: "Expanding capacity",
   idle: "Idle - awaiting cargo",
   "needs-link": "Needs rail link",
