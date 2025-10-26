@@ -2,7 +2,6 @@
 
 ## Pending
 
-- [TASK005] Path following & vehicle motion details - Pending (2025-10-15)
 - [TASK010] Signaling system & diagonal track support - In Progress (2025-10-20)
 
 ## Completed
@@ -11,6 +10,7 @@
 - [TASK002] Transport Tycoon UI implementation - Completed on 2025-10-11
 - [TASK003] Track placement integration - Completed on 2025-10-15
 - [TASK004] Vehicle routing & debug inspector - Completed on 2025-10-15
+- [TASK005] Path following & vehicle motion details - Completed on 2025-10-26
 - [TASK006] Modern HUD panels & minimap - Completed on 2025-10-16
 - [TASK007] Sidebar Growth Dashboard Panels - Completed on 2025-10-17
 - [TASK008] Economy simulation & sidebar integration - Completed on 2025-10-18

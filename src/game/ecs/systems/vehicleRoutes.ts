@@ -11,7 +11,13 @@ import {
 import type { Path } from "@/game/network/pathfinding";
 import { findClosestNode, lerpPosition } from "@/game/network/utils";
 import type { NetworkNode } from "@/game/network/types";
-import { accelerateVehicle, attemptReroute } from "./vehicleMotion";
+import {
+  accelerateVehicle,
+  attemptReroute,
+  updateVehicleSpeed,
+  calculateTargetSpeed,
+  getEffectiveSpeedLimit,
+} from "./vehicleMotion";
 
 const pathCache = new PathCache(200);
 const VEHICLE_HEIGHT_OFFSET = 0.5;
@@ -430,7 +436,39 @@ export function advanceVehicleSimulation(world: World<Entity>, dt: number) {
       continue;
     }
 
-    accelerateVehicle(vehicle, dt);
+    // Get speed limit from current edge
+    let currentSpeedLimit = vehicle.maxSpeed;
+    let remainingDistanceForBraking = 0;
+    
+    if (route.path && route.currentEdgeIndex < route.path.edges.length) {
+      const edgeId = route.path.edges[route.currentEdgeIndex];
+      const edge = edgeId ? graph.getEdge(edgeId) : undefined;
+      if (edge) {
+        currentSpeedLimit = getEffectiveSpeedLimit(edge.speedLimit, vehicle.maxSpeed);
+        
+        // Only consider braking if we're on the last edge of the path
+        const isLastEdge = route.currentEdgeIndex === route.path.edges.length - 1;
+        if (isLastEdge) {
+          // Calculate remaining distance on this final edge for smooth arrival
+          remainingDistanceForBraking = edge.length - route.distanceAlongEdge;
+        } else {
+          // Not on last edge, so we want to maintain speed (use large distance)
+          remainingDistanceForBraking = 1000; // Large value = no braking needed
+        }
+      }
+    }
+
+    // Calculate target speed considering remaining distance and speed limits
+    const targetSpeed = calculateTargetSpeed(
+      vehicle.speed,
+      remainingDistanceForBraking,
+      currentSpeedLimit,
+      vehicle.accel,
+      vehicle.accel, // Use same value for deceleration
+    );
+
+    // Update speed toward target (accelerate or decelerate as needed)
+    updateVehicleSpeed(vehicle, targetSpeed, dt);
     let distanceRemaining = vehicle.speed * dt;
 
     while (distanceRemaining > EPSILON) {
