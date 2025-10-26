@@ -2,11 +2,23 @@
 
 ## Current Focus
 
-**Phase**: Signaling & Diagonal Track Support (TASK010) - In Progress
+**Phase**: Phase 3 - Network & Movement System Complete
 
-**Status**: Requirements/design drafted for directional signals, vehicle gating, and diagonal connectivity.
+**Status**: TASK010 (Signaling & Diagonal Track Support) verified as complete. All requirements implemented and tested.
 
 ## What We're Building Now
+
+### Completed (TASK010 - 2025-10-26)
+
+- ✅ R25 - Signal Placement & Visualization (signal tool, ghost preview, placement logic)
+- ✅ R26 - Signal Removal Workflow (click to remove, modifier-based updates)
+- ✅ R27 - Signal-Constrained Train Movement (block evaluation, blocked state, resume logic)
+- ✅ R28 - Diagonal Track Connectivity (neighbor detection with diagonal support)
+- ✅ NetworkSignal data model with full serialization
+- ✅ Graph operations for signal CRUD
+- ✅ Construction mode signal placement with modifiers (Shift=reverse, Alt=mirror)
+- ✅ Vehicle blocking system with `isSignalBlockClear()` checks
+- ✅ Comprehensive test coverage (37+ passing tests)
 
 ### Completed
 
@@ -52,12 +64,17 @@
 
 ### Next Steps
 
-1. Implement `NetworkSignal` storage + serialization within the graph.
-2. Wire construction tooling for signal placement/removal with ghost preview updates.
-3. Integrate signal-aware block checks into the vehicle route system.
-4. Validate diagonal adjacency math and update rendering rotations.
+TASK010 is complete. Ready for next task assignment or feature development.
 
 ## Recent Changes
+
+**2025-10-26 (TASK010 Verification)**: Confirmed signaling and diagonal track features are fully implemented
+
+- Verified all four requirements (R25-R28) are complete and tested
+- Signal placement tool with modifier keys (Shift/Alt) working as designed
+- Vehicle blocking system correctly gates trains at occupied signal blocks
+- Diagonal track connectivity validated with proper geometry rotation
+- Updated task documentation to reflect completion status
 
 **2025-10-22 (Rail/Road Connection Heuristics)**: Made construction tools default to sensible links
 
