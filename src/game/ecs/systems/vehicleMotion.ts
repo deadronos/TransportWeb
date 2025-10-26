@@ -6,7 +6,71 @@ import { findAlternatePath, reservePath } from "@/game/network/pathfinding";
 const EPSILON = 1e-4;
 
 /**
+ * Calculate the distance required to decelerate from current speed to target speed.
+ * Uses kinematic equation: d = (v_final^2 - v_initial^2) / (2 * deceleration)
+ */
+export function calculateBrakingDistance(
+  currentSpeed: number,
+  targetSpeed: number,
+  deceleration: number,
+): number {
+  if (deceleration <= 0 || currentSpeed <= targetSpeed) {
+    return 0;
+  }
+  return (currentSpeed * currentSpeed - targetSpeed * targetSpeed) / (2 * deceleration);
+}
+
+/**
+ * Calculate the target speed for a vehicle given remaining distance to destination.
+ * This ensures smooth deceleration by determining if braking should begin.
+ */
+export function calculateTargetSpeed(
+  currentSpeed: number,
+  remainingDistance: number,
+  maxSpeed: number,
+  acceleration: number,
+  deceleration: number,
+): number {
+  // If we need to brake to reach zero speed at destination
+  const brakingDistance = calculateBrakingDistance(currentSpeed, 0, deceleration);
+  
+  if (remainingDistance <= brakingDistance) {
+    // Start braking: calculate speed we should have at this distance
+    // Using: v^2 = 2 * a * d (solving for v when decelerating to 0)
+    const targetSpeed = Math.sqrt(2 * deceleration * remainingDistance);
+    return Math.max(0, Math.min(targetSpeed, currentSpeed));
+  }
+  
+  // Not yet time to brake, can accelerate toward max speed
+  return maxSpeed;
+}
+
+/**
+ * Apply acceleration or deceleration to vehicle speed based on target speed.
+ * Mutates vehicle speed and returns the new speed.
+ */
+export function updateVehicleSpeed(
+  vehicle: NonNullable<Entity["Vehicle"]>,
+  targetSpeed: number,
+  dt: number,
+): number {
+  const currentSpeed = vehicle.speed;
+  
+  if (targetSpeed > currentSpeed) {
+    // Accelerate toward target
+    vehicle.speed = Math.min(targetSpeed, currentSpeed + vehicle.accel * dt);
+  } else if (targetSpeed < currentSpeed) {
+    // Decelerate toward target (use acceleration value as deceleration rate)
+    vehicle.speed = Math.max(targetSpeed, currentSpeed - vehicle.accel * dt);
+  }
+  // else: already at target speed, no change
+  
+  return vehicle.speed;
+}
+
+/**
  * Apply acceleration to vehicle speed (mutates vehicle) and return new speed.
+ * @deprecated Use updateVehicleSpeed with calculateTargetSpeed for smoother motion
  */
 export function accelerateVehicle(
   vehicle: NonNullable<Entity["Vehicle"]>,
@@ -17,6 +81,17 @@ export function accelerateVehicle(
     vehicle.speed + vehicle.accel * dt,
   );
   return vehicle.speed;
+}
+
+/**
+ * Calculate the effective speed limit for an edge, considering both the
+ * edge's speed limit and the vehicle's maximum speed.
+ */
+export function getEffectiveSpeedLimit(
+  edgeSpeedLimit: number,
+  vehicleMaxSpeed: number,
+): number {
+  return Math.min(edgeSpeedLimit, vehicleMaxSpeed);
 }
 
 /**
@@ -116,6 +191,10 @@ export function attemptReroute(
 
 export default {
   accelerateVehicle,
+  updateVehicleSpeed,
+  calculateTargetSpeed,
+  calculateBrakingDistance,
+  getEffectiveSpeedLimit,
   releaseFutureReservations,
   attemptReroute,
 };

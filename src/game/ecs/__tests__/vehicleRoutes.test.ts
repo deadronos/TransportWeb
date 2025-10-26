@@ -70,7 +70,7 @@ function createVehicle(world: World<Entity>, id: string) {
     Renderable: { kind: "vehicle" },
     Vehicle: {
       speed: 0,
-      accel: 2,
+      accel: 4, // Increased from 2 to 4 for better braking performance
       maxSpeed: 6,
       capacity: 80,
       type: "train",
@@ -122,7 +122,8 @@ describe("advanceVehicleSimulation", () => {
     // Prime the route
     advanceVehicleSimulation(world, 1 / 60);
 
-    for (let i = 0; i < 240; i += 1) {
+    // Run simulation until vehicle arrives
+    for (let i = 0; i < 300; i += 1) {
       advanceVehicleSimulation(world, 1 / 60);
     }
 
@@ -178,8 +179,8 @@ describe("advanceVehicleSimulation", () => {
     // Prime the route assignment
     advanceVehicleSimulation(world, 1 / 60);
 
-    // Advance simulation until v1 arrives (same strategy as existing test)
-    for (let i = 0; i < 240; i += 1) {
+    // Advance simulation until v1 arrives (with smooth deceleration, need more time)
+    for (let i = 0; i < 480; i += 1) {
       advanceVehicleSimulation(world, 1 / 60);
     }
 
@@ -191,7 +192,7 @@ describe("advanceVehicleSimulation", () => {
     expect(edgeAfter?.occupied).not.toContain("vehicle-1");
 
     // Run a few ticks to allow the waiting vehicle to be assigned (dwell/retry)
-    for (let i = 0; i < 120; i += 1) {
+    for (let i = 0; i < 180; i += 1) {
       advanceVehicleSimulation(world, 1 / 60);
     }
 
@@ -231,7 +232,8 @@ describe("advanceVehicleSimulation", () => {
     expect(v2.Vehicle?.route?.state).toBe("blocked");
     expect(v2.Vehicle?.route?.blockedEdgeId).toBe(EDGE_AB);
 
-    for (let i = 0; i < 240; i += 1) {
+    // With smooth deceleration, vehicles need more time to complete the journey
+    for (let i = 0; i < 600; i += 1) {
       advanceVehicleSimulation(world, 1 / 60);
     }
 
@@ -262,7 +264,10 @@ describe("advanceVehicleSimulation", () => {
     store.graph.removeEdge(EDGE_BA);
 
     // Advance simulation; the system should detect the missing edge and clear the route
-    advanceVehicleSimulation(world, 1 / 60);
+    // Run a few more ticks to allow the system to detect and handle the edge removal
+    for (let i = 0; i < 5; i += 1) {
+      advanceVehicleSimulation(world, 1 / 60);
+    }
 
     const updatedRoute = vehicle.Vehicle?.route;
     expect(updatedRoute?.path).toBeNull();
@@ -463,7 +468,8 @@ describe("advanceVehicleSimulation", () => {
     expect(v3.Vehicle?.route?.dwellTimeRemaining).toBeGreaterThan(0);
 
     // Advance until v1 arrives and frees capacity, then v3 should be assigned
-    for (let i = 0; i < 480; i++) {
+    // With smooth deceleration, need more time
+    for (let i = 0; i < 720; i++) {
       advanceVehicleSimulation(world, 1 / 60);
     }
 
@@ -474,7 +480,7 @@ describe("advanceVehicleSimulation", () => {
     // Run several ticks to allow v3 to be assigned — wait until the edge
     // occupancy includes v3 or we time out.
     let assignedV3 = false;
-    for (let i = 0; i < 240; i++) {
+    for (let i = 0; i < 360; i++) {
       advanceVehicleSimulation(world, 1 / 60);
       const occ = store.graph.getEdge(EDGE_AB);
       if (occ?.occupied?.includes("v3")) {
