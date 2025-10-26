@@ -2,9 +2,9 @@
 
 ## Snapshot
 
-**Phase**: 3 - Network & Movement System  
-**Progress**: Subtask 3.1 complete (Network Graph Core)  
-**Next**: Subtask 3.2 (Track/Road Placement Integration)
+**Phase**: 3 - Network & Movement System ✅ COMPLETE  
+**Progress**: All Phase 3 subtasks complete including TASK010 (Signaling & Diagonal Track Support)  
+**Next**: Phase 4 - Economy & Cargo (or new task assignment)
 
 ## What Works
 
@@ -96,12 +96,11 @@
 - [x] Raycasting for tile selection (mouse → world position)
 - [x] useConstructionMode hook (orchestration logic)
 
-### Phase 3: Network & Movement ✅ IN PROGRESS
+### Phase 3: Network & Movement ✅ COMPLETE
 
-**Status**: Subtasks 3.1–3.4 complete - Network Graph Core + Track Placement Integration  
-**Next**: Subtask 3.5 - Vehicle Path Following / State Management
+**Status**: All subtasks complete including TASK010 (Signaling & Diagonal Track Support)
 
-#### ✅ Complete (Subtask 3.1)
+#### ✅ Complete
 
 - [x] Network graph data structure (NetworkNode, NetworkEdge, NetworkGraph)
 - [x] Graph operations (add/remove nodes/edges, queries, serialization)
@@ -111,15 +110,13 @@
 - [x] Dynamic rerouting (findAlternatePath)
 - [x] Capacity-aware pathfinding (respect edge occupancy)
 - [x] Utility functions (distance, snapping, interpolation)
-- [x] Comprehensive unit tests (37 tests, all passing)
-
-#### 🔲 Pending
-
-- [ ] Vehicle pathfinding hook (useVehiclePathfinding)
-- [ ] Path following movement system
-- [ ] Network state management (Zustand slice)
-- [ ] Visual improvements (proper track meshes)
-- [ ] Testing & validation (E2E tests)
+- [x] Track/road placement with ghost preview
+- [x] Station and depot construction
+- [x] Vehicle routing and path following
+- [x] Signal placement and visualization (TASK010)
+- [x] Signal-constrained train movement (TASK010)
+- [x] Diagonal track connectivity (TASK010)
+- [x] Comprehensive unit tests (37+ tests, all passing)
 
 ### Phase 4: Economy & Cargo
 
@@ -143,10 +140,10 @@
 
 ## Current Status
 
-**Phase**: 3 (Network & Movement)  
-**Progress**: Subtasks 3.1–3.4 complete; routing system integrated  
+**Phase**: 3 (Network & Movement) ✅ COMPLETE  
+**Progress**: All Phase 3 tasks complete including TASK010 (Signaling & Diagonal Track Support)  
 **Blockers**: None  
-**Next Milestone**: Subtask 3.5 - Vehicle path following & state management
+**Next Milestone**: Phase 4 (Economy & Cargo) or new task assignment
 
 ## Metrics
 
@@ -166,6 +163,15 @@
 - Markdown lint warnings (formatting only, non-blocking)
 
 ## Recent Achievements
+
+**2025-10-26 (TASK010 Complete)**: Verified signaling system and diagonal track support fully implemented
+
+- ✅ All four requirements (R25-R28) validated as complete and tested
+- ✅ Signal placement tool with modifier keys (Shift=reverse, Alt=mirror) operational
+- ✅ Vehicle blocking system correctly gates trains at occupied signal blocks
+- ✅ Diagonal track connectivity working with proper geometry rotation
+- ✅ Comprehensive test coverage including signal operations and blocking scenarios
+- ✅ Updated task documentation and memory bank to reflect completion
 
 **2025-10-22 (Rail/Road Placement Heuristics)**: Smoothed network building defaults
 
@@ -254,6 +260,6 @@
 
 ---
 
-**Status**: Phase 3 (Network & Movement) - ✅ In Progress (Core + Placement complete, routing landed)
-**Last Updated**: 2025-10-15
-**Next Review**: After completing TASK003 subtasks
+**Status**: Phase 3 (Network & Movement) - ✅ COMPLETE (All features including TASK010 verified)
+**Last Updated**: 2025-10-26
+**Next Review**: Phase 4 planning or next task assignment

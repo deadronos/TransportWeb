@@ -2,10 +2,9 @@
 
 ## Pending
 
-- [TASK010] Signaling system & diagonal track support - In Progress (2025-10-20)
-
 ## Completed
 
+- [TASK010] Signaling system & diagonal track support - Completed on 2025-10-26
 - [TASK001] Project scaffold and initial setup - Completed on 2025-10-11
 - [TASK002] Transport Tycoon UI implementation - Completed on 2025-10-11
 - [TASK003] Track placement integration - Completed on 2025-10-15
