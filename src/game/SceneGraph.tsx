@@ -7,6 +7,8 @@ import {
   SETTLEMENT_PLACEHOLDER_DESCRIPTORS,
   type SettlementRenderableKind,
 } from "./scene/settlementPlaceholders";
+import { TrackSegment } from "./scene/TrackSegment";
+import { RoadSegment } from "./scene/RoadSegment";
 
 export function SceneGraph() {
   const world = useWorld();
@@ -74,6 +76,26 @@ export function SceneGraph() {
               key={entity.id}
               entity={entity}
               kind={renderable.kind as SettlementRenderableKind}
+            />
+          );
+        }
+
+        if (renderable.kind === "track") {
+          return (
+            <TrackSegment
+              key={entity.id}
+              entity={entity}
+              dimensions={dimensions}
+            />
+          );
+        }
+
+        if (renderable.kind === "road") {
+          return (
+            <RoadSegment
+              key={entity.id}
+              entity={entity}
+              dimensions={dimensions}
             />
           );
         }

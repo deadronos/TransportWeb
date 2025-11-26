@@ -1,0 +1,317 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic:
+    - banner [ref=e7]:
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - button "🏢 Company" [ref=e10] [cursor=pointer]:
+            - generic [ref=e11]: 🏢
+            - generic [ref=e12]: Company
+          - generic [ref=e13]:
+            - generic [ref=e14]: TransportWeb Co.
+            - generic [ref=e15]: Connecting cities since 1950
+        - generic [ref=e16]:
+          - heading "Construction" [level=3] [ref=e17]
+          - generic [ref=e18]:
+            - button "🛤️ Build Rails" [ref=e19] [cursor=pointer]:
+              - generic [ref=e20]: 🛤️
+              - generic [ref=e21]: Build Rails
+            - button "🛣️ Build Roads" [ref=e22] [cursor=pointer]:
+              - generic [ref=e23]: 🛣️
+              - generic [ref=e24]: Build Roads
+            - button "🚉 Build Station" [ref=e25] [cursor=pointer]:
+              - generic [ref=e26]: 🚉
+              - generic [ref=e27]: Build Station
+            - button "🏭 Build Depot" [ref=e28] [cursor=pointer]:
+              - generic [ref=e29]: 🏭
+              - generic [ref=e30]: Build Depot
+            - button "🚦 Place Signals" [ref=e31] [cursor=pointer]:
+              - generic [ref=e32]: 🚦
+              - generic [ref=e33]: Place Signals
+            - button "💣 Demolish" [ref=e34] [cursor=pointer]:
+              - generic [ref=e35]: 💣
+              - generic [ref=e36]: Demolish
+            - button "❓ Query Tool" [ref=e37] [cursor=pointer]:
+              - generic [ref=e38]: ❓
+              - generic [ref=e39]: Query Tool
+        - generic [ref=e41]:
+          - generic [ref=e42]: Jan 1950
+          - generic [ref=e43]: 01:00
+      - generic [ref=e45]:
+        - button "Pause" [ref=e46] [cursor=pointer]:
+          - generic [ref=e47]: ⏸️
+        - button "×1 Speed 1x" [ref=e48] [cursor=pointer]:
+          - generic [ref=e49]: ×1
+        - button "×2 Speed 2x" [ref=e50] [cursor=pointer]:
+          - generic [ref=e51]: ×2
+        - button "×4 Speed 4x" [ref=e52] [cursor=pointer]:
+          - generic [ref=e53]: ×4
+        - button "×8 Speed 8x" [ref=e54] [cursor=pointer]:
+          - generic [ref=e55]: ×8
+        - button "🔲" [ref=e56] [cursor=pointer]
+        - button "Toggle debug panel" [ref=e57] [cursor=pointer]: 🛠️
+    - complementary [ref=e58]:
+      - generic [ref=e59]:
+        - heading [level=1] [ref=e60]: Company HQ
+        - button [ref=e61] [cursor=pointer]: ✖
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e65]: 🚆
+            - generic [ref=e66]:
+              - heading [level=2] [ref=e67]: Fleet Overview
+              - paragraph [ref=e68]: Network utilization
+          - list [ref=e70]:
+            - listitem [ref=e71]:
+              - generic [ref=e72]:
+                - text: Trains
+                - generic [ref=e73]: On schedule
+              - generic [ref=e74]: "4"
+            - listitem [ref=e75]:
+              - generic [ref=e76]:
+                - text: Road Vehicles
+                - generic [ref=e77]: Reliable
+              - generic [ref=e78]: "6"
+            - listitem [ref=e79]:
+              - generic [ref=e80]:
+                - text: Ships
+                - generic [ref=e81]: Idle
+              - generic [ref=e82]: "1"
+        - generic [ref=e83]:
+          - generic [ref=e84]:
+            - generic [ref=e85]: 💰
+            - generic [ref=e86]:
+              - heading [level=2] [ref=e87]: Finances
+              - paragraph [ref=e88]: Monthly balance sheet
+          - generic [ref=e90]:
+            - generic [ref=e91]:
+              - generic [ref=e92]:
+                - term [ref=e93]: Income
+                - definition [ref=e94]: $152,000
+              - generic [ref=e95]:
+                - term [ref=e96]: Expenses
+                - definition [ref=e97]: $94,500
+            - paragraph [ref=e98]: +12.4% vs last month
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - generic [ref=e103]: 📢
+            - generic [ref=e104]:
+              - heading [level=2] [ref=e105]: Alerts
+              - paragraph [ref=e106]: Latest network updates
+          - list [ref=e108]:
+            - listitem [ref=e109]:
+              - generic [ref=e110]: New industry request from Steel Mill
+              - generic [ref=e111]: 2m ago
+            - listitem [ref=e112]:
+              - generic [ref=e113]: Train 3 reached Northport Central
+              - generic [ref=e114]: 5m ago
+            - listitem [ref=e115]:
+              - generic [ref=e116]: Depot maintenance due in 12 days
+              - generic [ref=e117]: 1h ago
+        - generic [ref=e118]:
+          - generic [ref=e119]:
+            - generic [ref=e120]: 📈
+            - generic [ref=e121]:
+              - heading [level=2] [ref=e122]: Expansion Progress
+              - paragraph [ref=e123]: Milestones toward company goals
+          - list [ref=e125]:
+            - listitem [ref=e126]:
+              - generic [ref=e127]:
+                - generic [ref=e128]: Network Coverage
+                - generic [ref=e129]: 48%
+              - generic [ref=e130]:
+                - progressbar [ref=e132]
+                - generic [ref=e133]: Needs expansion
+            - listitem [ref=e134]:
+              - generic [ref=e135]:
+                - generic [ref=e136]: Electrification
+                - generic [ref=e137]: 54%
+              - generic [ref=e138]:
+                - progressbar [ref=e140]
+                - generic [ref=e141]: Crew deployments scheduled
+            - listitem [ref=e142]:
+              - generic [ref=e143]:
+                - generic [ref=e144]: Cargo Contracts
+                - generic [ref=e145]: 61%
+              - generic [ref=e146]:
+                - progressbar [ref=e148]
+                - generic [ref=e149]: Negotiations ongoing
+        - generic [ref=e150]:
+          - generic [ref=e151]:
+            - generic [ref=e152]: 🗺️
+            - generic [ref=e153]:
+              - heading [level=2] [ref=e154]: Territory Summary
+              - paragraph [ref=e155]: Regional coverage snapshot
+          - list [ref=e157]:
+            - listitem [ref=e158]:
+              - generic [ref=e159]:
+                - generic [ref=e160]: Towns
+                - generic [ref=e161]: Stable travel
+              - generic [ref=e162]: "5"
+            - listitem [ref=e163]:
+              - generic [ref=e164]:
+                - generic [ref=e165]: Farms
+                - generic [ref=e166]: Output steady
+              - generic [ref=e167]: "5"
+            - listitem [ref=e168]:
+              - generic [ref=e169]:
+                - generic [ref=e170]: Industries
+                - generic [ref=e171]: Utilization soft
+              - generic [ref=e172]: "3"
+            - listitem [ref=e173]:
+              - generic [ref=e174]:
+                - generic [ref=e175]: Mines
+                - generic [ref=e176]: Output steady
+              - generic [ref=e177]: "3"
+        - generic [ref=e178]:
+          - generic [ref=e179]:
+            - generic [ref=e180]: 🛠️
+            - generic [ref=e181]:
+              - heading [level=2] [ref=e182]: Operations Planner
+              - paragraph [ref=e183]: Build hubs and schedule services
+          - generic [ref=e185]:
+            - generic [ref=e186]:
+              - heading [level=4] [ref=e187]: Construction Shortcuts
+              - generic [ref=e188]:
+                - button [ref=e189] [cursor=pointer]: Build Station
+                - button [ref=e190] [cursor=pointer]: Build Depot
+            - generic [ref=e191]:
+              - heading [level=4] [ref=e192]: Create Line
+              - generic [ref=e193]:
+                - generic [ref=e194]:
+                  - text: Line name
+                  - textbox [ref=e195]: New Line
+                - generic [ref=e196]:
+                  - text: Mode
+                  - combobox [ref=e197]
+                - generic [ref=e198]:
+                  - text: Start stop
+                  - combobox [ref=e199]
+                - generic [ref=e200]:
+                  - text: Intermediate stop (optional)
+                  - combobox [ref=e201]
+                - generic [ref=e202]:
+                  - text: End stop
+                  - combobox [ref=e203]
+                - button [disabled] [ref=e204]: Add Line
+            - generic [ref=e205]:
+              - heading [level=4] [ref=e206]: Fleet
+              - generic [ref=e207]:
+                - generic [ref=e208]:
+                  - text: Vehicle type
+                  - combobox [ref=e209]
+                - generic [ref=e210]:
+                  - text: Vehicle name
+                  - textbox [ref=e211]: Train 1
+                - generic [ref=e212]:
+                  - text: Assign to line
+                  - combobox [ref=e213]
+                - button [disabled] [ref=e214]: Purchase Vehicle
+              - list [ref=e215]:
+                - listitem [ref=e216]: No active vehicles
+        - generic [ref=e217]:
+          - generic [ref=e218]:
+            - generic [ref=e219]: 📦
+            - generic [ref=e220]:
+              - heading [level=2] [ref=e221]: Demand Signals
+              - paragraph [ref=e222]: Unmet passenger and cargo needs
+          - list [ref=e224]:
+            - listitem [ref=e225]:
+              - generic [ref=e226]: Hilltop Works 2grain
+              - generic [ref=e227]:
+                - generic [ref=e228]: 10 unmet
+                - generic [ref=e229]: stable
+            - listitem [ref=e230]:
+              - generic [ref=e231]: Hilltop Works 2lumber
+              - generic [ref=e232]:
+                - generic [ref=e233]: 10 unmet
+                - generic [ref=e234]: stable
+            - listitem [ref=e235]:
+              - generic [ref=e236]: Oakcrestpassengers
+              - generic [ref=e237]:
+                - generic [ref=e238]: 34 unmet
+                - generic [ref=e239]: stable
+            - listitem [ref=e240]:
+              - generic [ref=e241]: Oakcrestgoods
+              - generic [ref=e242]:
+                - generic [ref=e243]: 17 unmet
+                - generic [ref=e244]: stable
+            - listitem [ref=e245]:
+              - generic [ref=e246]: Oakcrestgrain
+              - generic [ref=e247]:
+                - generic [ref=e248]: 14 unmet
+                - generic [ref=e249]: stable
+        - generic [ref=e250]:
+          - generic [ref=e251]:
+            - generic [ref=e252]: 💹
+            - generic [ref=e253]:
+              - heading [level=2] [ref=e254]: Commodity Prices
+              - paragraph [ref=e255]: Average market sell prices
+          - list [ref=e257]:
+            - listitem [ref=e258]:
+              - generic [ref=e259]: goodsstable
+              - generic [ref=e260]: $200 (1)
+            - listitem [ref=e261]:
+              - generic [ref=e262]: grainstable
+              - generic [ref=e263]: $90 (5)
+            - listitem [ref=e264]:
+              - generic [ref=e265]: lumberstable
+              - generic [ref=e266]: $160 (1)
+            - listitem [ref=e267]:
+              - generic [ref=e268]: orestable
+              - generic [ref=e269]: $120 (3)
+            - listitem [ref=e270]:
+              - generic [ref=e271]: steelstable
+              - generic [ref=e272]: $220 (1)
+        - generic [ref=e273]:
+          - generic [ref=e274]:
+            - generic [ref=e275]: 🏭
+            - generic [ref=e276]:
+              - heading [level=2] [ref=e277]: Production Opportunities
+              - paragraph [ref=e278]: Industries requesting service
+          - list [ref=e280]:
+            - listitem [ref=e281]:
+              - generic [ref=e282]:
+                - generic [ref=e283]:
+                  - generic [ref=e284]: Pioneer Timber 1
+                  - generic [ref=e285]: Lumber Mill
+                - generic [ref=e286]: Idle - awaiting cargo • $160/lumber
+              - generic [ref=e287]: Updated <1m ago
+            - listitem [ref=e288]:
+              - generic [ref=e289]:
+                - generic [ref=e290]:
+                  - generic [ref=e291]: Hilltop Works 2
+                  - generic [ref=e292]: Goods Factory
+                - generic [ref=e293]: Idle - awaiting cargo • $200/goods
+              - generic [ref=e294]: Updated <1m ago
+            - listitem [ref=e295]:
+              - generic [ref=e296]:
+                - generic [ref=e297]:
+                  - generic [ref=e298]: Foundry East 3
+                  - generic [ref=e299]: Steel Mill
+                - generic [ref=e300]: Idle - awaiting cargo • $220/steel
+              - generic [ref=e301]: Updated <1m ago
+    - generic [ref=e302]:
+      - generic [ref=e303]:
+        - heading "Northport Junction" [level=3] [ref=e304]
+        - paragraph [ref=e305]: Station
+        - paragraph [ref=e306]: 1200 pax / month
+        - paragraph [ref=e307]: Loading
+      - generic [ref=e308]:
+        - generic [ref=e309]:
+          - generic [ref=e310]: Balance
+          - generic [ref=e311]: $1.2M
+        - generic [ref=e312]:
+          - generic [ref=e313]: Reputation
+          - generic [ref=e314]: A
+        - generic [ref=e315]:
+          - generic [ref=e316]: Network
+          - generic [ref=e317]: 42 stations
+      - generic [ref=e318]:
+        - img "Network minimap" [ref=e319] [cursor=pointer]
+        - generic [ref=e320]:
+          - generic [ref=e321]: Camera
+          - generic [ref=e322]: Azimuth 0°
+```
